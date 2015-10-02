@@ -16,10 +16,10 @@ static NSString *const __nonnull STPSDKVersion = @"5.1.4";
 /**
  *  A callback to be run with the response from the Stripe API.
  *
- *  @param token The Stripe token from the response. Will be nil if an error occurs. @see STPToken
+ *  @param object The Stripe object from the response. Will be nil if an error occurs. @see STPToken, STPProduct, STPOrder, STPCustomer
  *  @param error The error returned from the response, or nil in one occurs. @see StripeError.h for possible values.
  */
-typedef void (^STPCompletionBlock)(STPToken * __nullable token, NSError * __nullable error);
+typedef void (^STPCompletionBlock)(id __nullable object, NSError * __nullable error);
 
 /**
  A top-level class that imports the rest of the Stripe SDK. This class used to contain several methods to create Stripe tokens, but those are now deprecated in
