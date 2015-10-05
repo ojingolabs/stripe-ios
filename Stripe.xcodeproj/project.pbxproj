@@ -312,73 +312,73 @@
 		04F3BB3F1BA89B1200DE235E /* PKPayment+Stripe.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F3BB3C1BA89B1200DE235E /* PKPayment+Stripe.m */; };
 		04F3BB401BA89B1200DE235E /* PKPayment+Stripe.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F3BB3C1BA89B1200DE235E /* PKPayment+Stripe.m */; };
 		20F5205200EE5229179B193B /* STPInventory.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52FA9861458853B0B293A /* STPInventory.m */; };
-		20F520903F61C1D575F3218E /* STPShippingInfos.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52A05217BA03B21439B01 /* STPShippingInfos.h */; };
-		20F520D37FF38E3C7A6C98A5 /* STPInventory.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F5211C489456574935C9D9 /* STPInventory.h */; };
-		20F521126FDB258E43867E25 /* STPInventory.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F5211C489456574935C9D9 /* STPInventory.h */; };
-		20F52120396291CDEAE5AB46 /* STPInventory.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F5211C489456574935C9D9 /* STPInventory.h */; };
 		20F52135FF8E69C6E59B59CB /* STPInventory.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52FA9861458853B0B293A /* STPInventory.m */; };
 		20F521911231BAC718F9951E /* STPInventory.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52FA9861458853B0B293A /* STPInventory.m */; };
-		20F521FFD6305922A28534E8 /* STPShippingInfos.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52A05217BA03B21439B01 /* STPShippingInfos.h */; };
 		20F5227A62A642E53D7C3F73 /* STPShippingMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52B6E045BEAEC0570E58A /* STPShippingMethod.m */; };
 		20F5229620EA089B438249FF /* STPOrderItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52AF55AEB71A31A1C5E4B /* STPOrderItem.m */; };
-		20F5248A961D0D9CCF997EDC /* STPPackage.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52DAB9C3D418D8FD225BE /* STPPackage.h */; };
-		20F525B6185E000D3FE95812 /* STPShippingMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52F90E3C3E46C35F2C2A5 /* STPShippingMethod.h */; };
-		20F52602923CDA573AB65806 /* STPInventory.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F5211C489456574935C9D9 /* STPInventory.h */; };
 		20F52618270CC614B322AF61 /* STPShippingInfos.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52F478FBBD0F7F7E29E6C /* STPShippingInfos.m */; };
 		20F5267DA119E8BFBB971B9D /* STPOrderItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52AF55AEB71A31A1C5E4B /* STPOrderItem.m */; };
 		20F526D2EEAF0E52075226D7 /* STPShippingInfos.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52F478FBBD0F7F7E29E6C /* STPShippingInfos.m */; };
 		20F526E19BEC8E92B6D6B697 /* STPPackage.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F5275BF4E1B43B8AB8478F /* STPPackage.m */; };
-		20F526F1D1E36EECF7DE2284 /* STPPackage.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52DAB9C3D418D8FD225BE /* STPPackage.h */; };
-		20F527A43A2DDBB2B51C6B96 /* STPOrderItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F526D774EDC7DCF8D0AF0D /* STPOrderItem.h */; };
-		20F527B4A650627B342649D7 /* STPOrderItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F526D774EDC7DCF8D0AF0D /* STPOrderItem.h */; };
-		20F528BDEA6359BB9BCBD6F4 /* STPShippingMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52F90E3C3E46C35F2C2A5 /* STPShippingMethod.h */; };
 		20F52966CEE4C2E1144B6CF4 /* STPPackage.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F5275BF4E1B43B8AB8478F /* STPPackage.m */; };
 		20F529AD44283042724B87F5 /* STPPackage.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F5275BF4E1B43B8AB8478F /* STPPackage.m */; };
-		20F529D22B0909896A545024 /* STPShippingInfos.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52A05217BA03B21439B01 /* STPShippingInfos.h */; };
 		20F529E796F18587FF0FECE6 /* STPOrderItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52AF55AEB71A31A1C5E4B /* STPOrderItem.m */; };
-		20F529FEC15CB6211AC4F317 /* STPShippingInfos.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52A05217BA03B21439B01 /* STPShippingInfos.h */; };
-		20F52A84AEC175F2B45862F7 /* STPPackage.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52DAB9C3D418D8FD225BE /* STPPackage.h */; };
-		20F52AE443E0404D7DEB0744 /* STPOrderItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F526D774EDC7DCF8D0AF0D /* STPOrderItem.h */; };
 		20F52B101F569D942525A207 /* STPOrderItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52AF55AEB71A31A1C5E4B /* STPOrderItem.m */; };
-		20F52B23F732F7BC83D01784 /* STPShippingMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52F90E3C3E46C35F2C2A5 /* STPShippingMethod.h */; };
 		20F52B8CAE4CD41772185FFB /* STPShippingMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52B6E045BEAEC0570E58A /* STPShippingMethod.m */; };
-		20F52BED2DEAAC036561D8B4 /* STPPackage.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52DAB9C3D418D8FD225BE /* STPPackage.h */; };
 		20F52C2DEBE99D7489B88161 /* STPShippingInfos.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52F478FBBD0F7F7E29E6C /* STPShippingInfos.m */; };
 		20F52C6E345CD96A4D68B170 /* STPShippingMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52B6E045BEAEC0570E58A /* STPShippingMethod.m */; };
 		20F52E2748273B93CBA8B380 /* STPShippingMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52B6E045BEAEC0570E58A /* STPShippingMethod.m */; };
-		20F52EE90F07A381DA590E1C /* STPShippingMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F52F90E3C3E46C35F2C2A5 /* STPShippingMethod.h */; };
 		20F52F131E924538C6F2C783 /* STPShippingInfos.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52F478FBBD0F7F7E29E6C /* STPShippingInfos.m */; };
-		20F52F1AECA8CEE8E214F3A4 /* STPOrderItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 20F526D774EDC7DCF8D0AF0D /* STPOrderItem.h */; };
 		20F52F9007C8F7B6AB80A6B3 /* STPInventory.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52FA9861458853B0B293A /* STPInventory.m */; };
 		20F52FD43BC990E8BB44C592 /* STPPackage.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F5275BF4E1B43B8AB8478F /* STPPackage.m */; };
-		3FB9386C1BBF24C50043C86F /* STPProduct.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB9386A1BBF24C50043C86F /* STPProduct.h */; };
-		3FB9386D1BBF24C50043C86F /* STPProduct.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB9386A1BBF24C50043C86F /* STPProduct.h */; };
-		3FB9386E1BBF24C50043C86F /* STPProduct.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB9386A1BBF24C50043C86F /* STPProduct.h */; };
-		3FB9386F1BBF24C50043C86F /* STPProduct.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB9386A1BBF24C50043C86F /* STPProduct.h */; };
+		3F861A2D1BC469DA00F3FFEB /* STPCustomer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A241BC469D900F3FFEB /* STPCustomer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A2E1BC469DA00F3FFEB /* STPInventory.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A251BC469DA00F3FFEB /* STPInventory.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A2F1BC469DA00F3FFEB /* STPOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A261BC469DA00F3FFEB /* STPOrder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A301BC469DA00F3FFEB /* STPOrderItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A271BC469DA00F3FFEB /* STPOrderItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A311BC469DA00F3FFEB /* STPPackage.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A281BC469DA00F3FFEB /* STPPackage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A321BC469DA00F3FFEB /* STPProduct.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A291BC469DA00F3FFEB /* STPProduct.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A331BC469DA00F3FFEB /* STPShippingInfos.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2A1BC469DA00F3FFEB /* STPShippingInfos.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A341BC469DA00F3FFEB /* STPShippingMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2B1BC469DA00F3FFEB /* STPShippingMethod.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A351BC469DA00F3FFEB /* STPSku.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2C1BC469DA00F3FFEB /* STPSku.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A361BC46A7800F3FFEB /* STPCustomer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A241BC469D900F3FFEB /* STPCustomer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A371BC46A7800F3FFEB /* STPCustomer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A241BC469D900F3FFEB /* STPCustomer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A381BC46A7B00F3FFEB /* STPCustomer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A241BC469D900F3FFEB /* STPCustomer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A391BC46A9100F3FFEB /* STPInventory.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A251BC469DA00F3FFEB /* STPInventory.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A3A1BC46A9200F3FFEB /* STPInventory.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A251BC469DA00F3FFEB /* STPInventory.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A3B1BC46A9300F3FFEB /* STPInventory.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A251BC469DA00F3FFEB /* STPInventory.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A3C1BC46A9B00F3FFEB /* STPOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A261BC469DA00F3FFEB /* STPOrder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A3D1BC46A9B00F3FFEB /* STPOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A261BC469DA00F3FFEB /* STPOrder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A3E1BC46A9C00F3FFEB /* STPOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A261BC469DA00F3FFEB /* STPOrder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A3F1BC46AA500F3FFEB /* STPOrderItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A271BC469DA00F3FFEB /* STPOrderItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A401BC46AA500F3FFEB /* STPOrderItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A271BC469DA00F3FFEB /* STPOrderItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A411BC46AA600F3FFEB /* STPOrderItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A271BC469DA00F3FFEB /* STPOrderItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A421BC46AB000F3FFEB /* STPPackage.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A281BC469DA00F3FFEB /* STPPackage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A431BC46AB000F3FFEB /* STPPackage.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A281BC469DA00F3FFEB /* STPPackage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A441BC46AB100F3FFEB /* STPPackage.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A281BC469DA00F3FFEB /* STPPackage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A451BC46AB900F3FFEB /* STPProduct.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A291BC469DA00F3FFEB /* STPProduct.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A461BC46AB900F3FFEB /* STPProduct.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A291BC469DA00F3FFEB /* STPProduct.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A471BC46ABA00F3FFEB /* STPProduct.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A291BC469DA00F3FFEB /* STPProduct.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A481BC46AC200F3FFEB /* STPShippingInfos.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2A1BC469DA00F3FFEB /* STPShippingInfos.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A491BC46AC300F3FFEB /* STPShippingInfos.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2A1BC469DA00F3FFEB /* STPShippingInfos.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A4A1BC46AC300F3FFEB /* STPShippingInfos.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2A1BC469DA00F3FFEB /* STPShippingInfos.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A4B1BC46ACB00F3FFEB /* STPShippingMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2B1BC469DA00F3FFEB /* STPShippingMethod.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A4C1BC46ACC00F3FFEB /* STPShippingMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2B1BC469DA00F3FFEB /* STPShippingMethod.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A4D1BC46ACC00F3FFEB /* STPShippingMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2B1BC469DA00F3FFEB /* STPShippingMethod.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A4E1BC46AD400F3FFEB /* STPSku.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2C1BC469DA00F3FFEB /* STPSku.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A4F1BC46AD400F3FFEB /* STPSku.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2C1BC469DA00F3FFEB /* STPSku.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3F861A501BC46AD500F3FFEB /* STPSku.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F861A2C1BC469DA00F3FFEB /* STPSku.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3FB938701BBF24C50043C86F /* STPProduct.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB9386B1BBF24C50043C86F /* STPProduct.m */; };
 		3FB938711BBF24C50043C86F /* STPProduct.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB9386B1BBF24C50043C86F /* STPProduct.m */; };
 		3FB938721BBF24C50043C86F /* STPProduct.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB9386B1BBF24C50043C86F /* STPProduct.m */; };
 		3FB938731BBF24C50043C86F /* STPProduct.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB9386B1BBF24C50043C86F /* STPProduct.m */; };
-		3FB938761BBF26910043C86F /* STPSku.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB938741BBF26910043C86F /* STPSku.h */; };
-		3FB938771BBF26910043C86F /* STPSku.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB938741BBF26910043C86F /* STPSku.h */; };
-		3FB938781BBF26910043C86F /* STPSku.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB938741BBF26910043C86F /* STPSku.h */; };
-		3FB938791BBF26910043C86F /* STPSku.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB938741BBF26910043C86F /* STPSku.h */; };
 		3FB9387A1BBF26910043C86F /* STPSku.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938751BBF26910043C86F /* STPSku.m */; };
 		3FB9387B1BBF26910043C86F /* STPSku.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938751BBF26910043C86F /* STPSku.m */; };
 		3FB9387C1BBF26910043C86F /* STPSku.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938751BBF26910043C86F /* STPSku.m */; };
 		3FB9387D1BBF26910043C86F /* STPSku.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938751BBF26910043C86F /* STPSku.m */; };
-		3FB938801BBF26990043C86F /* STPCustomer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB9387E1BBF26990043C86F /* STPCustomer.h */; };
-		3FB938811BBF26990043C86F /* STPCustomer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB9387E1BBF26990043C86F /* STPCustomer.h */; };
-		3FB938821BBF26990043C86F /* STPCustomer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB9387E1BBF26990043C86F /* STPCustomer.h */; };
-		3FB938831BBF26990043C86F /* STPCustomer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB9387E1BBF26990043C86F /* STPCustomer.h */; };
 		3FB938841BBF26990043C86F /* STPCustomer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB9387F1BBF26990043C86F /* STPCustomer.m */; };
 		3FB938851BBF26990043C86F /* STPCustomer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB9387F1BBF26990043C86F /* STPCustomer.m */; };
 		3FB938861BBF26990043C86F /* STPCustomer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB9387F1BBF26990043C86F /* STPCustomer.m */; };
 		3FB938871BBF26990043C86F /* STPCustomer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB9387F1BBF26990043C86F /* STPCustomer.m */; };
-		3FB9388A1BBF26A20043C86F /* STPOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB938881BBF26A20043C86F /* STPOrder.h */; };
-		3FB9388B1BBF26A20043C86F /* STPOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB938881BBF26A20043C86F /* STPOrder.h */; };
-		3FB9388C1BBF26A20043C86F /* STPOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB938881BBF26A20043C86F /* STPOrder.h */; };
-		3FB9388D1BBF26A20043C86F /* STPOrder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FB938881BBF26A20043C86F /* STPOrder.h */; };
 		3FB9388E1BBF26A20043C86F /* STPOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938891BBF26A20043C86F /* STPOrder.m */; };
 		3FB9388F1BBF26A20043C86F /* STPOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938891BBF26A20043C86F /* STPOrder.m */; };
 		3FB938901BBF26A20043C86F /* STPOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938891BBF26A20043C86F /* STPOrder.m */; };
@@ -541,23 +541,23 @@
 		04F3BB3B1BA89B1200DE235E /* PKPayment+Stripe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PKPayment+Stripe.h"; sourceTree = "<group>"; };
 		04F3BB3C1BA89B1200DE235E /* PKPayment+Stripe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PKPayment+Stripe.m"; sourceTree = "<group>"; };
 		11C74B9B164043050071C2CA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		20F5211C489456574935C9D9 /* STPInventory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPInventory.h; path = Stripe/STPInventory.h; sourceTree = SOURCE_ROOT; };
-		20F526D774EDC7DCF8D0AF0D /* STPOrderItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPOrderItem.h; path = Stripe/STPOrderItem.h; sourceTree = SOURCE_ROOT; };
 		20F5275BF4E1B43B8AB8478F /* STPPackage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STPPackage.m; path = Stripe/STPPackage.m; sourceTree = SOURCE_ROOT; };
-		20F52A05217BA03B21439B01 /* STPShippingInfos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPShippingInfos.h; path = Stripe/STPShippingInfos.h; sourceTree = SOURCE_ROOT; };
 		20F52AF55AEB71A31A1C5E4B /* STPOrderItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STPOrderItem.m; path = Stripe/STPOrderItem.m; sourceTree = SOURCE_ROOT; };
 		20F52B6E045BEAEC0570E58A /* STPShippingMethod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STPShippingMethod.m; path = Stripe/STPShippingMethod.m; sourceTree = SOURCE_ROOT; };
-		20F52DAB9C3D418D8FD225BE /* STPPackage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPPackage.h; path = Stripe/STPPackage.h; sourceTree = SOURCE_ROOT; };
 		20F52F478FBBD0F7F7E29E6C /* STPShippingInfos.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STPShippingInfos.m; path = Stripe/STPShippingInfos.m; sourceTree = SOURCE_ROOT; };
-		20F52F90E3C3E46C35F2C2A5 /* STPShippingMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPShippingMethod.h; path = Stripe/STPShippingMethod.h; sourceTree = SOURCE_ROOT; };
 		20F52FA9861458853B0B293A /* STPInventory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STPInventory.m; path = Stripe/STPInventory.m; sourceTree = SOURCE_ROOT; };
-		3FB9386A1BBF24C50043C86F /* STPProduct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STPProduct.h; sourceTree = "<group>"; };
+		3F861A241BC469D900F3FFEB /* STPCustomer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPCustomer.h; path = PublicHeaders/STPCustomer.h; sourceTree = "<group>"; };
+		3F861A251BC469DA00F3FFEB /* STPInventory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPInventory.h; path = PublicHeaders/STPInventory.h; sourceTree = "<group>"; };
+		3F861A261BC469DA00F3FFEB /* STPOrder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPOrder.h; path = PublicHeaders/STPOrder.h; sourceTree = "<group>"; };
+		3F861A271BC469DA00F3FFEB /* STPOrderItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPOrderItem.h; path = PublicHeaders/STPOrderItem.h; sourceTree = "<group>"; };
+		3F861A281BC469DA00F3FFEB /* STPPackage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPPackage.h; path = PublicHeaders/STPPackage.h; sourceTree = "<group>"; };
+		3F861A291BC469DA00F3FFEB /* STPProduct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPProduct.h; path = PublicHeaders/STPProduct.h; sourceTree = "<group>"; };
+		3F861A2A1BC469DA00F3FFEB /* STPShippingInfos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPShippingInfos.h; path = PublicHeaders/STPShippingInfos.h; sourceTree = "<group>"; };
+		3F861A2B1BC469DA00F3FFEB /* STPShippingMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPShippingMethod.h; path = PublicHeaders/STPShippingMethod.h; sourceTree = "<group>"; };
+		3F861A2C1BC469DA00F3FFEB /* STPSku.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STPSku.h; path = PublicHeaders/STPSku.h; sourceTree = "<group>"; };
 		3FB9386B1BBF24C50043C86F /* STPProduct.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPProduct.m; sourceTree = "<group>"; };
-		3FB938741BBF26910043C86F /* STPSku.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STPSku.h; sourceTree = "<group>"; };
 		3FB938751BBF26910043C86F /* STPSku.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPSku.m; sourceTree = "<group>"; };
-		3FB9387E1BBF26990043C86F /* STPCustomer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STPCustomer.h; sourceTree = "<group>"; };
 		3FB9387F1BBF26990043C86F /* STPCustomer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPCustomer.m; sourceTree = "<group>"; };
-		3FB938881BBF26A20043C86F /* STPOrder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STPOrder.h; sourceTree = "<group>"; };
 		3FB938891BBF26A20043C86F /* STPOrder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPOrder.m; sourceTree = "<group>"; };
 		4A0D74F918F6106100966D7B /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		FAFC12C516E5767F0066297F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -727,28 +727,28 @@
 				04EBC7511B7533C300A0E6AE /* STPCardValidationState.h */,
 				04EBC7521B7533C300A0E6AE /* STPCardValidator.h */,
 				0438EF3F1B74170D00D506CC /* STPCardValidator.m */,
+				3F861A241BC469D900F3FFEB /* STPCustomer.h */,
+				3FB9387F1BBF26990043C86F /* STPCustomer.m */,
+				3F861A251BC469DA00F3FFEB /* STPInventory.h */,
+				20F52FA9861458853B0B293A /* STPInventory.m */,
+				3F861A261BC469DA00F3FFEB /* STPOrder.h */,
+				3FB938891BBF26A20043C86F /* STPOrder.m */,
+				3F861A271BC469DA00F3FFEB /* STPOrderItem.h */,
+				20F52AF55AEB71A31A1C5E4B /* STPOrderItem.m */,
+				3F861A281BC469DA00F3FFEB /* STPPackage.h */,
+				20F5275BF4E1B43B8AB8478F /* STPPackage.m */,
+				3F861A291BC469DA00F3FFEB /* STPProduct.h */,
+				3FB9386B1BBF24C50043C86F /* STPProduct.m */,
+				3F861A2A1BC469DA00F3FFEB /* STPShippingInfos.h */,
+				20F52F478FBBD0F7F7E29E6C /* STPShippingInfos.m */,
+				3F861A2B1BC469DA00F3FFEB /* STPShippingMethod.h */,
+				20F52B6E045BEAEC0570E58A /* STPShippingMethod.m */,
+				3F861A2C1BC469DA00F3FFEB /* STPSku.h */,
+				3FB938751BBF26910043C86F /* STPSku.m */,
 				04CDB4CC1A5F30A700B854EE /* STPToken.h */,
 				04CDB4CD1A5F30A700B854EE /* STPToken.m */,
 				04CDB4CE1A5F30A700B854EE /* StripeError.h */,
 				04CDB4CF1A5F30A700B854EE /* StripeError.m */,
-				3FB9386A1BBF24C50043C86F /* STPProduct.h */,
-				3FB9386B1BBF24C50043C86F /* STPProduct.m */,
-				3FB938741BBF26910043C86F /* STPSku.h */,
-				3FB938751BBF26910043C86F /* STPSku.m */,
-				3FB9387E1BBF26990043C86F /* STPCustomer.h */,
-				3FB9387F1BBF26990043C86F /* STPCustomer.m */,
-				3FB938881BBF26A20043C86F /* STPOrder.h */,
-				3FB938891BBF26A20043C86F /* STPOrder.m */,
-				20F5275BF4E1B43B8AB8478F /* STPPackage.m */,
-				20F52DAB9C3D418D8FD225BE /* STPPackage.h */,
-				20F52FA9861458853B0B293A /* STPInventory.m */,
-				20F5211C489456574935C9D9 /* STPInventory.h */,
-				20F52F478FBBD0F7F7E29E6C /* STPShippingInfos.m */,
-				20F52A05217BA03B21439B01 /* STPShippingInfos.h */,
-				20F52AF55AEB71A31A1C5E4B /* STPOrderItem.m */,
-				20F526D774EDC7DCF8D0AF0D /* STPOrderItem.h */,
-				20F52B6E045BEAEC0570E58A /* STPShippingMethod.m */,
-				20F52F90E3C3E46C35F2C2A5 /* STPShippingMethod.h */,
 			);
 			name = Stripe;
 			path = Tests/../Stripe;
@@ -852,6 +852,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F861A481BC46AC200F3FFEB /* STPShippingInfos.h in Headers */,
 				04EBC7541B7533C300A0E6AE /* STPCardValidationState.h in Headers */,
 				04EBC7581B7533C300A0E6AE /* STPCardValidator.h in Headers */,
 				04415C721A6605D9001225ED /* Stripe.h in Headers */,
@@ -859,33 +860,32 @@
 				04415C741A6605D9001225ED /* Stripe+ApplePay.h in Headers */,
 				04415C761A6605D9001225ED /* STPCheckoutOptions.h in Headers */,
 				0438EF2D1B7416BB00D506CC /* STPFormTextField.h in Headers */,
+				3F861A3C1BC46A9B00F3FFEB /* STPOrder.h in Headers */,
 				04415C771A6605D9001225ED /* STPCheckoutViewController.h in Headers */,
 				04415C7F1A6605D9001225ED /* STPAPIClient.h in Headers */,
 				04415C821A6605D9001225ED /* STPBankAccount.h in Headers */,
-				3FB9388B1BBF26A20043C86F /* STPOrder.h in Headers */,
 				04415C831A6605D9001225ED /* STPCard.h in Headers */,
 				0438EF481B74183100D506CC /* STPCardBrand.h in Headers */,
-				3FB938811BBF26990043C86F /* STPCustomer.h in Headers */,
 				04415C841A6605D9001225ED /* STPToken.h in Headers */,
 				04E32A9E1B7A9490009C9E35 /* STPPaymentCardTextField.h in Headers */,
 				04415C851A6605D9001225ED /* StripeError.h in Headers */,
 				04415C781A6605D9001225ED /* STPCheckoutDelegate.h in Headers */,
+				3F861A4E1BC46AD400F3FFEB /* STPSku.h in Headers */,
 				04415C791A6605D9001225ED /* STPCheckoutInternalUIWebViewController.h in Headers */,
 				04415C7A1A6605D9001225ED /* STPCheckoutWebViewAdapter.h in Headers */,
-				3FB9386D1BBF24C50043C86F /* STPProduct.h in Headers */,
+				3F861A451BC46AB900F3FFEB /* STPProduct.h in Headers */,
+				3F861A421BC46AB000F3FFEB /* STPPackage.h in Headers */,
 				04415C7B1A6605D9001225ED /* STPColorUtils.h in Headers */,
 				0438EF391B7416BB00D506CC /* STPPaymentCardTextFieldViewModel.h in Headers */,
-				3FB938771BBF26910043C86F /* STPSku.h in Headers */,
+				3F861A391BC46A9100F3FFEB /* STPInventory.h in Headers */,
 				04415C7C1A6605D9001225ED /* STPIOSCheckoutWebViewAdapter.h in Headers */,
 				04415C7D1A6605D9001225ED /* STPOSXCheckoutWebViewAdapter.h in Headers */,
 				04415C7E1A6605D9001225ED /* STPStrictURLProtocol.h in Headers */,
 				04415C801A6605D9001225ED /* STPFormEncoder.h in Headers */,
+				3F861A361BC46A7800F3FFEB /* STPCustomer.h in Headers */,
+				3F861A4B1BC46ACB00F3FFEB /* STPShippingMethod.h in Headers */,
 				04415C811A6605D9001225ED /* STPAPIConnection.h in Headers */,
-				20F52BED2DEAAC036561D8B4 /* STPPackage.h in Headers */,
-				20F521126FDB258E43867E25 /* STPInventory.h in Headers */,
-				20F521FFD6305922A28534E8 /* STPShippingInfos.h in Headers */,
-				20F527B4A650627B342649D7 /* STPOrderItem.h in Headers */,
-				20F52EE90F07A381DA590E1C /* STPShippingMethod.h in Headers */,
+				3F861A401BC46AA500F3FFEB /* STPOrderItem.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -897,37 +897,37 @@
 				04EBC75A1B7533C300A0E6AE /* STPCardValidator.h in Headers */,
 				049E84D91A605EF0000B66CD /* Stripe.h in Headers */,
 				049E84DA1A605EF0000B66CD /* STPAPIClient+ApplePay.h in Headers */,
-				3FB938831BBF26990043C86F /* STPCustomer.h in Headers */,
-				3FB938791BBF26910043C86F /* STPSku.h in Headers */,
+				3F861A501BC46AD500F3FFEB /* STPSku.h in Headers */,
 				049E84DB1A605EF0000B66CD /* Stripe+ApplePay.h in Headers */,
 				049E84DD1A605EF0000B66CD /* STPCheckoutOptions.h in Headers */,
+				3F861A441BC46AB100F3FFEB /* STPPackage.h in Headers */,
 				0438EF2E1B7416BB00D506CC /* STPFormTextField.h in Headers */,
 				049E84DE1A605EF0000B66CD /* STPCheckoutViewController.h in Headers */,
 				049E84E61A605EF0000B66CD /* STPAPIClient.h in Headers */,
 				049E84E91A605EF0000B66CD /* STPBankAccount.h in Headers */,
+				3F861A3E1BC46A9C00F3FFEB /* STPOrder.h in Headers */,
 				049E84EA1A605EF0000B66CD /* STPCard.h in Headers */,
+				3F861A4D1BC46ACC00F3FFEB /* STPShippingMethod.h in Headers */,
 				049E84EB1A605EF0000B66CD /* STPToken.h in Headers */,
 				04E32AA01B7A9490009C9E35 /* STPPaymentCardTextField.h in Headers */,
+				3F861A381BC46A7B00F3FFEB /* STPCustomer.h in Headers */,
 				0438EF491B74183100D506CC /* STPCardBrand.h in Headers */,
 				049E84EC1A605EF0000B66CD /* StripeError.h in Headers */,
-				3FB9388D1BBF26A20043C86F /* STPOrder.h in Headers */,
+				3F861A4A1BC46AC300F3FFEB /* STPShippingInfos.h in Headers */,
 				049E84DF1A605EF0000B66CD /* STPCheckoutDelegate.h in Headers */,
 				049E84E01A605EF0000B66CD /* STPCheckoutInternalUIWebViewController.h in Headers */,
 				04F3BB3E1BA89B1200DE235E /* PKPayment+Stripe.h in Headers */,
 				049E84E11A605EF0000B66CD /* STPCheckoutWebViewAdapter.h in Headers */,
-				3FB9386F1BBF24C50043C86F /* STPProduct.h in Headers */,
 				049E84E21A605EF0000B66CD /* STPColorUtils.h in Headers */,
+				3F861A411BC46AA600F3FFEB /* STPOrderItem.h in Headers */,
+				3F861A3B1BC46A9300F3FFEB /* STPInventory.h in Headers */,
 				0438EF3A1B7416BB00D506CC /* STPPaymentCardTextFieldViewModel.h in Headers */,
+				3F861A471BC46ABA00F3FFEB /* STPProduct.h in Headers */,
 				049E84E31A605EF0000B66CD /* STPIOSCheckoutWebViewAdapter.h in Headers */,
 				049E84E41A605EF0000B66CD /* STPOSXCheckoutWebViewAdapter.h in Headers */,
 				049E84E51A605EF0000B66CD /* STPStrictURLProtocol.h in Headers */,
 				049E84E71A605EF0000B66CD /* STPFormEncoder.h in Headers */,
 				049E84E81A605EF0000B66CD /* STPAPIConnection.h in Headers */,
-				20F52A84AEC175F2B45862F7 /* STPPackage.h in Headers */,
-				20F520D37FF38E3C7A6C98A5 /* STPInventory.h in Headers */,
-				20F529FEC15CB6211AC4F317 /* STPShippingInfos.h in Headers */,
-				20F527A43A2DDBB2B51C6B96 /* STPOrderItem.h in Headers */,
-				20F528BDEA6359BB9BCBD6F4 /* STPShippingMethod.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -939,37 +939,37 @@
 				04EBC7571B7533C300A0E6AE /* STPCardValidator.h in Headers */,
 				04CDB4EE1A5F30A700B854EE /* STPColorUtils.h in Headers */,
 				04CDB4F61A5F30A700B854EE /* STPOSXCheckoutWebViewAdapter.h in Headers */,
-				3FB938801BBF26990043C86F /* STPCustomer.h in Headers */,
-				3FB938761BBF26910043C86F /* STPSku.h in Headers */,
+				3F861A351BC469DA00F3FFEB /* STPSku.h in Headers */,
 				04CDB50E1A5F30A700B854EE /* STPCard.h in Headers */,
 				04CDB4E41A5F30A700B854EE /* STPCheckoutViewController.h in Headers */,
+				3F861A311BC469DA00F3FFEB /* STPPackage.h in Headers */,
 				0438EF2C1B7416BB00D506CC /* STPFormTextField.h in Headers */,
 				04CDB50A1A5F30A700B854EE /* STPBankAccount.h in Headers */,
 				04CDB5121A5F30A700B854EE /* STPToken.h in Headers */,
 				04CDB4D81A5F30A700B854EE /* Stripe+ApplePay.h in Headers */,
+				3F861A2F1BC469DA00F3FFEB /* STPOrder.h in Headers */,
 				0438EF471B74183100D506CC /* STPCardBrand.h in Headers */,
+				3F861A341BC469DA00F3FFEB /* STPShippingMethod.h in Headers */,
 				04CDB5161A5F30A700B854EE /* StripeError.h in Headers */,
 				04CDB4D41A5F30A700B854EE /* STPAPIClient+ApplePay.h in Headers */,
+				3F861A2D1BC469DA00F3FFEB /* STPCustomer.h in Headers */,
 				04E32A9D1B7A9490009C9E35 /* STPPaymentCardTextField.h in Headers */,
 				04CDB4E01A5F30A700B854EE /* STPCheckoutOptions.h in Headers */,
-				3FB9388A1BBF26A20043C86F /* STPOrder.h in Headers */,
+				3F861A331BC469DA00F3FFEB /* STPShippingInfos.h in Headers */,
 				04CDB5021A5F30A700B854EE /* STPFormEncoder.h in Headers */,
 				04CDB4E81A5F30A700B854EE /* STPCheckoutDelegate.h in Headers */,
 				04F3BB3D1BA89B1200DE235E /* PKPayment+Stripe.h in Headers */,
 				04CDB4ED1A5F30A700B854EE /* STPCheckoutWebViewAdapter.h in Headers */,
-				3FB9386C1BBF24C50043C86F /* STPProduct.h in Headers */,
 				04CDB4E91A5F30A700B854EE /* STPCheckoutInternalUIWebViewController.h in Headers */,
+				3F861A301BC469DA00F3FFEB /* STPOrderItem.h in Headers */,
+				3F861A2E1BC469DA00F3FFEB /* STPInventory.h in Headers */,
 				0438EF381B7416BB00D506CC /* STPPaymentCardTextFieldViewModel.h in Headers */,
+				3F861A321BC469DA00F3FFEB /* STPProduct.h in Headers */,
 				04CDB5061A5F30A700B854EE /* STPAPIConnection.h in Headers */,
 				04CDB4FA1A5F30A700B854EE /* STPStrictURLProtocol.h in Headers */,
 				04CDB4D31A5F30A700B854EE /* Stripe.h in Headers */,
 				04CDB4F21A5F30A700B854EE /* STPIOSCheckoutWebViewAdapter.h in Headers */,
 				04CDB4FE1A5F30A700B854EE /* STPAPIClient.h in Headers */,
-				20F5248A961D0D9CCF997EDC /* STPPackage.h in Headers */,
-				20F52120396291CDEAE5AB46 /* STPInventory.h in Headers */,
-				20F520903F61C1D575F3218E /* STPShippingInfos.h in Headers */,
-				20F52F1AECA8CEE8E214F3A4 /* STPOrderItem.h in Headers */,
-				20F525B6185E000D3FE95812 /* STPShippingMethod.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -978,17 +978,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				04EBC7591B7533C300A0E6AE /* STPCardValidator.h in Headers */,
+				3F861A3D1BC46A9B00F3FFEB /* STPOrder.h in Headers */,
+				3F861A3A1BC46A9200F3FFEB /* STPInventory.h in Headers */,
 				04EBC7551B7533C300A0E6AE /* STPCardValidationState.h in Headers */,
-				3FB938781BBF26910043C86F /* STPSku.h in Headers */,
-				3FB938821BBF26990043C86F /* STPCustomer.h in Headers */,
 				04D12C2C1A5F55D10010446E /* Stripe.h in Headers */,
 				04D12C301A5F55D10010446E /* STPCheckoutOptions.h in Headers */,
 				04D12C311A5F55D10010446E /* STPCheckoutViewController.h in Headers */,
+				3F861A4C1BC46ACC00F3FFEB /* STPShippingMethod.h in Headers */,
 				04D12C391A5F55D10010446E /* STPAPIClient.h in Headers */,
 				04D12C3C1A5F55D10010446E /* STPBankAccount.h in Headers */,
-				3FB9386E1BBF24C50043C86F /* STPProduct.h in Headers */,
+				3F861A491BC46AC300F3FFEB /* STPShippingInfos.h in Headers */,
+				3F861A431BC46AB000F3FFEB /* STPPackage.h in Headers */,
 				04D12C3D1A5F55D10010446E /* STPCard.h in Headers */,
-				3FB9388C1BBF26A20043C86F /* STPOrder.h in Headers */,
 				04D12C3E1A5F55D10010446E /* STPToken.h in Headers */,
 				04D12C3F1A5F55D10010446E /* StripeError.h in Headers */,
 				0438EFDB1B7524AA00D506CC /* STPCardBrand.h in Headers */,
@@ -996,16 +997,15 @@
 				04D12C331A5F55D10010446E /* STPCheckoutInternalUIWebViewController.h in Headers */,
 				04D12C341A5F55D10010446E /* STPCheckoutWebViewAdapter.h in Headers */,
 				04D12C351A5F55D10010446E /* STPColorUtils.h in Headers */,
+				3F861A461BC46AB900F3FFEB /* STPProduct.h in Headers */,
 				04D12C361A5F55D10010446E /* STPIOSCheckoutWebViewAdapter.h in Headers */,
 				04D12C371A5F55D10010446E /* STPOSXCheckoutWebViewAdapter.h in Headers */,
 				04D12C381A5F55D10010446E /* STPStrictURLProtocol.h in Headers */,
 				04D12C3A1A5F55D10010446E /* STPFormEncoder.h in Headers */,
+				3F861A371BC46A7800F3FFEB /* STPCustomer.h in Headers */,
+				3F861A3F1BC46AA500F3FFEB /* STPOrderItem.h in Headers */,
+				3F861A4F1BC46AD400F3FFEB /* STPSku.h in Headers */,
 				04D12C3B1A5F55D10010446E /* STPAPIConnection.h in Headers */,
-				20F526F1D1E36EECF7DE2284 /* STPPackage.h in Headers */,
-				20F52602923CDA573AB65806 /* STPInventory.h in Headers */,
-				20F529D22B0909896A545024 /* STPShippingInfos.h in Headers */,
-				20F52AE443E0404D7DEB0744 /* STPOrderItem.h in Headers */,
-				20F52B23F732F7BC83D01784 /* STPShippingMethod.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,6 +8,8 @@
 
 @interface STPPackage : NSObject
 
+- (nonnull instancetype)initWithAttributeDictionary:(nonnull NSDictionary *)attributeDictionary;
+
 /**
  *  Height, in inches. Maximum precision is 2 decimal places.
  */

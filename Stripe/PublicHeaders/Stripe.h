@@ -15,6 +15,16 @@
 #import "STPCardValidator.h"
 #import "STPToken.h"
 
+#import "STPCustomer.h"
+#import "STPInventory.h"
+#import "STPOrder.h"
+#import "STPOrderItem.h"
+#import "STPPackage.h"
+#import "STPProduct.h"
+#import "STPShippingInfos.h"
+#import "STPShippingMethod.h"
+#import "STPSku.h"
+
 #import "STPCheckoutOptions.h"
 #import "STPCheckoutViewController.h"
 

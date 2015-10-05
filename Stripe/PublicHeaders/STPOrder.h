@@ -27,14 +27,14 @@ typedef NS_ENUM(NSInteger, STPOrderStatus) {
 /**
  *  The Stripe ID for the order.
  */
-@property (nonatomic, readonly, nullable) NSString *orderId;
+@property (nonatomic, readonly, nullable, copy) NSString *orderId;
 
 /**
  *  A positive integer in the smallest currency unit
  *  (that is, 100 cents for $1.00, or 1 for ¥1, Japanese Yen being a 0-decimal currency) representing the total amount for the order.
  *
  */
-@property (nonatomic, readonly, nonnull) NSInteger *amount;
+@property (nonatomic, readonly) NSInteger amount;
 
 /**
  *  3-letter ISO code representing the currency in which the order was made.
@@ -57,30 +57,35 @@ typedef NS_ENUM(NSInteger, STPOrderStatus) {
 /**
  *  The ID of the payment used to pay for the order. Present if the order status is paid, fulfilled, or refunded.
  */
-@property (nonatomic, readonly, nullable) NSString *chargeId;
+@property (nonatomic, readonly, copy, nullable) NSString *chargeId;
 
 /**
  *  The customer used for the order.
  */
-@property (nonatomic, readonly, nullable) STPCustomer *customer;
+@property (nonatomic, nullable) STPCustomer *customer;
+
+/**
+ *  The customerId used for the order.
+ */
+@property (nonatomic, copy, nullable) NSString *customerId;
 
 /**
  * A list of supported shipping methods for this order.
  * The desired shipping method can be specified either by updating the order, or when paying it.
  */
-@property (nonatomic, copy, nullable) NSArray<STPShippingMethod*> *shippingMethods;
+@property (nonatomic, nullable) NSArray<STPShippingMethod*> *shippingMethods;
 
 /**
- *  The shipping method that is currencly selected for this order, if any.
+ *  The shipping method that is currently selected for this order, if any.
  *  If present, it is equal to one of the ids of shipping methods in the shipping_methods array.
  *  At order creation time, if there are multiple shipping methods, Stripe will automatically selected the first method.
  */
-@property (nonatomic, readonly, nullable) STPCustomer *selectedShippingMethodId;
+@property (nonatomic, copy, nullable) NSString *selectedShippingMethodId;
 
 /**
  * The shipping address for the order. Present if the order is for goods to be shipped.
  */
-@property (nonatomic, copy, nullable) NSArray<STPShippingInfos*> *shippingInfos;
+@property (nonatomic, nullable) STPShippingInfos *shippingInfos;
 
 /**
  * List of items constituting the order.
@@ -88,5 +93,13 @@ typedef NS_ENUM(NSInteger, STPOrderStatus) {
  */
 @property (nonatomic, copy, nullable) NSArray<STPOrderItem*> *items;
 
++ (nonnull NSString*)orderStatusToString:(STPOrderStatus)orderStatus;
 
 @end
+
+// This method is used internally by Stripe to deserialize API responses and exposed here for convenience and testing purposes only. You should not use it in
+// your own code.
+@interface STPOrder (PrivateMethods)
+- (nonnull instancetype)initWithAttributeDictionary:(nonnull NSDictionary *)attributeDictionary;
+@end
+

@@ -25,7 +25,7 @@
 /**
  *  Whether or not the product is currently available for purchase.
  */
-@property (nonatomic, nullable, copy) NSArray<NSData*>* images;
+@property (nonatomic, nullable, copy) NSArray<NSString*>* images;
 
 /**
  *  The product’s name, meant to be displayable to the customer.
@@ -69,5 +69,10 @@
  */
 @property (nonatomic, copy, nullable) STPPackage *packageDimensions;
 
+@end
 
+// This method is used internally by Stripe to deserialize API responses and exposed here for convenience and testing purposes only. You should not use it in
+// your own code.
+@interface STPProduct (PrivateMethods)
+- (nonnull instancetype)initWithAttributeDictionary:(nonnull NSDictionary *)attributeDictionary;
 @end

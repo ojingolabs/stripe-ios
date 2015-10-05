@@ -24,7 +24,7 @@ typedef NS_ENUM(NSInteger, STPOrderItemType) {
  *  (that is, 100 cents for $1.00, or 1 for ¥1, Japanese Yen being a 0-decimal currency)
  *  representing the total amount for the line item.
  */
-@property (nonatomic, readonly) NSInteger *amount;
+@property (nonatomic) NSInteger amount;
 
 /**
  *  3-letter ISO code representing the currency of the line item.
@@ -37,7 +37,7 @@ typedef NS_ENUM(NSInteger, STPOrderItemType) {
 @property (nonatomic, copy, nullable) NSString *itemDescription;
 
 /**
- *  Current order status. One of created, paid, canceled, fulfilled, or returned.
+ *  Current order item type. Can be Sku, Tax, Shipping or Discount
  */
 @property (nonatomic) STPOrderItemType type;
 
@@ -50,6 +50,8 @@ typedef NS_ENUM(NSInteger, STPOrderItemType) {
  * A positive integer representing the number of instances of parent that are included in this order item.
  * Applicable/present only if type is sku.
  */
-@property (nonatomic, readonly) NSInteger *quantity;
+@property (nonatomic) NSInteger quantity;
+
+- (nullable NSDictionary*)dictionaryOutputWithIndex:(int)idx;
 
 @end

@@ -39,9 +39,20 @@
 @property (nonatomic, copy, nullable) NSArray<STPCard*> *sources;
 
 /**
+ * ID of the default source attached to this customer.
+ */
+@property (nonatomic, copy, nullable) NSString *defaultSourceId;
+
+/**
  * Shipping information associated with the customer.
  */
-@property (nonatomic, copy, nullable) NSArray<STPShippingInfos*> *shippingInfos;
-
+@property (nonatomic, nullable) STPShippingInfos *shippingInfos;
 
 @end
+
+// This method is used internally by Stripe to deserialize API responses and exposed here for convenience and testing purposes only. You should not use it in
+// your own code.
+@interface STPCustomer (PrivateMethods)
+- (nonnull instancetype)initWithAttributeDictionary:(nonnull NSDictionary *)attributeDictionary;
+@end
+

@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class STPPackage, STPInventory;
+@class STPPackage, STPInventory, STPSku;
 
 @interface STPSku : NSObject
 
@@ -38,14 +38,14 @@
 /**
  *  The URL of an image for this SKU, meant to be displayable to the customer.
  */
-@property (nonatomic, nullable, copy) NSData* image;
+@property (nonatomic, nullable, copy) NSString* imageURL;
 
 /**
  *  The cost of the item as a positive integer in the smallest currency unit
  *  (that is, 100 cents to charge $1.00, or 1 to charge ¥1, Japanese Yen being a 0-decimal currency).
  *
  */
-@property (nonatomic, nonnull) NSInteger *price;
+@property (nonatomic) NSInteger price;
 
 /**
  *  3-letter ISO code for currency.
@@ -59,13 +59,15 @@
 @property (nonatomic, copy, nullable) STPInventory *inventory;
 
 /**
- * The dimensions of this product, from the perspective of shipping.
- * A SKU associated with this product can override this value by having its own `STPPackage`
+ * The dimensions of this SKU, from the perspective of shipping.
  *
  */
 @property (nonatomic, copy, nullable) STPPackage *packageDimensions;
 
+@end
 
-
-
+// This method is used internally by Stripe to deserialize API responses and exposed here for convenience and testing purposes only. You should not use it in
+// your own code.
+@interface STPSku (PrivateMethods)
+- (nonnull instancetype)initWithAttributeDictionary:(nonnull NSDictionary *)attributeDictionary;
 @end

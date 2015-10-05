@@ -7,10 +7,12 @@
 
 @interface STPShippingInfos : NSObject
 
+- (nonnull instancetype)initWithAttributeDictionary:(nonnull NSDictionary *)attributeDictionary;
+
 /**
  *  Shipping info's name. Required
  */
-@property (nonatomic, copy) NSString *infosName;
+@property (nonatomic, copy, nonnull) NSString *infosName;
 
 /**
  *  Shipping info's phone
@@ -20,30 +22,34 @@
 /**
  *  Shipping info's line1. Required
  */
-@property (nonatomic, copy) NSString *line1;
+@property (nonatomic, copy, nonnull) NSString *line1;
 
 /**
  *  Shipping info's line2
  */
 @property (nonatomic, copy, nullable) NSString *line2;
 
+/**
+ *  Shipping info's city
+ */
+@property (nonatomic, copy, nullable) NSString *city;
 
 /**
  *  Shipping info's country
  */
 @property (nonatomic, copy, nullable) NSString *country;
 
-
 /**
  *  Shipping info's postalCode
  */
 @property (nonatomic, copy, nullable) NSString *postalCode;
-
 
 /**
  *  Shipping info's state
  */
 @property (nonatomic, copy, nullable) NSString *state;
 
+- (nullable NSDictionary*)dictionaryOutput;
+- (BOOL)isEqualToShippingInfos:(nonnull STPShippingInfos*)shippingInfos;
 
 @end

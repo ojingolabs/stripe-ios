@@ -19,7 +19,7 @@
  *  representing the total amount for the line item.
  *
  */
-@property (nonatomic, readonly) NSInteger *amount;
+@property (nonatomic, readonly) NSInteger amount;
 
 /**
  *  3-letter ISO code representing the currency of the line item.
@@ -31,4 +31,10 @@
  */
 @property (nonatomic, copy, nullable) NSString *shippingMethodDescription;
 
+@end
+
+// This method is used internally by Stripe to deserialize API responses and exposed here for convenience and testing purposes only. You should not use it in
+// your own code.
+@interface STPShippingMethod (PrivateMethods)
+- (nonnull instancetype)initWithAttributeDictionary:(nonnull NSDictionary *)attributeDictionary;
 @end
