@@ -16,7 +16,7 @@
 @implementation STPCardFunctionalTest
 
 - (void)testCreateCardToken {
-    STPCard *card = [[STPCard alloc] init];
+    STPCardParams *card = [[STPCardParams alloc] init];
 
     card.number = @"4242 4242 4242 4242";
     card.expMonth = 6;
@@ -44,7 +44,7 @@
 }
 
 - (void)testCardTokenCreationWithInvalidParams {
-    STPCard *card = [[STPCard alloc] init];
+    STPCardParams *card = [[STPCardParams alloc] init];
 
     card.number = @"4242 4242 4242 4241";
     card.expMonth = 6;
@@ -60,7 +60,7 @@
 
                          XCTAssertNotNil(error, @"error should not be nil");
                          XCTAssertEqual(error.code, 70);
-                         XCTAssertEqual(error.domain, StripeDomain);
+                         XCTAssertEqualObjects(error.domain, StripeDomain);
                          XCTAssertEqualObjects(error.userInfo[STPErrorParameterKey], @"number");
                          XCTAssertNil(token, @"token should not be nil: %@", token.description);
                      }];
@@ -68,7 +68,7 @@
 }
 
 - (void)testInvalidKey {
-    STPCard *card = [[STPCard alloc] init];
+    STPCardParams *card = [[STPCardParams alloc] init];
 
     card.number = @"4242 4242 4242 4242";
     card.expMonth = 6;

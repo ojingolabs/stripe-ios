@@ -12,7 +12,7 @@
 #import "STPBankAccount.h"
 
 @interface STPBankAccountTest : XCTestCase
-@property (nonatomic) STPBankAccount *bankAccount;
+@property (nonatomic) STPBankAccountParams *bankAccount;
 @end
 
 @implementation STPBankAccountTest
@@ -20,8 +20,6 @@
 - (void)setUp {
     _bankAccount = [[STPBankAccount alloc] init];
 }
-
-#pragma mark - initWithAttributeDictionary: Tests
 
 - (NSDictionary *)completeAttributeDictionary {
     return @{
@@ -31,13 +29,12 @@
         @"country": @"US",
         @"fingerprint": @"something",
         @"currency": @"usd",
-        @"validated": @(NO),
-        @"disabled": @(NO)
+        @"status": @"new",
     };
 }
 
 - (void)testInitializingBankAccountWithAttributeDictionary {
-    STPBankAccount *bankAccountWithAttributes = [[STPBankAccount alloc] initWithAttributeDictionary:[self completeAttributeDictionary]];
+    STPBankAccount *bankAccountWithAttributes = [STPBankAccount decodedObjectFromAPIResponse:[self completeAttributeDictionary]];
 
     XCTAssertEqualObjects([bankAccountWithAttributes bankAccountId], @"something", @"bankAccountId is set correctly");
     XCTAssertEqualObjects([bankAccountWithAttributes last4], @"6789", @"last4 is set correctly");
@@ -45,15 +42,14 @@
     XCTAssertEqualObjects([bankAccountWithAttributes country], @"US", @"country is set correctly");
     XCTAssertEqualObjects([bankAccountWithAttributes fingerprint], @"something", @"fingerprint is set correctly");
     XCTAssertEqualObjects([bankAccountWithAttributes currency], @"usd", @"currency is set correctly");
-    XCTAssertEqual([bankAccountWithAttributes validated], NO, @"validated is set correctly");
-    XCTAssertEqual([bankAccountWithAttributes disabled], NO, @"disabled is set correctly");
+    XCTAssertEqual(bankAccountWithAttributes.status, STPBankAccountStatusNew);
 }
 
 - (void)testFormEncode {
     NSDictionary *attributes = [self completeAttributeDictionary];
-    STPBankAccount *bankAccountWithAttributes = [[STPBankAccount alloc] initWithAttributeDictionary:attributes];
+    STPBankAccount *bankAccountWithAttributes = [STPBankAccount decodedObjectFromAPIResponse:attributes];
 
-    NSData *encoded = [STPFormEncoder formEncodedDataForBankAccount:bankAccountWithAttributes];
+    NSData *encoded = [STPFormEncoder formEncodedDataForObject:bankAccountWithAttributes];
     NSString *formData = [[NSString alloc] initWithData:encoded encoding:NSUTF8StringEncoding];
 
     NSArray *parts = [formData componentsSeparatedByString:@"&"];
@@ -106,14 +102,11 @@
 #pragma mark - Equality Tests
 
 - (void)testBankAccountEquals {
-    STPBankAccount *bankAccount1 = [[STPBankAccount alloc] initWithAttributeDictionary:[self completeAttributeDictionary]];
-    STPBankAccount *bankAccount2 = [[STPBankAccount alloc] initWithAttributeDictionary:[self completeAttributeDictionary]];
+    STPBankAccount *bankAccount1 = [STPBankAccount decodedObjectFromAPIResponse:[self completeAttributeDictionary]];
+    STPBankAccount *bankAccount2 = [STPBankAccount decodedObjectFromAPIResponse:[self completeAttributeDictionary]];
 
     XCTAssertEqualObjects(bankAccount1, bankAccount1, @"bank account should equal itself");
     XCTAssertEqualObjects(bankAccount1, bankAccount2, @"bank account with equal data should be equal");
-
-    bankAccount1.accountNumber = @"1234";
-    XCTAssertNotEqualObjects(bankAccount1, bankAccount2, @"bank accounts should not match");
 }
 
 @end

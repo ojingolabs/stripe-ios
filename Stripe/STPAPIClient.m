@@ -13,7 +13,6 @@
 #endif
 
 #import "STPAPIClient.h"
-#import "STPAPIConnection.h"
 #import "STPFormEncoder.h"
 #import "STPBankAccount.h"
 #import "STPCard.h"
@@ -25,15 +24,26 @@
 #import "STPOrder.h"
 #import "STPOrderItem.h"
 #import "STPSku.h"
+#import "STPAPIResponseDecodable.h"
+#import "STPAPIPostRequest.h"
+
+#if __has_include("Fabric.h")
+#import "Fabric+FABKits.h"
+#import "FABKitProtocol.h"
+#endif
+
+#ifdef STP_STATIC_LIBRARY_BUILD
+#import "STPCategoryLoader.h"
+#endif
 
 #define FAUXPAS_IGNORED_IN_METHOD(...)
 
-static NSString *const apiURLBase = @"api.stripe.com";
-static NSString *const apiVersion = @"v1";
+static NSString *const apiURLBase = @"api.stripe.com/v1";
 static NSString *const tokenEndpoint = @"tokens";
 static NSString *const productEndpoint = @"products";
 static NSString *const customerEndpoint = @"customers";
 static NSString *const orderEndpoint = @"orders";
+static NSString *const stripeAPIVersion = @"2015-10-12";
 static NSString *STPDefaultPublishableKey;
 static NSString *STPDefaultSecretKey;
 
@@ -57,11 +67,22 @@ static NSString *STPDefaultSecretKey;
 
 @end
 
-@interface STPAPIClient ()
+#if __has_include("Fabric.h")
+@interface STPAPIClient ()<NSURLSessionDelegate, FABKit>
+#else
+@interface STPAPIClient()<NSURLSessionDelegate>
+#endif
 @property (nonatomic, readwrite) NSURL *apiURL;
+@property (nonatomic, readwrite) NSURLSession *urlSession;
 @end
 
 @implementation STPAPIClient
+
+#ifdef STP_STATIC_LIBRARY_BUILD
++ (void)initialize {
+    [STPCategoryLoader loadCategories];
+}
+#endif
 
 + (instancetype)sharedClient {
     static id sharedClient;
@@ -82,10 +103,17 @@ static NSString *STPDefaultSecretKey;
     self = [super init];
     if (self) {
         [self.class validateKey:publishableKey];
-        _apiURL = [[NSURL URLWithString:[NSString stringWithFormat:@"https://%@", apiURLBase]] URLByAppendingPathComponent:apiVersion];
+        _apiURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@", apiURLBase]];
         _publishableKey = [publishableKey copy];
         _operationQueue = [NSOperationQueue mainQueue];
-        _secretKey = [secretKey copy];
+        NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+        NSString *auth = [@"Bearer " stringByAppendingString:self.publishableKey];
+        config.HTTPAdditionalHeaders = @{
+                                         @"X-Stripe-User-Agent": [self.class stripeUserAgentDetails],
+                                         @"Stripe-Version": stripeAPIVersion,
+                                         @"Authorization": auth,
+                                         };
+        _urlSession = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:_operationQueue];
     }
     return self;
 }
@@ -95,28 +123,15 @@ static NSString *STPDefaultSecretKey;
     _operationQueue = operationQueue;
 }
 
-- (void)createTokenWithData:(NSData *)data completion:(STPCompletionBlock)completion {
+- (void)createTokenWithData:(NSData *)data completion:(STPTokenCompletionBlock)completion {
     NSCAssert(data != nil, @"'data' is required to create a token");
     NSCAssert(completion != nil, @"'completion' is required to use the token that is created");
-    
-    NSURL *endpoint = [_apiURL URLByAppendingPathComponent:tokenEndpoint];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:endpoint];
-    request.HTTPMethod = @"POST";
-    request.HTTPBody = data;
-    [request setValue:[self.class JSONStringForObject:[self.class stripeUserAgentDetails]] forHTTPHeaderField:@"X-Stripe-User-Agent"];
-    [request setValue:[@"Bearer " stringByAppendingString:self.publishableKey] forHTTPHeaderField:@"Authorization"];
-    
-    STPAPIConnection *connection = [[STPAPIConnection alloc] initWithRequest:request];
-    [connection runOnOperationQueue:self.operationQueue
-                         completion:^(NSURLResponse *response, NSData *body, NSError *requestError) {
-                             NSError *error = [self handleAPIErrors:response body:body error:requestError];
-                             if (error) {
-                                 completion(nil,error);
-                                 return;
-                             }
-                             completion([[STPToken alloc] initWithAttributeDictionary:[NSJSONSerialization JSONObjectWithData:body options:0 error:NULL]], nil);
 
-                         }];
+    [STPAPIPostRequest<STPToken *> startWithAPIClient:self
+                                             endpoint:tokenEndpoint
+                                             postData:data
+                                           serializer:[STPToken new]
+                                           completion:completion];
 }
 
 #pragma mark - private helpers
@@ -167,65 +182,9 @@ static NSString *STPDefaultSecretKey;
 }
 #pragma clang diagnostic pop
 
-+ (NSError *)errorFromStripeResponse:(NSDictionary *)jsonDictionary {
-    NSDictionary *errorDictionary = jsonDictionary[@"error"];
-    NSString *type = errorDictionary[@"type"];
-    NSString *devMessage = errorDictionary[@"message"];
-    NSString *parameter = errorDictionary[@"param"];
-    NSInteger code = 0;
-
-    // There should always be a message and type for the error
-    if (devMessage == nil || type == nil) {
-        NSDictionary *userInfo = @{
-            NSLocalizedDescriptionKey: STPUnexpectedError,
-            STPErrorMessageKey: @"Could not interpret the error response that was returned from Stripe."
-        };
-        return [[NSError alloc] initWithDomain:StripeDomain code:STPAPIError userInfo:userInfo];
-    }
-
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-    userInfo[STPErrorMessageKey] = devMessage;
-
-    if (parameter) {
-        userInfo[STPErrorParameterKey] = [STPFormEncoder stringByReplacingSnakeCaseWithCamelCase:parameter];
-    }
-
-    if ([type isEqualToString:@"api_error"]) {
-        code = STPAPIError;
-        userInfo[NSLocalizedDescriptionKey] = STPUnexpectedError;
-    } else if ([type isEqualToString:@"invalid_request_error"]) {
-        code = STPInvalidRequestError;
-        userInfo[NSLocalizedDescriptionKey] = devMessage;
-    } else if ([type isEqualToString:@"card_error"]) {
-        code = STPCardError;
-        NSDictionary *errorCodes = @{
-            @"incorrect_number": @{@"code": STPIncorrectNumber, @"message": STPCardErrorInvalidNumberUserMessage},
-            @"invalid_number": @{@"code": STPInvalidNumber, @"message": STPCardErrorInvalidNumberUserMessage},
-            @"invalid_expiry_month": @{@"code": STPInvalidExpMonth, @"message": STPCardErrorInvalidExpMonthUserMessage},
-            @"invalid_expiry_year": @{@"code": STPInvalidExpYear, @"message": STPCardErrorInvalidExpYearUserMessage},
-            @"invalid_cvc": @{@"code": STPInvalidCVC, @"message": STPCardErrorInvalidCVCUserMessage},
-            @"expired_card": @{@"code": STPExpiredCard, @"message": STPCardErrorExpiredCardUserMessage},
-            @"incorrect_cvc": @{@"code": STPIncorrectCVC, @"message": STPCardErrorInvalidCVCUserMessage},
-            @"card_declined": @{@"code": STPCardDeclined, @"message": STPCardErrorDeclinedUserMessage},
-            @"processing_error": @{@"code": STPProcessingError, @"message": STPCardErrorProcessingErrorUserMessage},
-        };
-        NSDictionary *codeMapEntry = errorCodes[errorDictionary[@"code"]];
-
-        if (codeMapEntry) {
-            userInfo[STPCardErrorCodeKey] = codeMapEntry[@"code"];
-            userInfo[NSLocalizedDescriptionKey] = codeMapEntry[@"message"];
-        } else {
-            userInfo[STPCardErrorCodeKey] = errorDictionary[@"code"];
-            userInfo[NSLocalizedDescriptionKey] = devMessage;
-        }
-    }
-
-    return [[NSError alloc] initWithDomain:StripeDomain code:code userInfo:userInfo];
-}
-
 #pragma mark Utility methods -
 
-+ (NSDictionary *)stripeUserAgentDetails {
++ (NSString *)stripeUserAgentDetails {
     NSMutableDictionary *details = [@{
         @"lang": @"objective-c",
         @"bindings_version": STPSDKVersion,
@@ -252,11 +211,14 @@ static NSString *STPDefaultSecretKey;
         }
     }
 #endif
-    return [details copy];
+    return [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:[details copy] options:0 error:NULL] encoding:NSUTF8StringEncoding];
 }
 
-+ (NSString *)JSONStringForObject:(id)object {
-    return [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:object options:0 error:NULL] encoding:NSUTF8StringEncoding];
+#pragma mark Fabric
+#if __has_include("Fabric.h")
+
++ (NSString *)bundleIdentifier {
+    return @"com.stripe.stripe-ios";
 }
 
 + (NSString *)HTTPBodyForDictionary:(NSDictionary*)dict {
@@ -277,13 +239,36 @@ static NSString *STPDefaultSecretKey;
     return mutString;
 }
 
++ (NSString *)kitDisplayVersion {
+    return STPSDKVersion;
+}
+
++ (void)initializeIfNeeded {
+    Class fabric = NSClassFromString(@"Fabric");
+    if (fabric) {
+        // The app must be using Fabric, as it exists at runtime. We fetch our default publishable key from Fabric.
+        NSDictionary *fabricConfiguration = [fabric configurationDictionaryForKitClass:[STPAPIClient class]];
+        NSString *publishableKey = fabricConfiguration[@"publishable"];
+        if (!publishableKey) {
+            NSLog(@"Configuration dictionary returned by Fabric was nil, or doesn't have publishableKey. Can't initialize Stripe.");
+            return;
+        }
+        [self validateKey:publishableKey];
+        [Stripe setDefaultPublishableKey:publishableKey];
+    } else {
+        NSCAssert(fabric, @"initializeIfNeeded method called from a project that doesn't have Fabric.");
+    }
+}
+
+#endif
 @end
 
 #pragma mark - Bank Accounts
 @implementation STPAPIClient (BankAccounts)
 
-- (void)createTokenWithBankAccount:(STPBankAccount *)bankAccount completion:(STPCompletionBlock)completion {
-    [self createTokenWithData:[STPFormEncoder formEncodedDataForBankAccount:bankAccount] completion:completion];
+- (void)createTokenWithBankAccount:(STPBankAccountParams *)bankAccount completion:(STPTokenCompletionBlock)completion {
+    NSData *data = [STPFormEncoder formEncodedDataForObject:bankAccount];
+    [self createTokenWithData:data completion:completion];
 }
 
 @end
@@ -291,8 +276,9 @@ static NSString *STPDefaultSecretKey;
 #pragma mark - Credit Cards
 @implementation STPAPIClient (CreditCards)
 
-- (void)createTokenWithCard:(STPCard *)card completion:(STPCompletionBlock)completion {
-    [self createTokenWithData:[STPFormEncoder formEncodedDataForCard:card] completion:completion];
+- (void)createTokenWithCard:(STPCard *)card completion:(STPTokenCompletionBlock)completion {
+    NSData *data = [STPFormEncoder formEncodedDataForObject:card];
+    [self createTokenWithData:data completion:completion];
 }
 
 - (void)listCardsForCustomer:(STPCustomer *)customer limit:(NSInteger)limit before:(NSString*)beforeID after:(NSString*)afterID completion:(STPCompletionBlock)completion {
