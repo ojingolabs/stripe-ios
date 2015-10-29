@@ -51,4 +51,15 @@
     }
     return self;
 }
+
++ (STPOrderItem*)createOrderItemFromSku:(STPSku*)sku andQuantity:(NSInteger)quantity {
+    STPOrderItem *orderItem = [[STPOrderItem alloc] init];
+    orderItem.type = STPOrderItemTypeSku;
+    orderItem.parentId = sku.skuId;
+    orderItem.amount = sku.price;
+    orderItem.currency = sku.currency;
+    orderItem.quantity = quantity;
+    return orderItem;
+}
+
 @end

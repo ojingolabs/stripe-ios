@@ -45,7 +45,7 @@
         if (dict[@"sources"] && dict[@"sources"][@"data"]) {
             NSMutableArray<STPCard*> *sourcesArray = [[NSMutableArray alloc] initWithCapacity:[dict[@"sources"][@"data"] count]];
             for (id source in dict[@"sources"][@"data"]) {
-                [sourcesArray addObject:[[STPCard alloc] initWithAttributeDictionary:source]];
+                [sourcesArray addObject:[STPCard decodedObjectFromAPIResponse:source]];
             }
             _sources = [NSArray arrayWithArray:sourcesArray];
         }
