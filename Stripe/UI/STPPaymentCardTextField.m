@@ -82,7 +82,7 @@ CGFloat const STPPaymentCardTextFieldDefaultPadding = 10;
     _viewModel = [STPPaymentCardTextFieldViewModel new];
     _sizingField = [self buildTextField];
     
-    UIImageView *brandImageView = [[UIImageView alloc] initWithImage:_viewModel.brandImage];
+    UIImageView *brandImageView = [[UIImageView alloc] initWithImage:self.brandImage];
     brandImageView.contentMode = UIViewContentModeCenter;
     brandImageView.backgroundColor = [UIColor clearColor];
     if ([brandImageView respondsToSelector:@selector(setTintColor:)]) {
@@ -232,6 +232,14 @@ CGFloat const STPPaymentCardTextFieldDefaultPadding = 10;
 - (void)setCvcPlaceholder:(NSString * __nullable)cvcPlaceholder {
     _cvcPlaceholder = [cvcPlaceholder copy];
     self.cvcField.placeholder = _cvcPlaceholder;
+}
+
+- (void)setCursorColor:(UIColor *)cursorColor {
+    self.tintColor = cursorColor;
+}
+
+- (UIColor *)cursorColor {
+    return self.tintColor;
 }
 
 - (void)setBorderColor:(UIColor * __nullable)borderColor {
@@ -397,7 +405,7 @@ CGFloat const STPPaymentCardTextFieldDefaultPadding = 10;
 
 - (CGSize)intrinsicContentSize {
     
-    CGSize imageSize = self.viewModel.brandImage.size;
+    CGSize imageSize = self.brandImage.size;
     
     self.sizingField.text = self.viewModel.defaultPlaceholder;
     CGFloat textHeight = [self.sizingField measureTextSize].height;
@@ -409,28 +417,53 @@ CGFloat const STPPaymentCardTextFieldDefaultPadding = 10;
     return CGSizeMake(width, height);
 }
 
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    
-    self.brandImageView.frame = CGRectMake(STPPaymentCardTextFieldDefaultPadding, 2, self.brandImageView.image.size.width, self.frame.size.height - 2);
-    self.fieldsView.frame = CGRectMake(CGRectGetMaxX(self.brandImageView.frame), 0, self.bounds.size.width - CGRectGetMaxX(self.brandImageView.frame), self.frame.size.height);
-    
+- (CGRect)brandImageRectForBounds:(CGRect)bounds {
+    return CGRectMake(STPPaymentCardTextFieldDefaultPadding, 2, self.brandImageView.image.size.width, bounds.size.height - 2);
+}
+
+- (CGRect)fieldsRectForBounds:(CGRect)bounds {
+    CGRect brandImageRect = [self brandImageRectForBounds:bounds];
+    return CGRectMake(CGRectGetMaxX(brandImageRect), 0, CGRectGetWidth(bounds) - CGRectGetMaxX(brandImageRect), CGRectGetHeight(bounds));
+}
+
+- (CGRect)numberFieldRectForBounds:(CGRect)bounds {
     CGFloat placeholderWidth = [self widthForCardNumber:self.numberField.placeholder] - 4;
     CGFloat numberWidth = [self widthForCardNumber:self.viewModel.defaultPlaceholder] - 4;
     CGFloat numberFieldWidth = MAX(placeholderWidth, numberWidth);
     CGFloat nonFragmentWidth = [self widthForCardNumber:[self.viewModel numberWithoutLastDigits]] - 8;
     CGFloat numberFieldX = self.numberFieldShrunk ? STPPaymentCardTextFieldDefaultPadding - nonFragmentWidth : 8;
-    self.numberField.frame = CGRectMake(numberFieldX, 0, numberFieldWidth, self.frame.size.height);
-    
+    return CGRectMake(numberFieldX, 0, numberFieldWidth, CGRectGetHeight(bounds));
+}
+
+- (CGRect)cvcFieldRectForBounds:(CGRect)bounds {
+    CGRect fieldsRect = [self fieldsRectForBounds:bounds];
+
     CGFloat cvcWidth = MAX([self widthForText:self.cvcField.placeholder], [self widthForText:@"8888"]);
     CGFloat cvcX = self.numberFieldShrunk ?
-        self.fieldsView.bounds.size.width - cvcWidth - STPPaymentCardTextFieldDefaultPadding / 2  :
-        self.fieldsView.bounds.size.width;
-    self.cvcField.frame = CGRectMake(cvcX, 0, cvcWidth, self.frame.size.height);
-    
+    CGRectGetWidth(fieldsRect) - cvcWidth - STPPaymentCardTextFieldDefaultPadding / 2  :
+    CGRectGetWidth(fieldsRect);
+    return CGRectMake(cvcX, 0, cvcWidth, CGRectGetHeight(bounds));
+}
+
+- (CGRect)expirationFieldRectForBounds:(CGRect)bounds {
+    CGRect numberFieldRect = [self numberFieldRectForBounds:bounds];
+    CGRect cvcRect = [self cvcFieldRectForBounds:bounds];
+
     CGFloat expirationWidth = MAX([self widthForText:self.expirationField.placeholder], [self widthForText:@"88/88"]);
-    CGFloat expirationX = (CGRectGetMaxX(self.numberField.frame) + CGRectGetMinX(self.cvcField.frame) - expirationWidth) / 2;
-    self.expirationField.frame = CGRectMake(expirationX, 0, expirationWidth, self.frame.size.height);
+    CGFloat expirationX = (CGRectGetMaxX(numberFieldRect) + CGRectGetMinX(cvcRect) - expirationWidth) / 2;
+    return CGRectMake(expirationX, 0, expirationWidth, CGRectGetHeight(bounds));
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+
+    CGRect bounds = self.bounds;
+
+    self.brandImageView.frame = [self brandImageRectForBounds:bounds];
+    self.fieldsView.frame = [self fieldsRectForBounds:bounds];
+    self.numberField.frame = [self numberFieldRectForBounds:bounds];
+    self.cvcField.frame = [self cvcFieldRectForBounds:bounds];
+    self.expirationField.frame = [self expirationFieldRectForBounds:bounds];
     
 }
 
@@ -522,10 +555,21 @@ typedef void (^STPNumberShrunkCompletionBlock)(BOOL completed);
     switch ((STPCardFieldType)textField.tag) {
         case STPCardFieldTypeNumber:
             [self setNumberFieldShrunk:NO animated:YES completion:nil];
+            if ([self.delegate respondsToSelector:@selector(paymentCardTextFieldDidBeginEditingNumber:)]) {
+                [self.delegate paymentCardTextFieldDidBeginEditingNumber:self];
+            }
             break;
-            
-        default:
+        case STPCardFieldTypeCVC:
             [self setNumberFieldShrunk:YES animated:YES completion:nil];
+            if ([self.delegate respondsToSelector:@selector(paymentCardTextFieldDidBeginEditingCVC:)]) {
+                [self.delegate paymentCardTextFieldDidBeginEditingCVC:self];
+            }
+            break;
+        case STPCardFieldTypeExpiration:
+            [self setNumberFieldShrunk:YES animated:YES completion:nil];
+            if ([self.delegate respondsToSelector:@selector(paymentCardTextFieldDidBeginEditingExpiration:)]) {
+                [self.delegate paymentCardTextFieldDidBeginEditingExpiration:self];
+            }
             break;
     }
     [self updateImageForFieldType:textField.tag];
@@ -581,8 +625,32 @@ typedef void (^STPNumberShrunkCompletionBlock)(BOOL completed);
     return NO;
 }
 
+- (UIImage *)brandImage {
+    if (self.selectedField) {
+        return [self brandImageForFieldType:self.selectedField.tag];
+    } else {
+        return [self brandImageForFieldType:STPCardFieldTypeNumber];
+    }
+}
+
++ (UIImage *)cvcImageForCardBrand:(STPCardBrand)cardBrand {
+    return [STPPaymentCardTextFieldViewModel cvcImageForCardBrand:cardBrand];
+}
+
++ (UIImage *)brandImageForCardBrand:(STPCardBrand)cardBrand {
+    return [STPPaymentCardTextFieldViewModel brandImageForCardBrand:cardBrand];
+}
+
+- (UIImage *)brandImageForFieldType:(STPCardFieldType)fieldType {
+    if (fieldType == STPCardFieldTypeCVC) {
+        return [self.class cvcImageForCardBrand:self.viewModel.brand];
+    }
+
+    return [self.class brandImageForCardBrand:self.viewModel.brand];
+}
+
 - (void)updateImageForFieldType:(STPCardFieldType)fieldType {
-    UIImage *image = fieldType == STPCardFieldTypeCVC ? self.viewModel.cvcImage : self.viewModel.brandImage;
+    UIImage *image = [self brandImageForFieldType:fieldType];
     if (image != self.brandImageView.image) {
         self.brandImageView.image = image;
         
@@ -592,6 +660,8 @@ typedef void (^STPNumberShrunkCompletionBlock)(BOOL completed);
         transition.type = kCATransitionFade;
         
         [self.brandImageView.layer addAnimation:transition forKey:nil];
+
+        [self setNeedsLayout];
     }
 }
 
