@@ -12,6 +12,13 @@
 
 @interface STPProduct : NSObject
 
+
+/**
+ *  Utilities methods
+ */
++ (NSNumber *)priceMinForSTPProduct:(nonnull STPProduct *)product;
++ (NSNumber *)priceMaxForSTPProduct:(nonnull STPProduct *)product;
+
 /**
  *  The Stripe ID for the product.
  */

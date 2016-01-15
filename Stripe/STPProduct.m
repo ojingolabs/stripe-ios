@@ -22,6 +22,32 @@
     return self;
 }
 
++ (NSNumber *)priceMinForSTPProduct:(nonnull STPProduct *)product
+{
+    __block float minPrice = -1;
+    if (product.skus.count > 0)
+    {
+        minPrice = product.skus.firstObject.price;
+        [product.skus enumerateObjectsUsingBlock:^(STPSku *sku, NSUInteger idx, BOOL *stop) {
+            minPrice = MIN(minPrice,sku.price);
+        }];
+    }
+    return (minPrice == -1) ? nil : @(minPrice);
+}
+
++ (NSNumber *)priceMaxForSTPProduct:(nonnull STPProduct *)product
+{
+    __block float maxPrice;
+    if (product.skus.count > 0)
+    {
+        maxPrice = product.skus.firstObject.price;
+        [product.skus enumerateObjectsUsingBlock:^(STPSku *sku, NSUInteger idx, BOOL *stop) {
+            maxPrice = MAX(maxPrice,sku.price);
+        }];
+    }
+    return (maxPrice == -1) ? nil : @(maxPrice);
+}
+
 @end
 
 @implementation STPProduct(PrivateMethods)
