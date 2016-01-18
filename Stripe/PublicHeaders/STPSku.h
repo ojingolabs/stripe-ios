@@ -33,7 +33,7 @@
  * a valid SKU has the following dictionary of attributes: {"size": "Medium", "gender": "Unisex"}
  *
  */
-@property (nonatomic, copy, nullable) NSArray<NSString*> *attributes;
+@property (nonatomic, copy, nullable) NSDictionary<NSString*,NSString*> *attributes;
 
 /**
  *  The URL of an image for this SKU, meant to be displayable to the customer.

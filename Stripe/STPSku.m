@@ -47,6 +47,9 @@
         if (dict[@"package_dimensions"]) {
             _packageDimensions = [[STPPackage alloc] initWithAttributeDictionary:dict[@"package_dimensions"]];
         }
+        if (dict[@"attributes"]) {
+            _attributes = dict[@"attributes"];
+        }
         _inventory = [[STPInventory alloc] initWithAttributeDictionary:dict[@"inventory"]];
     }
     return self;
