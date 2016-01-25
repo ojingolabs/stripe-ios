@@ -6,6 +6,7 @@
 //  Copyright © 2015 Stripe, Inc. All rights reserved.
 //
 
+#import <Stripe/Stripe.h>
 #import "STPOrder.h"
 #import "STPShippingInfos.h"
 #import "STPShippingMethod.h"
@@ -71,6 +72,12 @@
             [methods addObject:[[STPShippingMethod alloc] initWithAttributeDictionary:method]];
         }
         _shippingMethods = methods;
+
+        NSMutableArray *items = [NSMutableArray arrayWithCapacity:[dict[@"items"] count]];
+        for (id item in dict[@"items"]) {
+            [items addObject:[[STPOrderItem alloc] initWithAttributeDictionary:item]];
+        }
+        _items = items;
     }
     return self;
 }

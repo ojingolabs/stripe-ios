@@ -55,3 +55,7 @@ typedef NS_ENUM(NSInteger, STPOrderItemType) {
 - (nullable NSDictionary*)dictionaryOutputWithIndex:(int)idx;
 
 @end
+
+@interface STPOrderItem (PrivateMethods)
+- (nonnull instancetype)initWithAttributeDictionary:(nonnull NSDictionary *)attributeDictionary;
+@end
