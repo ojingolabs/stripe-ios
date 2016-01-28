@@ -93,6 +93,19 @@ typedef NS_ENUM(NSInteger, STPOrderStatus) {
  */
 @property (nonatomic, copy, nullable) NSArray<STPOrderItem*> *items;
 
+/**
+ * A set of key/value pairs that you can attach to an order object.
+ * It can be useful for storing additional information about the order in a structured format.
+ *
+ */
+@property (nonatomic, nullable) NSDictionary *metadata;
+
+/**
+ * The email address of the customer placing the order.
+ *
+ */
+@property (nonatomic, nullable) NSString *email;
+
 + (nonnull NSString*)orderStatusToString:(STPOrderStatus)orderStatus;
 
 @end

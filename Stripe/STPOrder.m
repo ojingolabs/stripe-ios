@@ -7,9 +7,6 @@
 //
 
 #import <Stripe/Stripe.h>
-#import "STPOrder.h"
-#import "STPShippingInfos.h"
-#import "STPShippingMethod.h"
 
 @implementation STPOrder
 
@@ -59,6 +56,8 @@
         _applicationFee = [dict[@"application_fee"] integerValue];
         _customerId = dict[@"customer"];
         _selectedShippingMethodId = dict[@"selected_shipping_method"];
+        _metadata = dict[@"metadata"];
+        _email = dict[@"email"];
 
         _orderStatus = [self orderStatusFromString:dict[@"status"]];
         if (_orderStatus == STPOrderStatusPaid || _orderStatus == STPOrderStatusFulfilled || _orderStatus == STPOrderStatusReturned) {
