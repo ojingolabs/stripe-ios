@@ -48,6 +48,11 @@
  */
 @property (nonatomic, nullable) STPShippingInfos *shippingInfos;
 
+/**
+ * A set of key/value pairs that you can attach to a customer object.
+ * It can be useful for storing additional information about the customer in a structured format.
+ */
+@property (nonatomic, nullable) NSDictionary *metadata;
 @end
 
 // This method is used internally by Stripe to deserialize API responses and exposed here for convenience and testing purposes only. You should not use it in

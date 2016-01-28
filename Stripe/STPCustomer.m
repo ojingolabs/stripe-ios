@@ -41,6 +41,7 @@
         _delinquent = [dict[@"delinquent"] boolValue];
         _currency = dict[@"currency"];
         _defaultSourceId = dict[@"default_source"];
+        _metadata = dict[@"metadata"];
 
         if (dict[@"sources"] && dict[@"sources"][@"data"]) {
             NSMutableArray<STPCard*> *sourcesArray = [[NSMutableArray alloc] initWithCapacity:[dict[@"sources"][@"data"] count]];
