@@ -67,9 +67,9 @@
         _prodId = dict[@"id"];
         _active = [dict[@"active"] boolValue];
         _shippable = [dict[@"shippable"] boolValue];
-        _productName = dict[@"name"];
-        _caption = dict[@"caption"];
-        _productDescription = dict[@"description"];
+        _productName = dict[@"name"] ? dict[@"name"] : @"";
+        _caption = dict[@"caption"] ? dict[@"caption"] : @"";
+        _productDescription = dict[@"description"] ? dict[@"description"] : @"";
         _productUrl = dict[@"url"];
 
         if (dict[@"images"]) {
