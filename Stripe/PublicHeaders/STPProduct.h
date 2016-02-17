@@ -76,6 +76,12 @@
  */
 @property (nonatomic, copy, nullable) STPPackage *packageDimensions;
 
+/**
+ * A set of key/value pairs that you can attach to a product object.
+ * It can be useful for storing additional information about the product in a structured format.
+ */
+@property (nonatomic, nullable) NSDictionary *metadata;
+
 @end
 
 // This method is used internally by Stripe to deserialize API responses and exposed here for convenience and testing purposes only. You should not use it in

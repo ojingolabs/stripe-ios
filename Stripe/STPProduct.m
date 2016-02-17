@@ -71,6 +71,7 @@
         _caption = dict[@"caption"] ? dict[@"caption"] : @"";
         _productDescription = dict[@"description"] ? dict[@"description"] : @"";
         _productUrl = dict[@"url"];
+        _metadata = dict[@"metadata"];
 
         if (dict[@"images"]) {
             NSMutableArray<NSString*> *imagesArray = [[NSMutableArray alloc] initWithCapacity:[dict[@"images"] count]];
