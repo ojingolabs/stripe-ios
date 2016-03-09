@@ -5,6 +5,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class STPSku;
+
 /**
  *  The various order status.
  */
@@ -45,6 +47,7 @@ typedef NS_ENUM(NSInteger, STPOrderItemType) {
  *  The ID of the associated object for this line item. Expandable if not null (e.g., expandable to a SKU).
  */
 @property (nonatomic, copy, nullable) NSString *parentId;
+@property (nonatomic, copy, nullable) STPSku *parent;
 
 /**
  * A positive integer representing the number of instances of parent that are included in this order item.

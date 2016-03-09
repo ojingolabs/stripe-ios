@@ -4,6 +4,7 @@
 //
 
 #import "STPOrderItem.h"
+#import "STPSku.h"
 
 
 @implementation STPOrderItem {
@@ -78,7 +79,14 @@
         _amount = [dict[@"amount"] integerValue];
         _currency = dict[@"currency"];
         _itemDescription = dict[@"description"];
-        _parentId = dict[@"parent"];
+        if ([dict[@"parent"] isKindOfClass:[NSString class]])
+        {
+            _parentId = dict[@"parent"];
+        } else if ([dict[@"parent"] isKindOfClass:[NSDictionary class]])
+        {
+            _parent = [[STPSku alloc] initWithAttributeDictionary:dict[@"parent"]];
+            _parentId = _parent.skuId;
+        }
         _type = [STPOrderItem orderType:dict[@"type"]];
         if (STPOrderItemTypeSku == _type) {
             _quantity = [dict[@"quantity"] integerValue];
