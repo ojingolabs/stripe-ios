@@ -51,6 +51,7 @@
 
     if (self) {
         _orderId = dict[@"id"];
+        _created = [NSDate dateWithTimeIntervalSince1970:[dict[@"created"] intValue]];
         _amount = [dict[@"amount"] integerValue];
         _currency = dict[@"currency"];
         _applicationFee = [dict[@"application_fee"] integerValue];

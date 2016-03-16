@@ -30,6 +30,11 @@ typedef NS_ENUM(NSInteger, STPOrderStatus) {
 @property (nonatomic, readonly, nullable, copy) NSString *orderId;
 
 /**
+ *  NSDate representing the order creation time.
+ */
+@property (nonatomic, readonly, copy) NSDate *created;
+
+/**
  *  A positive integer in the smallest currency unit
  *  (that is, 100 cents for $1.00, or 1 for ¥1, Japanese Yen being a 0-decimal currency) representing the total amount for the order.
  *
