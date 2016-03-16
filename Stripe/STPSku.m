@@ -10,6 +10,7 @@
 #import "STPPackage.h"
 #import "STPOrderItem.h"
 #import "STPInventory.h"
+#import "STPProduct.h"
 
 @implementation STPSku
 
@@ -42,7 +43,14 @@
         _active = [dict[@"active"] boolValue];
         _currency = dict[@"currency"];
         _price = [dict[@"price"] integerValue];
-        _refProdId = dict[@"product"];
+        if ([dict[@"product"] isKindOfClass:[NSString class]])
+        {
+            _refProdId = dict[@"product"];
+        } else if ([dict[@"product"] isKindOfClass:[NSDictionary class]])
+        {
+            _product = [[STPProduct alloc] initWithAttributeDictionary:dict[@"product"]];
+            _refProdId = _product.prodId;
+        }
         _imageURL = dict[@"image"];
         if (dict[@"package_dimensions"]) {
             _packageDimensions = [[STPPackage alloc] initWithAttributeDictionary:dict[@"package_dimensions"]];

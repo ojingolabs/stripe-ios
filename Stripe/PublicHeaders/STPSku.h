@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class STPPackage, STPInventory, STPSku;
+@class STPProduct;
 
 @interface STPSku : NSObject
 
@@ -21,6 +22,11 @@
  *  The ID of the product this SKU is associated with. The product must be currently active.
  */
 @property (nonatomic, readonly, nullable) NSString *refProdId;
+
+/**
+ *  The referenced STPProduct object if any (expandable field).
+ */
+@property (nonatomic, readonly, nullable) STPProduct *product;
 
 /**
  *  Whether or not the SKU is currently available for purchase.
