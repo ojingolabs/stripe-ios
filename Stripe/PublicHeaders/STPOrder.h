@@ -32,7 +32,7 @@ typedef NS_ENUM(NSInteger, STPOrderStatus) {
 /**
  *  NSDate representing the order creation time.
  */
-@property (nonatomic, readonly, copy) NSDate *created;
+@property (nonatomic, readonly, nonnull, copy) NSDate *created;
 
 /**
  *  A positive integer in the smallest currency unit

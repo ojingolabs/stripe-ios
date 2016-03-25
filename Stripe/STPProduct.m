@@ -22,30 +22,32 @@
     return self;
 }
 
-+ (NSNumber *)priceMinForSTPProduct:(nonnull STPProduct *)product
++ (NSNumber *)priceMinForSTPProduct:(STPProduct *)product
 {
     __block float minPrice = -1;
     if (product.skus.count > 0)
     {
-        minPrice = product.skus.firstObject.price;
-        [product.skus enumerateObjectsUsingBlock:^(STPSku *sku, NSUInteger idx, BOOL *stop) {
+        minPrice = ((STPSku *)product.skus.firstObject).price;
+        for (STPSku *sku in product.skus)
+        {
             minPrice = MIN(minPrice,sku.price);
-        }];
+        }
     }
-    return (minPrice == -1) ? nil : @(minPrice);
+    return (minPrice <= -1) ? nil : @(minPrice);
 }
 
-+ (NSNumber *)priceMaxForSTPProduct:(nonnull STPProduct *)product
++ (NSNumber *)priceMaxForSTPProduct:(STPProduct *)product
 {
-    __block float maxPrice;
+    __block float maxPrice = -1;
     if (product.skus.count > 0)
     {
-        maxPrice = product.skus.firstObject.price;
-        [product.skus enumerateObjectsUsingBlock:^(STPSku *sku, NSUInteger idx, BOOL *stop) {
+        maxPrice = ((STPSku*)product.skus.firstObject).price;
+        for (STPSku *sku in product.skus)
+        {
             maxPrice = MAX(maxPrice,sku.price);
-        }];
+        }
     }
-    return (maxPrice == -1) ? nil : @(maxPrice);
+    return (maxPrice <= -1) ? nil : @(maxPrice);
 }
 
 @end
