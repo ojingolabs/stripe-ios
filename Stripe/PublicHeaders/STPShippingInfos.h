@@ -49,6 +49,16 @@
  */
 @property (nonatomic, copy, nullable) NSString *state;
 
+/**
+ *  The delivery service that shipped a physical product, such as Fedex, UPS, USPS, etc.
+ */
+@property (nonatomic, copy, nullable) NSString *carrier;
+
+/**
+ *  The tracking number for a physical product, obtained from the delivery service. If multiple tracking numbers were generated for this purchase, please separate them with commas.
+ */
+@property (nonatomic, copy, nullable) NSString *trackingNumber;
+
 - (nullable NSDictionary*)dictionaryOutput;
 - (BOOL)isEqualToShippingInfos:(nonnull STPShippingInfos*)shippingInfos;
 

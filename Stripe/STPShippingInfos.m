@@ -19,6 +19,8 @@
         _country = @"";
         _postalCode = @"";
         _state = @"";
+        _carrier = @"";
+        _trackingNumber = @"";
     }
 
     return self;
@@ -44,6 +46,8 @@
         _country = ([dict[@"address"][@"country"] isEqual:[NSNull null]]) ? @"" : dict[@"address"][@"country"];
         _postalCode = ([dict[@"address"][@"postal_code"] isEqual:[NSNull null]]) ? @"" : dict[@"address"][@"postal_code"];
         _state = ([dict[@"address"][@"state"] isEqual:[NSNull null]]) ? @"" : dict[@"address"][@"state"];
+        _carrier = (dict[@"carrier"] == nil) ? @"" : dict[@"carrier"];
+        _trackingNumber = (dict[@"tracking_number"] == nil) ? @"" : dict[@"tracking_number"];
     }
     return self;
 }
