@@ -24,7 +24,7 @@
 
 + (NSNumber *)priceMinForSTPProduct:(STPProduct *)product
 {
-    __block float minPrice = -1;
+    __block NSInteger minPrice = -1;
     if (product.skus.count > 0)
     {
         minPrice = ((STPSku *)product.skus.firstObject).price;
@@ -38,7 +38,7 @@
 
 + (NSNumber *)priceMaxForSTPProduct:(STPProduct *)product
 {
-    __block float maxPrice = -1;
+    __block NSInteger maxPrice = -1;
     if (product.skus.count > 0)
     {
         maxPrice = ((STPSku*)product.skus.firstObject).price;
