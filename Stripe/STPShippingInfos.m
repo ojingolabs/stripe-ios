@@ -7,6 +7,9 @@
 
 
 @implementation STPShippingInfos
+{
+    STPShippingInfoValidationErrors _firstValidationErrorCode;
+}
 
 - (instancetype)init {
     self = [super init];
@@ -21,6 +24,7 @@
         _state = @"";
         _carrier = @"";
         _trackingNumber = @"";
+        _firstValidationErrorCode = STPShippingInfoValidationErrorNoError;
     }
 
     return self;
@@ -48,6 +52,8 @@
         _state = ([dict[@"address"][@"state"] isEqual:[NSNull null]]) ? @"" : dict[@"address"][@"state"];
         _carrier = (dict[@"carrier"] == nil) ? @"" : dict[@"carrier"];
         _trackingNumber = (dict[@"tracking_number"] == nil) ? @"" : dict[@"tracking_number"];
+        
+        _firstValidationErrorCode = STPShippingInfoValidationErrorNoError;
     }
     return self;
 }
@@ -78,6 +84,148 @@
     } else {
         return NO;
     }
+}
+
+- (STPShippingInfoValidationErrors)validationErrorCode
+{
+    BOOL isValid = [self isValid];
+    if (isValid)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorNoError;
+    
+    return _firstValidationErrorCode;
+}
+
+- (BOOL)isValid
+{
+    BOOL isValid =  [self validateName:self.infosName] && [self validatePhone:self.phone] && [self validateStreet:self.line1 line2:self.line2] && [self validateCity:self.city] && [self validateState:self.state] && [self validatePostalCode:self.postalCode] && [self validateCountry:self.country];
+    
+    if (isValid)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorNoError;
+    
+    return isValid;
+}
+
+- (BOOL)validateName:(NSString *)name
+{
+    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
+    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@" .-"]];
+    
+    BOOL condition1 = [name stringByTrimmingCharactersInSet:characterSet].length == 0;
+    BOOL condition2 = name.length >= 2 && name.length <= 150;
+    
+    if (!condition1)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorFullNameInvalidCharacters;
+    
+    if (!condition2)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorFullNameInvalidCharacters;
+    
+    return condition1 && condition2;
+}
+
+- (BOOL)validatePhone:(NSString *)phone
+{
+    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
+    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"+"]];
+    
+    BOOL condition1 = [phone stringByTrimmingCharactersInSet:characterSet].length == 0;
+    BOOL condition2 = phone.length >= 6 && phone.length <= 35;
+    BOOL condition3 = [phone characterAtIndex:0] == '+';
+    
+    if (!condition1)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorPhoneInvalidCharacters;
+    
+    if (!condition2)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorPhoneLength;
+    
+    if (!condition3)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorPhonePlusCharacter;
+    
+    return condition1 && condition2 && condition3;
+}
+
+- (BOOL)validateStreet:(NSString *)line1 line2:(NSString *)line2
+{
+    NSString *fullAddress = [line1 stringByAppendingString:line2];
+    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
+    [characterSet formUnionWithCharacterSet:[NSCharacterSet letterCharacterSet]];
+    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"-/\\&_()'\"* .,:;?!"]];
+    
+    BOOL condition1 = [fullAddress stringByTrimmingCharactersInSet:characterSet].length == 0;
+    BOOL condition2 = fullAddress.length >= 4 && fullAddress.length <= 200;
+    
+    if (!condition1)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorAddressInvalidCharacters;
+    
+    if (!condition2)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorAddressLength;
+    
+    return condition1 && condition2;
+}
+
+- (BOOL)validatePostalCode:(NSString *)postalCode
+{
+    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
+    [characterSet formUnionWithCharacterSet:[NSCharacterSet letterCharacterSet]];
+    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"-"]];
+    
+    BOOL condition1 = [postalCode stringByTrimmingCharactersInSet:characterSet].length == 0;
+    BOOL condition2 = postalCode.length >= 4 && postalCode.length <= 32;
+    
+    if (!condition1)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorPostalCodeInvalidCharacters;
+    
+    if (!condition2)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorPostalCodeLength;
+    
+    return condition1 && condition2;
+}
+
+- (BOOL)validateCity:(NSString *)city
+{
+    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
+    
+    BOOL condition1 = [city stringByTrimmingCharactersInSet:characterSet].length == 0;
+    BOOL condition2 = city.length >= 1 && city.length <= 100;
+    
+    if (!condition1)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorCityInvalidCharacters;
+    
+    if (!condition2)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorCityLength;
+    
+    return condition1 && condition2;
+}
+
+- (BOOL)validateState:(NSString *)state
+{
+    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
+    
+    BOOL condition1 = [state stringByTrimmingCharactersInSet:characterSet].length == 0;
+    BOOL condition2 = state.length <= 100;
+    
+    if (!condition1)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorStateInvalidCharacters;
+    
+    if (!condition2)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorStateLength;
+    
+    return condition1 && condition2;
+}
+
+- (BOOL)validateCountry:(NSString *)country
+{
+    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
+    
+    BOOL condition1 = [country stringByTrimmingCharactersInSet:characterSet].length == 0;
+    BOOL condition2 = country.length >= 1 && country.length <= 100;
+    
+    if (!condition1)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorCountryInvalidCharacters;
+    
+    if (!condition2)
+        _firstValidationErrorCode = STPShippingInfoValidationErrorCountryLength;
+    
+    return condition1 && condition2;
 }
 
 @end

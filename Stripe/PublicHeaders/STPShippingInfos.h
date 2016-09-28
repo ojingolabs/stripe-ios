@@ -5,6 +5,25 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSInteger, STPShippingInfoValidationErrors) {
+    STPShippingInfoValidationErrorFullNameLength = 0,
+    STPShippingInfoValidationErrorFullNameInvalidCharacters = 1,
+    STPShippingInfoValidationErrorPhoneLength = 2,
+    STPShippingInfoValidationErrorPhoneInvalidCharacters = 3,
+    STPShippingInfoValidationErrorPhonePlusCharacter = 4,
+    STPShippingInfoValidationErrorAddressLength = 5,
+    STPShippingInfoValidationErrorAddressInvalidCharacters = 6,
+    STPShippingInfoValidationErrorPostalCodeLength = 7,
+    STPShippingInfoValidationErrorPostalCodeInvalidCharacters = 8,
+    STPShippingInfoValidationErrorCityLength = 9,
+    STPShippingInfoValidationErrorCityInvalidCharacters = 10,
+    STPShippingInfoValidationErrorStateLength = 11,
+    STPShippingInfoValidationErrorStateInvalidCharacters = 12,
+    STPShippingInfoValidationErrorCountryLength = 13,
+    STPShippingInfoValidationErrorCountryInvalidCharacters = 14,
+    STPShippingInfoValidationErrorNoError = 15
+};
+
 @interface STPShippingInfos : NSObject
 
 - (nonnull instancetype)initWithAttributeDictionary:(nonnull NSDictionary *)attributeDictionary;
@@ -61,5 +80,8 @@
 
 - (nullable NSDictionary*)dictionaryOutput;
 - (BOOL)isEqualToShippingInfos:(nonnull STPShippingInfos*)shippingInfos;
+
+- (BOOL)isValid;
+- (STPShippingInfoValidationErrors)validationErrorCode;
 
 @end
