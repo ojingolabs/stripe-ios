@@ -183,6 +183,7 @@
 - (BOOL)validateCity:(NSString *)city
 {
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
+    [characterSet addCharactersInString:@" -'"];
     
     BOOL condition1 = [city stringByTrimmingCharactersInSet:characterSet].length == 0;
     BOOL condition2 = city.length >= 1 && city.length <= 100;
