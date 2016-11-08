@@ -107,6 +107,10 @@
 
 - (BOOL)validateName:(NSString *)name
 {
+    if (name == nil) {
+        _firstValidationErrorCode = STPShippingInfoValidationErrorFullNameLength;
+        return NO;
+    }
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
     [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@" .-"]];
     
@@ -117,19 +121,23 @@
         _firstValidationErrorCode = STPShippingInfoValidationErrorFullNameInvalidCharacters;
     
     if (!condition2)
-        _firstValidationErrorCode = STPShippingInfoValidationErrorFullNameInvalidCharacters;
+        _firstValidationErrorCode = STPShippingInfoValidationErrorFullNameLength;
     
     return condition1 && condition2;
 }
 
 - (BOOL)validatePhone:(NSString *)phone
 {
+    if (phone == nil) {
+        _firstValidationErrorCode = STPShippingInfoValidationErrorPhoneLength;
+        return NO;
+    }
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
     [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"+"]];
     
     BOOL condition1 = [phone stringByTrimmingCharactersInSet:characterSet].length == 0;
     BOOL condition2 = phone.length >= 6 && phone.length <= 35;
-    BOOL condition3 = [phone characterAtIndex:0] == '+';
+    BOOL condition3 = phone.length > 0 && [phone characterAtIndex:0] == '+';
     
     if (!condition1)
         _firstValidationErrorCode = STPShippingInfoValidationErrorPhoneInvalidCharacters;
@@ -145,6 +153,10 @@
 
 - (BOOL)validateStreet:(NSString *)line1 line2:(NSString *)line2
 {
+    if (line1 == nil) {
+        _firstValidationErrorCode = STPShippingInfoValidationErrorAddressLength;
+        return NO;
+    }
     NSString *fullAddress = [line1 stringByAppendingString:line2];
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
     [characterSet formUnionWithCharacterSet:[NSCharacterSet letterCharacterSet]];
@@ -164,6 +176,10 @@
 
 - (BOOL)validatePostalCode:(NSString *)postalCode
 {
+    if (postalCode == nil) {
+        _firstValidationErrorCode = STPShippingInfoValidationErrorPostalCodeLength;
+        return NO;
+    }
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
     [characterSet formUnionWithCharacterSet:[NSCharacterSet letterCharacterSet]];
     [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"-"]];
@@ -182,6 +198,10 @@
 
 - (BOOL)validateCity:(NSString *)city
 {
+    if (city == nil) {
+        _firstValidationErrorCode = STPShippingInfoValidationErrorCityLength;
+        return NO;
+    }
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
     [characterSet addCharactersInString:@" -'"];
     
@@ -199,6 +219,10 @@
 
 - (BOOL)validateState:(NSString *)state
 {
+    if (state == nil) {
+        _firstValidationErrorCode = STPShippingInfoValidationErrorStateLength;
+        return NO;
+    }
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
     
     BOOL condition1 = [state stringByTrimmingCharactersInSet:characterSet].length == 0;
@@ -215,6 +239,10 @@
 
 - (BOOL)validateCountry:(NSString *)country
 {
+    if (country == nil) {
+        _firstValidationErrorCode = STPShippingInfoValidationErrorCountryLength;
+        return NO;
+    }
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
     
     BOOL condition1 = [country stringByTrimmingCharactersInSet:characterSet].length == 0;
