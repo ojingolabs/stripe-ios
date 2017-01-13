@@ -6,17 +6,17 @@
  Copyright © 2017 Stripe, Inc. All rights reserved.
  */
 
-"Your card's number is invalid" = "Il numero della carta non è valido";
+"Your card's number is invalid." = "Il numero della carta non è valido";
 
-"Your card's security code is invalid" = "Il codice di sicurezza della carta non è valido";
+"Your card's security code is invalid." = "Il codice di sicurezza della carta non è valido";
 
-"Your card's expiration month is invalid" = "Il mese di scadenza della carta non è valido";
+"Your card's expiration month is invalid." = "Il mese di scadenza della carta non è valido";
 
-"Your card's expiration year is invalid" = "L'anno di scadenza della carta non è valido";
+"Your card's expiration year is invalid." = "L'anno di scadenza della carta non è valido";
 
-"Your card has expired" = "La tua carta è scaduta";
+"Your card has expired." = "La tua carta è scaduta";
 
-"Your card was declined" = "La tua carta è stata rifiutata";
+"Your card was declined." = "La tua carta è stata rifiutata";
 
 "There was an unexpected error -- try again in a few seconds" = "Si è verificato un errore imprevisto — riprova tra pochi secondi";
 

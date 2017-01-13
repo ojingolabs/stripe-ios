@@ -6,17 +6,17 @@
   Copyright © 2017 Stripe, Inc. All rights reserved.
 */
 
-"Your card's number is invalid" = "Your card's number is invalid";
+"Your card's number is invalid." = "Your card's number is invalid";
 
-"Your card's security code is invalid" = "Your card's security code is invalid";
+"Your card's security code is invalid." = "Your card's security code is invalid";
 
-"Your card's expiration month is invalid" = "Your card's expiration month is invalid";
+"Your card's expiration month is invalid." = "Your card's expiration month is invalid";
 
-"Your card's expiration year is invalid" = "Your card's expiration year is invalid";
+"Your card's expiration year is invalid." = "Your card's expiration year is invalid";
 
-"Your card has expired" = "Your card has expired";
+"Your card has expired." = "Your card has expired";
 
-"Your card was declined" = "Your card was declined";
+"Your card was declined." = "Your card was declined";
 
 "There was an unexpected error -- try again in a few seconds" = "There was an unexpected error -- try again in a few seconds";
 
