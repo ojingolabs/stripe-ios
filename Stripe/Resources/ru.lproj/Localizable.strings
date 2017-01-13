@@ -1,0 +1,23 @@
+/* 
+  Localizable.strings
+  Stripe
+
+  Created by Oleg Kolokolov on 13/01/2017.
+  Copyright © 2017 Stripe, Inc. All rights reserved.
+*/
+
+"Your card's number is invalid" = "Недействительный номер карты";
+
+"Your card's security code is invalid" = "Недействительный код проверки подлинности карты";
+
+"Your card's expiration month is invalid" = "Неверно задан месяц истечения действия карты";
+
+"Your card's expiration year is invalid" = "Неверно задан год истечения действия карты";
+
+"Your card has expired" = "Срок действия этой карты истек";
+
+"Your card was declined" = "Карта не принята";
+
+"There was an unexpected error -- try again in a few seconds" = "Произошел сбой. Подождите несколько секунд и повторите попытку";
+
+"There was an error processing your card -- try again in a few seconds" = "При обработке данных карты произошел сбой. Подождите несколько секунд и повторите попытку";

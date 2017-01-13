@@ -1,0 +1,23 @@
+/*
+ Localizable.strings
+ Stripe
+ 
+ Created by Oleg Kolokolov on 13/01/2017.
+ Copyright © 2017 Stripe, Inc. All rights reserved.
+ */
+
+"Your card's number is invalid" = "Tu número de tarjeta no es válido";
+
+"Your card's security code is invalid" = "El código de seguridad de tu tarjeta no es válido";
+
+"Your card's expiration month is invalid" = "El mes de caducidad de tu tarjeta no es válido";
+
+"Your card's expiration year is invalid" = "El año de caducidad de tu tarjeta no es válido";
+
+"Your card has expired" = "Tu tarjeta ha caducado";
+
+"Your card was declined" = "Tu tarjeta ha sido rechazada";
+
+"There was an unexpected error -- try again in a few seconds" = "Se ha producido un error inesperado. Vuelve a intentarlo en unos segundos";
+
+"There was an error processing your card -- try again in a few seconds" = "Se ha producido un error al procesar tu tarjeta. Vuelve a intentarlo en unos segundos";

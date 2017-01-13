@@ -322,6 +322,18 @@
 		04EBC7581B7533C300A0E6AE /* STPCardValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = 04EBC7521B7533C300A0E6AE /* STPCardValidator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		04EBC7591B7533C300A0E6AE /* STPCardValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = 04EBC7521B7533C300A0E6AE /* STPCardValidator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		04EBC75A1B7533C300A0E6AE /* STPCardValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = 04EBC7521B7533C300A0E6AE /* STPCardValidator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		04F213311BCEAB61001D6F22 /* STPFormEncodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213301BCEAB61001D6F22 /* STPFormEncodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		04F213321BCEAB61001D6F22 /* STPFormEncodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213301BCEAB61001D6F22 /* STPFormEncodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		04F213331BCEAB61001D6F22 /* STPFormEncodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213301BCEAB61001D6F22 /* STPFormEncodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		04F213351BCECB1C001D6F22 /* STPAPIResponseDecodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213341BCECB1C001D6F22 /* STPAPIResponseDecodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		04F213361BCECB1C001D6F22 /* STPAPIResponseDecodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213341BCECB1C001D6F22 /* STPAPIResponseDecodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		04F213371BCECB1C001D6F22 /* STPAPIResponseDecodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213341BCECB1C001D6F22 /* STPAPIResponseDecodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		04F3BB3D1BA89B1200DE235E /* PKPayment+Stripe.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F3BB3B1BA89B1200DE235E /* PKPayment+Stripe.h */; };
+		04F3BB3E1BA89B1200DE235E /* PKPayment+Stripe.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F3BB3B1BA89B1200DE235E /* PKPayment+Stripe.h */; };
+		04F3BB3F1BA89B1200DE235E /* PKPayment+Stripe.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F3BB3C1BA89B1200DE235E /* PKPayment+Stripe.m */; };
+		04F3BB401BA89B1200DE235E /* PKPayment+Stripe.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F3BB3C1BA89B1200DE235E /* PKPayment+Stripe.m */; };
+		04FCFA191BD59A8C00297732 /* STPCategoryLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 04FCFA171BD59A8C00297732 /* STPCategoryLoader.h */; };
+		04FCFA1A1BD59A8C00297732 /* STPCategoryLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FCFA181BD59A8C00297732 /* STPCategoryLoader.m */; };
 		20F5205200EE5229179B193B /* STPInventory.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52FA9861458853B0B293A /* STPInventory.m */; };
 		20F52135FF8E69C6E59B59CB /* STPInventory.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52FA9861458853B0B293A /* STPInventory.m */; };
 		20F521911231BAC718F9951E /* STPInventory.m in Sources */ = {isa = PBXBuildFile; fileRef = 20F52FA9861458853B0B293A /* STPInventory.m */; };
@@ -394,18 +406,7 @@
 		3FB9388F1BBF26A20043C86F /* STPOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938891BBF26A20043C86F /* STPOrder.m */; };
 		3FB938901BBF26A20043C86F /* STPOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938891BBF26A20043C86F /* STPOrder.m */; };
 		3FB938911BBF26A20043C86F /* STPOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938891BBF26A20043C86F /* STPOrder.m */; };
-		04F213311BCEAB61001D6F22 /* STPFormEncodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213301BCEAB61001D6F22 /* STPFormEncodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		04F213321BCEAB61001D6F22 /* STPFormEncodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213301BCEAB61001D6F22 /* STPFormEncodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		04F213331BCEAB61001D6F22 /* STPFormEncodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213301BCEAB61001D6F22 /* STPFormEncodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		04F213351BCECB1C001D6F22 /* STPAPIResponseDecodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213341BCECB1C001D6F22 /* STPAPIResponseDecodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		04F213361BCECB1C001D6F22 /* STPAPIResponseDecodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213341BCECB1C001D6F22 /* STPAPIResponseDecodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		04F213371BCECB1C001D6F22 /* STPAPIResponseDecodable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F213341BCECB1C001D6F22 /* STPAPIResponseDecodable.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		04F3BB3D1BA89B1200DE235E /* PKPayment+Stripe.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F3BB3B1BA89B1200DE235E /* PKPayment+Stripe.h */; };
-		04F3BB3E1BA89B1200DE235E /* PKPayment+Stripe.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F3BB3B1BA89B1200DE235E /* PKPayment+Stripe.h */; };
-		04F3BB3F1BA89B1200DE235E /* PKPayment+Stripe.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F3BB3C1BA89B1200DE235E /* PKPayment+Stripe.m */; };
-		04F3BB401BA89B1200DE235E /* PKPayment+Stripe.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F3BB3C1BA89B1200DE235E /* PKPayment+Stripe.m */; };
-		04FCFA191BD59A8C00297732 /* STPCategoryLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 04FCFA171BD59A8C00297732 /* STPCategoryLoader.h */; };
-		04FCFA1A1BD59A8C00297732 /* STPCategoryLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FCFA181BD59A8C00297732 /* STPCategoryLoader.m */; };
+		C3B8025B1E28AE1A00463464 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C3B8025D1E28AE1A00463464 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -609,6 +610,13 @@
 		3FB9387F1BBF26990043C86F /* STPCustomer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPCustomer.m; sourceTree = "<group>"; };
 		3FB938891BBF26A20043C86F /* STPOrder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPOrder.m; sourceTree = "<group>"; };
 		4A0D74F918F6106100966D7B /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		C3B8025C1E28AE1A00463464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C3B8025E1E28AE2700463464 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C3B8025F1E28AE2B00463464 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C3B802601E28AE2F00463464 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C3B802611E28AE3500463464 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C3B802621E28AE3A00463464 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C3B802631E28AE3F00463464 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FAFC12C516E5767F0066297F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -732,6 +740,7 @@
 			isa = PBXGroup;
 			children = (
 				04B33F301BC7417B00DD8120 /* Info.plist */,
+				C3B8025D1E28AE1A00463464 /* Localizable.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -966,7 +975,6 @@
 				04415C801A6605D9001225ED /* STPFormEncoder.h in Headers */,
 				3F861A361BC46A7800F3FFEB /* STPCustomer.h in Headers */,
 				3F861A4B1BC46ACB00F3FFEB /* STPShippingMethod.h in Headers */,
-				04415C811A6605D9001225ED /* STPAPIConnection.h in Headers */,
 				3F861A401BC46AA500F3FFEB /* STPOrderItem.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1026,7 +1034,6 @@
 				04EBC7531B7533C300A0E6AE /* STPCardValidationState.h in Headers */,
 				04EBC7571B7533C300A0E6AE /* STPCardValidator.h in Headers */,
 				04CDB4EE1A5F30A700B854EE /* STPColorUtils.h in Headers */,
-				04CDB4F61A5F30A700B854EE /* STPOSXCheckoutWebViewAdapter.h in Headers */,
 				3F861A351BC469DA00F3FFEB /* STPSku.h in Headers */,
 				0433EB491BD06313003912B4 /* NSDictionary+Stripe.h in Headers */,
 				04CDB50E1A5F30A700B854EE /* STPCard.h in Headers */,
@@ -1056,7 +1063,6 @@
 				3F861A301BC469DA00F3FFEB /* STPOrderItem.h in Headers */,
 				3F861A2E1BC469DA00F3FFEB /* STPInventory.h in Headers */,
 				3F861A321BC469DA00F3FFEB /* STPProduct.h in Headers */,
-				04CDB5061A5F30A700B854EE /* STPAPIConnection.h in Headers */,
 				04CDE5C91BC20B1D00548833 /* STPBankAccountParams.h in Headers */,
 				0438EF381B7416BB00D506CC /* STPPaymentCardTextFieldViewModel.h in Headers */,
 				04CDE5BC1BC1F21500548833 /* STPCardParams.h in Headers */,
@@ -1098,14 +1104,12 @@
 				04D12C341A5F55D10010446E /* STPCheckoutWebViewAdapter.h in Headers */,
 				04D12C351A5F55D10010446E /* STPColorUtils.h in Headers */,
 				3F861A461BC46AB900F3FFEB /* STPProduct.h in Headers */,
-				04D12C361A5F55D10010446E /* STPIOSCheckoutWebViewAdapter.h in Headers */,
 				04D12C371A5F55D10010446E /* STPOSXCheckoutWebViewAdapter.h in Headers */,
 				04D12C381A5F55D10010446E /* STPStrictURLProtocol.h in Headers */,
 				04D12C3A1A5F55D10010446E /* STPFormEncoder.h in Headers */,
 				3F861A371BC46A7800F3FFEB /* STPCustomer.h in Headers */,
 				3F861A3F1BC46AA500F3FFEB /* STPOrderItem.h in Headers */,
 				3F861A4F1BC46AD400F3FFEB /* STPSku.h in Headers */,
-				04D12C3B1A5F55D10010446E /* STPAPIConnection.h in Headers */,
 				0433EB4A1BD06313003912B4 /* NSDictionary+Stripe.h in Headers */,
 				04F213361BCECB1C001D6F22 /* STPAPIResponseDecodable.h in Headers */,
 			);
@@ -1243,6 +1247,12 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				fr,
+				de,
+				ja,
+				it,
+				es,
+				ru,
 			);
 			mainGroup = 11C74B8D164043050071C2CA;
 			productRefGroup = 11C74B99164043050071C2CA /* Products */;
@@ -1317,6 +1327,7 @@
 				0438EFD01B741C2800D506CC /* stp_card_placeholder@2x.png in Resources */,
 				0438EFB61B741C2800D506CC /* stp_card_diners.png in Resources */,
 				0438EFAE1B741C2800D506CC /* stp_card_cvc@3x.png in Resources */,
+				C3B8025B1E28AE1A00463464 /* Localizable.strings in Resources */,
 				0438EFBE1B741C2800D506CC /* stp_card_discover@2x.png in Resources */,
 				0438EFC01B741C2800D506CC /* stp_card_discover@3x.png in Resources */,
 				0438EFB41B741C2800D506CC /* stp_card_cvc_amex@3x.png in Resources */,
@@ -1602,6 +1613,24 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		C3B8025D1E28AE1A00463464 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C3B8025C1E28AE1A00463464 /* en */,
+				C3B8025E1E28AE2700463464 /* fr */,
+				C3B8025F1E28AE2B00463464 /* de */,
+				C3B802601E28AE2F00463464 /* ja */,
+				C3B802611E28AE3500463464 /* it */,
+				C3B802621E28AE3A00463464 /* es */,
+				C3B802631E28AE3F00463464 /* ru */,
+			);
+			name = Localizable.strings;
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		045E7C0D1A5F41DE004751EF /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1695,6 +1724,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 04F39F0A1AEF2AFE005B926E /* Project-Debug.xcconfig */;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				ENABLE_TESTABILITY = YES;
 				ONLY_ACTIVE_ARCH = YES;
 			};
@@ -1704,6 +1734,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 04F39F0B1AEF2AFE005B926E /* Project-Release.xcconfig */;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 			};
 			name = Release;
 		};
