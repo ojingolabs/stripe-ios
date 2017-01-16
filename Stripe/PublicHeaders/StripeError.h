@@ -51,18 +51,18 @@ FOUNDATION_EXPORT NSString * __nonnull const STPIncorrectCVC;
 
 #pragma mark Strings
 
-#define STPCardErrorInvalidNumberUserMessage NSLocalizedString(@"Your card's number is invalid.", @"Error when the card number is not valid")
-#define STPCardErrorInvalidCVCUserMessage NSLocalizedString(@"Your card's security code is invalid.", @"Error when the card's CVC is not valid")
+#define STPCardErrorInvalidNumberUserMessage NSLocalizedStringFromTable(@"Your card's number is invalid.", @"Stripe-Localizable", @"Error when the card number is not valid")
+#define STPCardErrorInvalidCVCUserMessage NSLocalizedStringFromTable(@"Your card's security code is invalid.", @"Stripe-Localizable", @"Error when the card's CVC is not valid")
 #define STPCardErrorInvalidExpMonthUserMessage                                                                                                                 \
-    NSLocalizedString(@"Your card's expiration month is invalid.", @"Error when the card's expiration month is not valid")
+    NSLocalizedStringFromTable(@"Your card's expiration month is invalid.", @"Stripe-Localizable", @"Error when the card's expiration month is not valid")
 #define STPCardErrorInvalidExpYearUserMessage                                                                                                                  \
-    NSLocalizedString(@"Your card's expiration year is invalid.", @"Error when the card's expiration year is not valid")
-#define STPCardErrorExpiredCardUserMessage NSLocalizedString(@"Your card has expired.", @"Error when the card has already expired")
-#define STPCardErrorDeclinedUserMessage NSLocalizedString(@"Your card was declined.", @"Error when the card was declined by the credit card networks")
+    NSLocalizedStringFromTable(@"Your card's expiration year is invalid.", @"Stripe-Localizable", @"Error when the card's expiration year is not valid")
+#define STPCardErrorExpiredCardUserMessage NSLocalizedStringFromTable(@"Your card has expired.", @"Stripe-Localizable", @"Error when the card has already expired")
+#define STPCardErrorDeclinedUserMessage NSLocalizedStringFromTable(@"Your card was declined.", @"Stripe-Localizable", @"Error when the card was declined by the credit card networks")
 #define STPUnexpectedError                                                                                                                                     \
-    NSLocalizedString(@"There was an unexpected error -- try again in a few seconds", @"Unexpected error, such as a 500 from Stripe or a JSON parse error")
+    NSLocalizedStringFromTable(@"There was an unexpected error -- try again in a few seconds", @"Stripe-Localizable", @"Unexpected error, such as a 500 from Stripe or a JSON parse error")
 #define STPCardErrorProcessingErrorUserMessage                                                                                                                 \
-    NSLocalizedString(@"There was an error processing your card -- try again in a few seconds", @"Error when there is a problem processing the credit card")
+    NSLocalizedStringFromTable(@"There was an error processing your card -- try again in a few seconds", @"Stripe-Localizable", @"Error when there is a problem processing the credit card")
 
 @interface NSError(Stripe)
 
