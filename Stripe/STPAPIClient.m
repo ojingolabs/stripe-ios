@@ -203,11 +203,11 @@ static NSString *STPDefaultPublishableKey;
             if(!bundle)
                 bundle = [NSBundle bundleForClass:[STPAPIClient class]];
             
-            url = [bundle URLForResource:@"alva" withExtension:@"klut"];
+            url = [bundle URLForResource:@"Stripe-Localizable" withExtension:@"strings"];
             if(!url)
             {
                 url = [bundle URLForResource:@"Stripe" withExtension:@"bundle"];
-                return [NSBundle bundleWithURL:url];
+                bundle = [NSBundle bundleWithURL:url];
             }
         });
         
