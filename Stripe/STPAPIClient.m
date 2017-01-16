@@ -189,6 +189,32 @@ static NSString *STPDefaultPublishableKey;
     }
 }
 
++ (NSBundle *) getStripeBundle {
+    
+        static dispatch_once_t pred;
+        static NSBundle* bundle = nil;
+        
+        dispatch_once(&pred, ^{
+            
+            NSURL *url = [[NSBundle mainBundle] URLForResource:@"Stripe" withExtension:@"bundle"];
+            if(url)
+                bundle = [NSBundle bundleWithURL:url];
+            
+            if(!bundle)
+                bundle = [NSBundle bundleForClass:[STPAPIClient class]];
+            
+            url = [bundle URLForResource:@"alva" withExtension:@"klut"];
+            if(!url)
+            {
+                url = [bundle URLForResource:@"Stripe" withExtension:@"bundle"];
+                return [NSBundle bundleWithURL:url];
+            }
+        });
+        
+        return bundle;
+    
+}
+
 #endif
 
 @end

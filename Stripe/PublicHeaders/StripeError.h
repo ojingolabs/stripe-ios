@@ -51,18 +51,18 @@ FOUNDATION_EXPORT NSString * __nonnull const STPIncorrectCVC;
 
 #pragma mark Strings
 
-#define STPCardErrorInvalidNumberUserMessage NSLocalizedStringFromTable(@"Your card's number is invalid.", @"Stripe-Localizable", @"Error when the card number is not valid")
-#define STPCardErrorInvalidCVCUserMessage NSLocalizedStringFromTable(@"Your card's security code is invalid.", @"Stripe-Localizable", @"Error when the card's CVC is not valid")
+#define STPCardErrorInvalidNumberUserMessage NSLocalizedStringFromTableInBundle(@"Your card's number is invalid.", nil, [StripeError getStripeBundle], @"Error when the card number is not valid")
+#define STPCardErrorInvalidCVCUserMessage NSLocalizedStringFromTableInBundle(@"Your card's security code is invalid.", nil, [StripeError getStripeBundle], @"Error when the card's CVC is not valid")
 #define STPCardErrorInvalidExpMonthUserMessage                                                                                                                 \
-    NSLocalizedStringFromTable(@"Your card's expiration month is invalid.", @"Stripe-Localizable", @"Error when the card's expiration month is not valid")
+    NSLocalizedStringFromTableInBundle(@"Your card's expiration month is invalid.", nil, [StripeError getStripeBundle], @"Error when the card's expiration month is not valid")
 #define STPCardErrorInvalidExpYearUserMessage                                                                                                                  \
-    NSLocalizedStringFromTable(@"Your card's expiration year is invalid.", @"Stripe-Localizable", @"Error when the card's expiration year is not valid")
-#define STPCardErrorExpiredCardUserMessage NSLocalizedStringFromTable(@"Your card has expired.", @"Stripe-Localizable", @"Error when the card has already expired")
-#define STPCardErrorDeclinedUserMessage NSLocalizedStringFromTable(@"Your card was declined.", @"Stripe-Localizable", @"Error when the card was declined by the credit card networks")
+    NSLocalizedStringFromTableInBundle(@"Your card's expiration year is invalid.", nil, [StripeError getStripeBundle], @"Error when the card's expiration year is not valid")
+#define STPCardErrorExpiredCardUserMessage NSLocalizedStringFromTableInBundle(@"Your card has expired.", nil, [StripeError getStripeBundle], @"Error when the card has already expired")
+#define STPCardErrorDeclinedUserMessage NSLocalizedStringFromTableInBundle(@"Your card was declined.", nil, [StripeError getStripeBundle], @"Error when the card was declined by the credit card networks")
 #define STPUnexpectedError                                                                                                                                     \
-    NSLocalizedStringFromTable(@"There was an unexpected error -- try again in a few seconds", @"Stripe-Localizable", @"Unexpected error, such as a 500 from Stripe or a JSON parse error")
+    NSLocalizedStringFromTableInBundle(@"There was an unexpected error -- try again in a few seconds", nil, [StripeError getStripeBundle], @"Unexpected error, such as a 500 from Stripe or a JSON parse error")
 #define STPCardErrorProcessingErrorUserMessage                                                                                                                 \
-    NSLocalizedStringFromTable(@"There was an error processing your card -- try again in a few seconds", @"Stripe-Localizable", @"Error when there is a problem processing the credit card")
+    NSLocalizedStringFromTableInBundle(@"There was an error processing your card -- try again in a few seconds", nil, [StripeError getStripeBundle], @"Error when there is a problem processing the credit card")
 
 @interface NSError(Stripe)
 
