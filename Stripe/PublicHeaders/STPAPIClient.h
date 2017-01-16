@@ -37,6 +37,9 @@ typedef void (^STPTokenCompletionBlock)(STPToken * __nullable token, NSError * _
 
 /// The current default publishable key.
 + (nullable NSString *)defaultPublishableKey;
+
++ (nonnull NSBundle *) getStripeBundle;
+
 @end
 
 /// A client for making connections to the Stripe API.

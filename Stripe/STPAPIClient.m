@@ -45,6 +45,31 @@ static NSString *STPDefaultPublishableKey;
     return STPDefaultPublishableKey;
 }
 
++ (NSBundle *) getStripeBundle {
+    
+    static dispatch_once_t pred;
+    static NSBundle* bundle = nil;
+    
+    dispatch_once(&pred, ^{
+        
+        NSURL *url = [[NSBundle mainBundle] URLForResource:@"Stripe" withExtension:@"bundle"];
+        if(url)
+            bundle = [NSBundle bundleWithURL:url];
+        
+        if(!bundle)
+            bundle = [NSBundle bundleForClass:[Stripe class]];
+        
+        url = [bundle URLForResource:@"Stripe-Localizable" withExtension:@"strings"];
+        if(!url)
+        {
+            url = [bundle URLForResource:@"Stripe" withExtension:@"bundle"];
+            bundle = [NSBundle bundleWithURL:url];
+        }
+    });
+    
+    return bundle;
+}
+
 @end
 
 #if __has_include("Fabric.h")
@@ -187,32 +212,6 @@ static NSString *STPDefaultPublishableKey;
     } else {
         NSCAssert(fabric, @"initializeIfNeeded method called from a project that doesn't have Fabric.");
     }
-}
-
-+ (NSBundle *) getStripeBundle {
-    
-        static dispatch_once_t pred;
-        static NSBundle* bundle = nil;
-        
-        dispatch_once(&pred, ^{
-            
-            NSURL *url = [[NSBundle mainBundle] URLForResource:@"Stripe" withExtension:@"bundle"];
-            if(url)
-                bundle = [NSBundle bundleWithURL:url];
-            
-            if(!bundle)
-                bundle = [NSBundle bundleForClass:[STPAPIClient class]];
-            
-            url = [bundle URLForResource:@"Stripe-Localizable" withExtension:@"strings"];
-            if(!url)
-            {
-                url = [bundle URLForResource:@"Stripe" withExtension:@"bundle"];
-                bundle = [NSBundle bundleWithURL:url];
-            }
-        });
-        
-        return bundle;
-    
 }
 
 #endif
