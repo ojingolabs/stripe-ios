@@ -6,6 +6,7 @@
 //
 //
 
+@class Stripe;
 #import <Foundation/Foundation.h>
 
 /**
