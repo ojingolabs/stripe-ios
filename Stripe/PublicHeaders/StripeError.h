@@ -6,7 +6,7 @@
 //
 //
 
-@class Stripe;
+#import "STPAPIClient.h"
 #import <Foundation/Foundation.h>
 
 /**
