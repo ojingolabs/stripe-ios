@@ -406,7 +406,7 @@
 		3FB9388F1BBF26A20043C86F /* STPOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938891BBF26A20043C86F /* STPOrder.m */; };
 		3FB938901BBF26A20043C86F /* STPOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938891BBF26A20043C86F /* STPOrder.m */; };
 		3FB938911BBF26A20043C86F /* STPOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB938891BBF26A20043C86F /* STPOrder.m */; };
-		C3B8025B1E28AE1A00463464 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C3B8025D1E28AE1A00463464 /* Localizable.strings */; };
+		C30D63D21E2CC36B00FFBF94 /* Stripe-Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C30D63D01E2CC36B00FFBF94 /* Stripe-Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -610,13 +610,13 @@
 		3FB9387F1BBF26990043C86F /* STPCustomer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPCustomer.m; sourceTree = "<group>"; };
 		3FB938891BBF26A20043C86F /* STPOrder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPOrder.m; sourceTree = "<group>"; };
 		4A0D74F918F6106100966D7B /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		C3B8025C1E28AE1A00463464 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		C3B8025E1E28AE2700463464 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		C3B8025F1E28AE2B00463464 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
-		C3B802601E28AE2F00463464 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		C3B802611E28AE3500463464 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
-		C3B802621E28AE3A00463464 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
-		C3B802631E28AE3F00463464 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C30D63D11E2CC36B00FFBF94 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = "Resources/en.lproj/Stripe-Localizable.strings"; sourceTree = "<group>"; };
+		C30D63D31E2CC38200FFBF94 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = "Resources/fr.lproj/Stripe-Localizable.strings"; sourceTree = "<group>"; };
+		C30D63D41E2CC38500FFBF94 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = "Resources/de.lproj/Stripe-Localizable.strings"; sourceTree = "<group>"; };
+		C30D63D51E2CC38700FFBF94 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = "Resources/ja.lproj/Stripe-Localizable.strings"; sourceTree = "<group>"; };
+		C30D63D61E2CC38900FFBF94 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = "Resources/it.lproj/Stripe-Localizable.strings"; sourceTree = "<group>"; };
+		C30D63D71E2CC38A00FFBF94 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = "Resources/es.lproj/Stripe-Localizable.strings"; sourceTree = "<group>"; };
+		C30D63D81E2CC38D00FFBF94 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = "Resources/ru.lproj/Stripe-Localizable.strings"; sourceTree = "<group>"; };
 		FAFC12C516E5767F0066297F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -739,8 +739,8 @@
 		04B33F2F1BC7414C00DD8120 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				C30D63D01E2CC36B00FFBF94 /* Stripe-Localizable.strings */,
 				04B33F301BC7417B00DD8120 /* Info.plist */,
-				C3B8025D1E28AE1A00463464 /* Localizable.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1327,7 +1327,6 @@
 				0438EFD01B741C2800D506CC /* stp_card_placeholder@2x.png in Resources */,
 				0438EFB61B741C2800D506CC /* stp_card_diners.png in Resources */,
 				0438EFAE1B741C2800D506CC /* stp_card_cvc@3x.png in Resources */,
-				C3B8025B1E28AE1A00463464 /* Localizable.strings in Resources */,
 				0438EFBE1B741C2800D506CC /* stp_card_discover@2x.png in Resources */,
 				0438EFC01B741C2800D506CC /* stp_card_discover@3x.png in Resources */,
 				0438EFB41B741C2800D506CC /* stp_card_cvc_amex@3x.png in Resources */,
@@ -1335,6 +1334,7 @@
 				0438EFAA1B741C2800D506CC /* stp_card_cvc.png in Resources */,
 				0438EFAC1B741C2800D506CC /* stp_card_cvc@2x.png in Resources */,
 				0438EFCC1B741C2800D506CC /* stp_card_mastercard@3x.png in Resources */,
+				C30D63D21E2CC36B00FFBF94 /* Stripe-Localizable.strings in Resources */,
 				0438EFCE1B741C2800D506CC /* stp_card_placeholder.png in Resources */,
 				0438EFCA1B741C2800D506CC /* stp_card_mastercard@2x.png in Resources */,
 				042CA1B81B7BD84100AF0DA6 /* stp_card_placeholder_template@3x.png in Resources */,
@@ -1614,19 +1614,18 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		C3B8025D1E28AE1A00463464 /* Localizable.strings */ = {
+		C30D63D01E2CC36B00FFBF94 /* Stripe-Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				C3B8025C1E28AE1A00463464 /* en */,
-				C3B8025E1E28AE2700463464 /* fr */,
-				C3B8025F1E28AE2B00463464 /* de */,
-				C3B802601E28AE2F00463464 /* ja */,
-				C3B802611E28AE3500463464 /* it */,
-				C3B802621E28AE3A00463464 /* es */,
-				C3B802631E28AE3F00463464 /* ru */,
+				C30D63D11E2CC36B00FFBF94 /* en */,
+				C30D63D31E2CC38200FFBF94 /* fr */,
+				C30D63D41E2CC38500FFBF94 /* de */,
+				C30D63D51E2CC38700FFBF94 /* ja */,
+				C30D63D61E2CC38900FFBF94 /* it */,
+				C30D63D71E2CC38A00FFBF94 /* es */,
+				C30D63D81E2CC38D00FFBF94 /* ru */,
 			);
-			name = Localizable.strings;
-			path = Resources;
+			name = "Stripe-Localizable.strings";
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
