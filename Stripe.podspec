@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target          = '6.0'
   s.osx.deployment_target          = '10.9'
   s.default_subspecs               = 'Core'
-s.ios.resource_bundle = { 'Stripe' => [ 'Stripe/Resources/**/*' ]}
+  s.ios.resource_bundle = { 'Stripe' => [ 'Stripe/Resources/**/*' ]}
 
   s.subspec 'Core' do |ss|
     ss.public_header_files         = 'Stripe/PublicHeaders/*.h', 'Stripe/PublicHeaders/Checkout/*.h'
