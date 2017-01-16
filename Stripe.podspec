@@ -13,14 +13,14 @@ Pod::Spec.new do |s|
   s.ios.deployment_target          = '6.0'
   s.osx.deployment_target          = '10.9'
   s.default_subspecs               = 'Core'
-  s.ios.resource_bundle = { 'Stripe' => [ 'Stripe/Resources/*' ]}
+s.ios.resource_bundle = { 'Stripe' => [ 'Stripe/Resources/**/*' ]}
 
   s.subspec 'Core' do |ss|
     ss.public_header_files         = 'Stripe/PublicHeaders/*.h', 'Stripe/PublicHeaders/Checkout/*.h'
     ss.ios.public_header_files     = 'Stripe/PublicHeaders/ApplePay/*.h', 'Stripe/PublicHeaders/UI/*.h'
     ss.source_files                = 'Stripe/PublicHeaders/*.h', 'Stripe/*.{h,m}', 'Stripe/PublicHeaders/Checkout/*.h', 'Stripe/Checkout/*.{h,m}'
     ss.ios.source_files            = 'Stripe/PublicHeaders/ApplePay/*.h', 'Stripe/ApplePay/*.{h,m}', 'Stripe/PublicHeaders/UI/*.h', 'Stripe/UI/*.{h,m}', 'Stripe/Fabric/*'
-    ss.resources                   = 'Stripe/Resources/**/*'
+    ss.resources                   = 'Stripe/Resources/Images/*'
   end
 
   s.subspec 'Checkout' do |ss|
