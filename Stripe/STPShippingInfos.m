@@ -182,7 +182,7 @@
     }
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
     [characterSet formUnionWithCharacterSet:[NSCharacterSet letterCharacterSet]];
-    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"-"]];
+    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"- "]];
     
     BOOL condition1 = [postalCode stringByTrimmingCharactersInSet:characterSet].length == 0;
     BOOL condition2 = postalCode.length >= 4 && postalCode.length <= 32;
