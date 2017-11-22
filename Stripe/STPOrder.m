@@ -65,7 +65,19 @@
             _chargeId = dict[@"charge"];
         }
 
-        _shippingInfos = [[STPShippingInfos alloc] initWithAttributeDictionary:dict[@"shipping"]];
+        if ([dict[@"shipping"] isKindOfClass:[NSDictionary class]]) {
+            NSDictionary *shippingDict = dict[@"shipping"];
+            STPAddress *shipping = [STPAddress new];
+            shipping.name = shippingDict[@"name"];
+            shipping.phone = shippingDict[@"phone"];
+            shipping.line1 = shippingDict[@"address"][@"line1"];
+            shipping.line2 = shippingDict[@"address"][@"line2"];
+            shipping.city = shippingDict[@"address"][@"city"];
+            shipping.state = shippingDict[@"address"][@"state"];
+            shipping.postalCode = shippingDict[@"address"][@"postal_code"];
+            shipping.country = shippingDict[@"address"][@"country"];
+            _shippingAddress = shipping;
+        }
 
         NSMutableArray *methods = [NSMutableArray arrayWithCapacity:[dict[@"shipping_methods"] count]];
         for (id method in dict[@"shipping_methods"]) {

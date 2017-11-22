@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, STPOrderStatus) {
     STPOrderStatusUnknown = NSIntegerMax
 };
 
-@class STPCustomer, STPShippingInfos, STPShippingMethod, STPOrderItem;
+@class STPCustomer, STPAddress, STPShippingMethod, STPOrderItem;
 
 @interface STPOrder : NSObject
 
@@ -90,7 +90,7 @@ typedef NS_ENUM(NSInteger, STPOrderStatus) {
 /**
  * The shipping address for the order. Present if the order is for goods to be shipped.
  */
-@property (nonatomic, nullable) STPShippingInfos *shippingInfos;
+@property (nonatomic, nullable) STPAddress *shippingAddress;
 
 /**
  * List of items constituting the order.

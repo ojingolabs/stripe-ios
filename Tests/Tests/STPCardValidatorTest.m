@@ -12,6 +12,19 @@
 #import "STPCardValidationState.h"
 #import "STPCardValidator.h"
 
+@interface STPCardValidator (Testing)
+
++ (STPCardValidationState)validationStateForExpirationYear:(NSString *)expirationYear
+                                                   inMonth:(NSString *)expirationMonth
+                                             inCurrentYear:(NSInteger)currentYear
+                                              currentMonth:(NSInteger)currentMonth;
+
++ (STPCardValidationState)validationStateForCard:(STPCardParams *)card
+                                   inCurrentYear:(NSInteger)currentYear
+                                    currentMonth:(NSInteger)currentMonth;
+
+@end
+
 @interface STPCardValidatorTest : XCTestCase
 @end
 
@@ -20,6 +33,7 @@
 + (NSArray *)cardData {
     return @[
              @[@(STPCardBrandVisa), @"4242424242424242", @(STPCardValidationStateValid)],
+             @[@(STPCardBrandVisa), @"4242424242422", @(STPCardValidationStateIncomplete)],
              @[@(STPCardBrandVisa), @"4012888888881881", @(STPCardValidationStateValid)],
              @[@(STPCardBrandVisa), @"4000056655665556", @(STPCardValidationStateValid)],
              @[@(STPCardBrandMasterCard), @"5555555555554444", @(STPCardValidationStateValid)],
@@ -42,6 +56,8 @@
                        @[@"4242424242424242", @"4242424242424242"],
                        @[@"XXXXXX", @""],
                        @[@"424242424242424X", @"424242424242424"],
+                       @[@"X4242", @"4242"],
+                       @[@"4242 4242 4242 4242", @"4242424242424242"]
                        ];
     for (NSArray *test in tests) {
         XCTAssertEqualObjects([STPCardValidator sanitizedNumericStringForString:test[0]], test[1]);
@@ -56,7 +72,8 @@
     }
     
     [tests addObject:@[@(STPCardValidationStateValid), @"4242 4242 4242 4242"]];
-    
+    [tests addObject:@[@(STPCardValidationStateValid), @"4136000000008"]];
+
     NSArray *badCardNumbers = @[
                                 @"0000000000000000",
                                 @"9999999999999995",
@@ -79,8 +96,9 @@
                                      @"",
                                      @"    ",
                                      @"6011",
+                                     @"4012888888881"
                                      ];
-    
+
     for (NSString *card in possibleCardNumbers) {
         [tests addObject:@[@(STPCardValidationStateIncomplete), card]];
     }
@@ -90,13 +108,15 @@
         NSNumber *validationState = @([STPCardValidator validationStateForNumber:card validatingCardBrand:YES]);
         NSNumber *expected = test[0];
         if (![validationState isEqual:expected]) {
-            XCTFail();
+            XCTFail(@"Expected %@, got %@ for number %@", expected, validationState, card);
         }
     }
     
     XCTAssertEqual(STPCardValidationStateIncomplete, [STPCardValidator validationStateForNumber:@"1" validatingCardBrand:NO]);
     XCTAssertEqual(STPCardValidationStateValid, [STPCardValidator validationStateForNumber:@"0000000000000000" validatingCardBrand:NO]);
     XCTAssertEqual(STPCardValidationStateValid, [STPCardValidator validationStateForNumber:@"9999999999999995" validatingCardBrand:NO]);
+    XCTAssertEqual(STPCardValidationStateIncomplete, [STPCardValidator validationStateForNumber:@"4242424242424" validatingCardBrand:YES]);
+    XCTAssertEqual(STPCardValidationStateIncomplete, [STPCardValidator validationStateForNumber:nil validatingCardBrand:YES]);
 }
 
 - (void)testBrand {
@@ -105,18 +125,22 @@
     }
 }
 
-- (void)testBrandNumberLength {
+- (void)testLengthsForCardBrand {
     NSArray *tests = @[
-                       @[@(STPCardBrandVisa), @16],
-                       @[@(STPCardBrandMasterCard), @16],
-                       @[@(STPCardBrandAmex), @15],
-                       @[@(STPCardBrandDiscover), @16],
-                       @[@(STPCardBrandDinersClub), @14],
-                       @[@(STPCardBrandJCB), @16],
-                       @[@(STPCardBrandUnknown), @16],
+                       @[@(STPCardBrandVisa), @[@13, @16]],
+                       @[@(STPCardBrandMasterCard), @[@16]],
+                       @[@(STPCardBrandAmex), @[@15]],
+                       @[@(STPCardBrandDiscover), @[@16]],
+                       @[@(STPCardBrandDinersClub), @[@14]],
+                       @[@(STPCardBrandJCB), @[@16]],
+                       @[@(STPCardBrandUnknown), @[@16]],
                        ];
     for (NSArray *test in tests) {
-        XCTAssertEqualObjects(@([STPCardValidator lengthForCardBrand:[test[0] integerValue]]), test[1]);
+        NSSet *lengths = [STPCardValidator lengthsForCardBrand:[test[0] integerValue]];
+        NSSet *expected = [NSSet setWithArray:test[1]];
+        if (![lengths isEqualToSet:expected]) {
+            XCTFail(@"Invalid lengths for brand %@: expected %@, got %@", test[0], expected, lengths);
+        }
     }
 }
 
@@ -163,10 +187,13 @@
                        @[@"9", @"15", @(STPCardValidationStateValid)],
                        @[@"11", @"16", @(STPCardValidationStateValid)],
                        @[@"11", @"99", @(STPCardValidationStateValid)],
-                       @[@"00", @"99", @(STPCardValidationStateValid)],
+                       @[@"01", @"99", @(STPCardValidationStateValid)],
+                       @[@"1", @"99", @(STPCardValidationStateValid)],
+                       @[@"00", @"99", @(STPCardValidationStateInvalid)],
                        @[@"12", @"14", @(STPCardValidationStateInvalid)],
                        @[@"7", @"15", @(STPCardValidationStateInvalid)],
                        @[@"12", @"00", @(STPCardValidationStateInvalid)],
+                       @[@"13", @"16", @(STPCardValidationStateInvalid)],
                        @[@"12", @"2", @(STPCardValidationStateIncomplete)],
                        @[@"12", @"1", @(STPCardValidationStateIncomplete)],
                        @[@"12", @"0", @(STPCardValidationStateIncomplete)],
@@ -235,7 +262,9 @@
         card.cvc = test[3];
         STPCardValidationState state = [STPCardValidator validationStateForCard:card
                                         inCurrentYear:15 currentMonth:8];
-        XCTAssertEqualObjects(@(state), test[4]);
+        if (![@(state) isEqualToNumber:test[4]]) {
+            XCTFail(@"Wrong validation state for %@. Expected %@, got %@", card.number, test[4], @(state));
+        }
     }
 }
 

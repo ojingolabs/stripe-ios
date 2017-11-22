@@ -2,51 +2,58 @@
 //  STPCustomer.h
 //  Stripe
 //
-//  Created by Antoine Lavail on 02/10/15.
-//  Copyright © 2015 Stripe, Inc. All rights reserved.
+//  Created by Jack Flintermann on 6/9/16.
+//  Copyright © 2016 Stripe, Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import "STPAPIResponseDecodable.h"
+#import "STPSourceProtocol.h"
 
-@class STPCard, STPShippingInfos;
+@class STPAddress;
 
-@interface STPCustomer : NSObject
-
-
-/**
- *  The Stripe ID for the customer.
- */
-@property (nonatomic, readonly, nullable) NSString *custId;
+NS_ASSUME_NONNULL_BEGIN
 
 /**
- *  The customer's email address.
+ An `STPCustomer` represents a deserialized Customer object from the Stripe API.
+ You shouldn't need to instantiate an `STPCustomer` – you should instead use
+ `STPCustomerContext` to manage retrieving and updating a customer.
  */
-@property (nonatomic, copy, nullable) NSString *email;
+@interface STPCustomer : NSObject <STPAPIResponseDecodable>
 
 /**
- *  Whether or not the latest charge for the customer’s latest invoice has failed.
+ Initialize a customer object with the provided values.
+
+ @param stripeID      The ID of the customer, e.g. `cus_abc`
+ @param defaultSource The default source of the customer, such as an `STPCard` object. Can be nil.
+ @param sources       All of the customer's payment sources. This might be an empty array.
+
+ @return an instance of STPCustomer
  */
-@property (nonatomic, readonly) BOOL delinquent;
++ (instancetype)customerWithStripeID:(NSString *)stripeID
+                       defaultSource:(nullable id<STPSourceProtocol>)defaultSource
+                             sources:(NSArray<id<STPSourceProtocol>> *)sources;
 
 /**
- *  The currency the customer can be charged in for recurring billing purposes
+ The Stripe ID of the customer, e.g. `cus_1234`
  */
-@property (nonatomic, copy, nullable) NSString *currency;
+@property (nonatomic, readonly, copy) NSString *stripeID;
 
 /**
- * The customer’s payment sources, if any
+ The default source used to charge the customer.
  */
-@property (nonatomic, copy, nullable) NSArray<STPCard*> *sources;
+@property (nonatomic, readonly, nullable) id<STPSourceProtocol> defaultSource;
 
 /**
- * ID of the default source attached to this customer.
+ The available payment sources the customer has (this may be an empty array).
  */
-@property (nonatomic, copy, nullable) NSString *defaultSourceId;
+@property (nonatomic, readonly) NSArray<id<STPSourceProtocol>> *sources;
 
 /**
- * Shipping information associated with the customer.
+ The customer's shipping address.
  */
-@property (nonatomic, nullable) STPShippingInfos *shippingInfos;
+@property (nonatomic, nullable) STPAddress *shippingAddress;
+
 
 /**
  * A set of key/value pairs that you can attach to a customer object.
@@ -56,9 +63,47 @@
 
 @end
 
-// This method is used internally by Stripe to deserialize API responses and exposed here for convenience and testing purposes only. You should not use it in
-// your own code.
-@interface STPCustomer (PrivateMethods)
-- (nonnull instancetype)initWithAttributeDictionary:(nonnull NSDictionary *)attributeDictionary;
+/**
+ Use `STPCustomerDeserializer` to convert a response from the Stripe API into an `STPCustomer` object. `STPCustomerDeserializer` expects the JSON response to be in the exact same format as the Stripe API.
+ */
+@interface STPCustomerDeserializer : NSObject
+
+/**
+ Initialize a customer deserializer. The `data`, `urlResponse`, and `error` 
+ parameters are intended to be passed from an `NSURLSessionDataTask` callback. 
+ After it has been initialized, you can inspect the `error` and `customer` 
+ properties to see if the deserialization was successful. If `error` is nil, 
+ `customer` will be non-nil (and vice versa).
+
+ @param data        An `NSData` object representing encoded JSON for a Customer object
+ @param urlResponse The URL response obtained from the `NSURLSessionTask`
+ @param error       Any error that occurred from the URL session task (if this 
+ is non-nil, the `error` property will be set to this value after initialization).
+ */
+- (instancetype)initWithData:(nullable NSData *)data
+                 urlResponse:(nullable NSURLResponse *)urlResponse
+                       error:(nullable NSError *)error;
+
+/**
+ Initializes a customer deserializer with a JSON dictionary. This JSON should be 
+ in the exact same format as what the Stripe API returns. If it's successfully 
+ parsed, the `customer` parameter will be present after initialization; 
+ otherwise `error` will be present.
+
+ @param json a JSON dictionary.
+ */
+- (instancetype)initWithJSONResponse:(id)json;
+
+/**
+ If a customer was successfully parsed from the response, it will be set here. Otherwise, this value wil be nil (and the `error` property will explain what went wrong).
+ */
+@property (nonatomic, readonly, nullable) STPCustomer *customer;
+
+/**
+ If the deserializer failed to parse a customer, this property will explain why (and the `customer` property will be nil).
+ */
+@property (nonatomic, readonly, nullable) NSError *error;
+
 @end
 
+NS_ASSUME_NONNULL_END
