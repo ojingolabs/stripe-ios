@@ -91,7 +91,7 @@
                 if ([contents[@"object"] isEqualToString:@"card"]) {
                     STPCard *card = [STPCard decodedObjectFromAPIResponse:contents];
                     // ignore apple pay cards from the response
-                    if (card && !card.isApplePayCard) {
+                    if (card && !card.isApplePayCard && !card.isAndroidPayCard) {
                         [sources addObject:card];
                         if (defaultSourceId && [card.stripeID isEqualToString:defaultSourceId]) {
                             customer.defaultSource = card;
@@ -103,7 +103,7 @@
                     if (source) {
                         if (source.type == STPSourceTypeCard
                             && source.cardDetails != nil
-                            && source.cardDetails.isApplePayCard) {
+                            && (source.cardDetails.isApplePayCard || source.cardDetails.isAndroidPayCard)) {
                             // do nothing
                             // ignore apple pay cards from the response
                         }

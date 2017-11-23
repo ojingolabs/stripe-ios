@@ -173,22 +173,43 @@
 
 - (void)testIsApplePayCard {
     STPCard *card = [STPFixtures card];
-
+    
     card.allResponseFields = @{};
     XCTAssertFalse(card.isApplePayCard);
-
+    
     card.allResponseFields = @{@"tokenization_method": @"android_pay"};
     XCTAssertFalse(card.isApplePayCard);
-
+    
     card.allResponseFields = @{@"tokenization_method": @"apple_pay"};
     XCTAssert(card.isApplePayCard);
-
+    
     card.allResponseFields = @{@"tokenization_method": @"garbage"};
     XCTAssertFalse(card.isApplePayCard);
-
+    
     card.allResponseFields = @{@"tokenization_method": @""};
     XCTAssertFalse(card.isApplePayCard);
+    
+    // See: https://stripe.com/docs/api#card_object-tokenization_method
+}
 
+- (void)testIsAndroidPayCard {
+    STPCard *card = [STPFixtures card];
+    
+    card.allResponseFields = @{};
+    XCTAssertFalse(card.isAndroidPayCard);
+    
+    card.allResponseFields = @{@"tokenization_method": @"android_pay"};
+    XCTAssert(card.isAndroidPayCard);
+    
+    card.allResponseFields = @{@"tokenization_method": @"apple_pay"};
+    XCTAssertFalse(card.isAndroidPayCard);
+    
+    card.allResponseFields = @{@"tokenization_method": @"garbage"};
+    XCTAssertFalse(card.isAndroidPayCard);
+    
+    card.allResponseFields = @{@"tokenization_method": @""};
+    XCTAssertFalse(card.isAndroidPayCard);
+    
     // See: https://stripe.com/docs/api#card_object-tokenization_method
 }
 

@@ -109,6 +109,10 @@ NS_ASSUME_NONNULL_BEGIN
     return [self.allResponseFields[@"tokenization_method"] isEqualToString:@"apple_pay"];
 }
 
+- (BOOL)isAndroidPayCard {
+    return [self.allResponseFields[@"tokenization_method"] isEqualToString:@"android_pay"];
+}
+
 #pragma mark - Equality
 
 - (BOOL)isEqual:(nullable id)other {
@@ -153,6 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
                        [NSString stringWithFormat:@"currency = %@", self.currency],
                        [NSString stringWithFormat:@"dynamicLast4 = %@", self.dynamicLast4],
                        [NSString stringWithFormat:@"isApplePayCard = %@", (self.isApplePayCard) ? @"YES" : @"NO"],
+                       [NSString stringWithFormat:@"isAndroidPayCard = %@", (self.isAndroidPayCard) ? @"YES" : @"NO"],
                        [NSString stringWithFormat:@"metadata = %@", (self.metadata) ? @"<redacted>" : nil],
 
                        // Cardholder details
