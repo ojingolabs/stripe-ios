@@ -67,7 +67,7 @@
 
         if ([dict[@"shipping"] isKindOfClass:[NSDictionary class]]) {
             NSDictionary *shippingDict = dict[@"shipping"];
-            STPAddress *shipping = [STPAddress new];
+            STPAddress *shipping = [STPAddress decodedObjectFromAPIResponse:shippingDict];
             shipping.name = shippingDict[@"name"];
             shipping.phone = shippingDict[@"phone"];
             shipping.line1 = shippingDict[@"address"][@"line1"];
