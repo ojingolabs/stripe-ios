@@ -1,0 +1,23 @@
+/* 
+  Localizable.strings
+  Stripe
+
+  Created by Oleg Kolokolov on 13/01/2017.
+  Copyright © 2017 Stripe, Inc. All rights reserved.
+*/
+
+"Your card's number is invalid." = "カード番号が無効です";
+
+"Your card's security code is invalid." = "カードのセキュリティコードが無効です";
+
+"Your card's expiration month is invalid." = "カードの有効期限の月が無効です";
+
+"Your card's expiration year is invalid." = "カードの有効期限の年が無効です";
+
+"Your card has expired." = "カードの有効期限が切れています";
+
+"Your card was declined." = "お使いのカードが拒否されました";
+
+"There was an unexpected error -- try again in a few seconds" = "予期しないエラーが起きました。数秒後にやり直してください";
+
+"There was an error processing your card -- try again in a few seconds" = "カードでのお支払いを処理中にエラーが起きました。数秒後にやり直してください";
