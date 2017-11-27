@@ -13,10 +13,12 @@
 
 @interface STPFormEncoder : NSObject
 
-+ (nonnull NSData *)formEncodedDataForObject:(nonnull NSObject<STPFormEncodable> *)object;
++ (nonnull NSDictionary *)dictionaryForObject:(nonnull NSObject<STPFormEncodable> *)object;
 
 + (nonnull NSString *)stringByURLEncoding:(nonnull NSString *)string;
 
 + (nonnull NSString *)stringByReplacingSnakeCaseWithCamelCase:(nonnull NSString *)input;
+
++ (nonnull NSString *)queryStringFromParameters:(nonnull NSDictionary *)parameters;
 
 @end
