@@ -476,7 +476,7 @@ NSString *stringIfHasContentsElseNil(NSString *string);
     NSString *fullAddress = [line1 stringByAppendingString:line2];
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
     [characterSet formUnionWithCharacterSet:[NSCharacterSet letterCharacterSet]];
-    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"-/\\&_()'\"* .,:;?!"]];
+    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"-/\\&_()'\"* .,:;?!#"]];
     
     BOOL condition1 = [fullAddress stringByTrimmingCharactersInSet:characterSet].length == 0;
     BOOL condition2 = fullAddress.length >= 4 && fullAddress.length <= 200;
