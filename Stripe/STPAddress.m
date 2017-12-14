@@ -427,19 +427,11 @@ NSString *stringIfHasContentsElseNil(NSString *string);
         _firstValidationErrorCode = STPAddressValidationErrorFullNameLength;
         return NO;
     }
-    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
-    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@" .-"]];
-    
-    BOOL condition1 = [name stringByTrimmingCharactersInSet:characterSet].length == 0;
-    BOOL condition2 = name.length >= 2 && name.length <= 150;
-    
+    BOOL condition1 = name.length >= 2 && name.length <= 150;
     if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorFullNameInvalidCharacters;
-    
-    if (!condition2)
         _firstValidationErrorCode = STPAddressValidationErrorFullNameLength;
     
-    return condition1 && condition2;
+    return condition1;
 }
 
 - (BOOL)validatePhone:(NSString *)phone
@@ -449,11 +441,11 @@ NSString *stringIfHasContentsElseNil(NSString *string);
         return NO;
     }
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
+    [characterSet formUnionWithCharacterSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"+"]];
     
     BOOL condition1 = [phone stringByTrimmingCharactersInSet:characterSet].length == 0;
     BOOL condition2 = phone.length >= 6 && phone.length <= 35;
-    BOOL condition3 = phone.length > 0 && [phone characterAtIndex:0] == '+';
     
     if (!condition1)
         _firstValidationErrorCode = STPAddressValidationErrorPhoneInvalidCharacters;
@@ -461,10 +453,7 @@ NSString *stringIfHasContentsElseNil(NSString *string);
     if (!condition2)
         _firstValidationErrorCode = STPAddressValidationErrorPhoneLength;
     
-    if (!condition3)
-        _firstValidationErrorCode = STPAddressValidationErrorPhonePlusCharacter;
-    
-    return condition1 && condition2 && condition3;
+    return condition1 && condition2;
 }
 
 - (BOOL)validateStreet:(NSString *)line1 line2:(NSString *)line2
@@ -474,20 +463,11 @@ NSString *stringIfHasContentsElseNil(NSString *string);
         return NO;
     }
     NSString *fullAddress = [line1 stringByAppendingString:line2];
-    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
-    [characterSet formUnionWithCharacterSet:[NSCharacterSet letterCharacterSet]];
-    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"-/\\&_()'\"* .,:;?!#"]];
-    
-    BOOL condition1 = [fullAddress stringByTrimmingCharactersInSet:characterSet].length == 0;
-    BOOL condition2 = fullAddress.length >= 4 && fullAddress.length <= 200;
-    
+    BOOL condition1 = fullAddress.length >= 4 && fullAddress.length <= 250;
     if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorAddressInvalidCharacters;
-    
-    if (!condition2)
         _firstValidationErrorCode = STPAddressValidationErrorAddressLength;
     
-    return condition1 && condition2;
+    return condition1;
 }
 
 - (BOOL)validatePostalCode:(NSString *)postalCode
@@ -496,20 +476,11 @@ NSString *stringIfHasContentsElseNil(NSString *string);
         _firstValidationErrorCode = STPAddressValidationErrorPostalCodeLength;
         return NO;
     }
-    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
-    [characterSet formUnionWithCharacterSet:[NSCharacterSet letterCharacterSet]];
-    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"- "]];
-    
-    BOOL condition1 = [postalCode stringByTrimmingCharactersInSet:characterSet].length == 0;
-    BOOL condition2 = postalCode.length >= 4 && postalCode.length <= 32;
-    
+    BOOL condition1 = postalCode.length >= 4 && postalCode.length <= 32;
     if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorPostalCodeInvalidCharacters;
-    
-    if (!condition2)
         _firstValidationErrorCode = STPAddressValidationErrorPostalCodeLength;
     
-    return condition1 && condition2;
+    return condition1;
 }
 
 - (BOOL)validateCity:(NSString *)city
@@ -518,19 +489,11 @@ NSString *stringIfHasContentsElseNil(NSString *string);
         _firstValidationErrorCode = STPAddressValidationErrorCityLength;
         return NO;
     }
-    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
-    [characterSet addCharactersInString:@" -'"];
-    
-    BOOL condition1 = [city stringByTrimmingCharactersInSet:characterSet].length == 0;
-    BOOL condition2 = city.length >= 1 && city.length <= 100;
-    
+    BOOL condition1 = city.length >= 1 && city.length <= 100;
     if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorCityInvalidCharacters;
-    
-    if (!condition2)
         _firstValidationErrorCode = STPAddressValidationErrorCityLength;
     
-    return condition1 && condition2;
+    return condition1;
 }
 
 - (BOOL)validateState:(NSString *)state
@@ -539,18 +502,11 @@ NSString *stringIfHasContentsElseNil(NSString *string);
         _firstValidationErrorCode = STPAddressValidationErrorStateLength;
         return NO;
     }
-    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
-    
-    BOOL condition1 = [state stringByTrimmingCharactersInSet:characterSet].length == 0;
-    BOOL condition2 = state.length <= 100;
-    
+    BOOL condition1 = state.length <= 100;
     if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorStateInvalidCharacters;
-    
-    if (!condition2)
         _firstValidationErrorCode = STPAddressValidationErrorStateLength;
     
-    return condition1 && condition2;
+    return condition1;
 }
 
 - (BOOL)validateCountry:(NSString *)country
