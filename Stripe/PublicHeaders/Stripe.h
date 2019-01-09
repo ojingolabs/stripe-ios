@@ -9,6 +9,7 @@
 #import "FauxPasAnnotations.h"
 #import "STPAddCardViewController.h"
 #import "STPAddress.h"
+#import "STPAddress+Vero.h"
 #import "STPAPIClient+ApplePay.h"
 #import "STPAPIClient.h"
 #import "STPAPIResponseDecodable.h"

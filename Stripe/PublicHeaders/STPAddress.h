@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  What set of billing address information you need to collect from your user.
-
+ 
  @note If the user is from a country that does not use zip/postal codes,
  the user may not be asked for one regardless of this setting.
  */
@@ -35,31 +35,13 @@ typedef NS_ENUM(NSUInteger, STPBillingAddressFields) {
      Request the user's full billing address
      */
     STPBillingAddressFieldsFull,
-
+    
     /**
      Just request the user's billing name
      */
     STPBillingAddressFieldsName,
 };
 
-typedef NS_ENUM(NSInteger, STPAddressValidationErrors) {
-    STPAddressValidationErrorFullNameLength = 0,
-    STPAddressValidationErrorFullNameInvalidCharacters = 1,
-    STPAddressValidationErrorPhoneLength = 2,
-    STPAddressValidationErrorPhoneInvalidCharacters = 3,
-    STPAddressValidationErrorPhonePlusCharacter = 4,
-    STPAddressValidationErrorAddressLength = 5,
-    STPAddressValidationErrorAddressInvalidCharacters = 6,
-    STPAddressValidationErrorPostalCodeLength = 7,
-    STPAddressValidationErrorPostalCodeInvalidCharacters = 8,
-    STPAddressValidationErrorCityLength = 9,
-    STPAddressValidationErrorCityInvalidCharacters = 10,
-    STPAddressValidationErrorStateLength = 11,
-    STPAddressValidationErrorStateInvalidCharacters = 12,
-    STPAddressValidationErrorCountryLength = 13,
-    STPAddressValidationErrorCountryInvalidCharacters = 14,
-    STPAddressValidationErrorNoError = 15
-};
 
 /**
  Constants that represent different parts of a users contact/address information.
@@ -139,11 +121,11 @@ extern STPContactField const STPContactFieldName;
 /**
  When creating a charge on your backend, you can attach shipping information
  to prevent fraud on a physical good. You can use this method to turn your user's
- shipping address and selected shipping method into a hash suitable for attaching 
+ shipping address and selected shipping method into a hash suitable for attaching
  to a charge. You should pass this to your backend, and use it as the `shipping`
  parameter when creating a charge.
  @see https://stripe.com/docs/api#create_charge-shipping
-
+ 
  @param address  The user's shipping address. If nil, this method will return nil.
  @param method   The user's selected shipping method. May be nil.
  */
@@ -152,7 +134,7 @@ extern STPContactField const STPContactFieldName;
 
 /**
  Initializes a new STPAddress with data from an PassKit contact.
-
+ 
  @param contact The PassKit contact you want to populate the STPAddress from.
  @return A new STPAddress instance with data copied from the passed in contact.
  */
@@ -160,16 +142,16 @@ extern STPContactField const STPContactFieldName;
 
 /**
  Generates a PassKit contact representation of this STPAddress.
-
+ 
  @return A new PassKit contact with data copied from this STPAddress instance.
  */
 - (PKContact *)PKContactValue;
 
 /**
  Initializes a new STPAddress with a contact from the Contacts framework.
-
+ 
  @param contact The CNContact you want to populate the STPAddress from.
-
+ 
  @return A new STPAddress instance with data copied from the passed in contact.
  */
 - (instancetype)initWithCNContact:(CNContact *)contact;
@@ -178,10 +160,10 @@ extern STPContactField const STPContactFieldName;
 /**
  Checks if this STPAddress has the level of valid address information
  required by the passed in setting.
-
- @param requiredFields The required level of billing address information to 
+ 
+ @param requiredFields The required level of billing address information to
  check against.
-
+ 
  @return YES if this address contains at least the necessary information,
  NO otherwise.
  */
@@ -190,16 +172,16 @@ extern STPContactField const STPContactFieldName;
 /**
  Checks if this STPAddress has any content (possibly invalid) in any of the
  desired billing address fields.
-
+ 
  Where `containsRequiredFields:` validates that this STPAddress contains valid data in
  all of the required fields, this method checks for the existence of *any* data.
-
+ 
  For example, if `desiredFields` is `STPBillingAddressFieldsZip`, this will check
  if the postalCode is empty.
-
+ 
  Note: When `desiredFields == STPBillingAddressFieldsNone`, this method always returns
  NO.
-
+ 
  @parameter desiredFields The billing address information the caller is interested in.
  @return YES if there is any data in this STPAddress that's relevant for those fields.
  */
@@ -208,12 +190,12 @@ extern STPContactField const STPContactFieldName;
 /**
  Checks if this STPAddress has the level of valid address information
  required by the passed in setting.
-
+ 
  Note: When `requiredFields == nil`, this method always returns
  YES.
-
+ 
  @param requiredFields The required shipping address information to check against.
-
+ 
  @return YES if this address contains at least the necessary information,
  NO otherwise.
  */
@@ -222,14 +204,14 @@ extern STPContactField const STPContactFieldName;
 /**
  Checks if this STPAddress has any content (possibly invalid) in any of the
  desired shipping address fields.
-
+ 
  Where `containsRequiredShippingAddressFields:` validates that this STPAddress
  contains valid data in all of the required fields, this method checks for the
  existence of *any* data.
-
+ 
  Note: When `desiredFields == nil`, this method always returns
  NO.
-
+ 
  @parameter desiredFields The shipping address information the caller is interested in.
  @return YES if there is any data in this STPAddress that's relevant for those fields.
  */
@@ -240,7 +222,7 @@ extern STPContactField const STPContactFieldName;
 /**
  Converts an STPBillingAddressFields enum value into the closest equivalent
  representation of PKAddressField options
-
+ 
  @param billingAddressFields Stripe billing address fields enum value to convert.
  @return The closest representation of the billing address requirement as
  a PKAddressField value.
@@ -253,7 +235,7 @@ extern STPContactField const STPContactFieldName;
 /**
  Converts a set of STPContactField values into the closest equivalent
  representation of PKAddressField options
-
+ 
  @param contactFields Stripe contact fields values to convert.
  @return The closest representation of the contact fields as
  a PKAddressField value.
@@ -264,17 +246,12 @@ extern STPContactField const STPContactFieldName;
 /**
  Converts a set of STPContactField values into the closest equivalent
  representation of PKContactField options
-
+ 
  @param contactFields Stripe contact fields values to convert.
  @return The closest representation of the contact fields as
  a PKContactField value.
  */
 + (nullable NSSet<PKContactField> *)pkContactFieldsFromStripeContactFields:(nullable NSSet<STPContactField> *)contactFields API_AVAILABLE(ios(11.0));
-
-- (nullable NSDictionary*)dictionaryOutput;
-- (BOOL)isEqualToAddress:(nonnull STPAddress*)address;
-- (BOOL)isValid;
-- (STPAddressValidationErrors)validationErrorCode;
 
 @end
 
