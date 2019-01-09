@@ -39,6 +39,7 @@
              @[@(STPCardBrandMasterCard), @"5555555555554444", @(STPCardValidationStateValid)],
              @[@(STPCardBrandMasterCard), @"5200828282828210", @(STPCardValidationStateValid)],
              @[@(STPCardBrandMasterCard), @"5105105105105100", @(STPCardValidationStateValid)],
+             @[@(STPCardBrandMasterCard), @"2223000010089800", @(STPCardValidationStateValid)],
              @[@(STPCardBrandAmex), @"378282246310005", @(STPCardValidationStateValid)],
              @[@(STPCardBrandAmex), @"371449635398431", @(STPCardValidationStateValid)],
              @[@(STPCardBrandDiscover), @"6011111111111117", @(STPCardValidationStateValid)],
@@ -133,6 +134,7 @@
                        @[@(STPCardBrandDiscover), @[@16]],
                        @[@(STPCardBrandDinersClub), @[@14]],
                        @[@(STPCardBrandJCB), @[@16]],
+                       @[@(STPCardBrandUnionPay), @[@16]],
                        @[@(STPCardBrandUnknown), @[@16]],
                        ];
     for (NSArray *test in tests) {
@@ -150,8 +152,9 @@
                        @[@(STPCardBrandMasterCard), @4],
                        @[@(STPCardBrandAmex), @5],
                        @[@(STPCardBrandDiscover), @4],
-                       @[@(STPCardBrandDinersClub), @2],
+                       @[@(STPCardBrandDinersClub), @4],
                        @[@(STPCardBrandJCB), @4],
+                       @[@(STPCardBrandUnionPay), @4],
                        @[@(STPCardBrandUnknown), @4],
                        ];
     for (NSArray *test in tests) {
@@ -213,6 +216,7 @@
                        @[@(STPCardBrandDiscover), @3],
                        @[@(STPCardBrandDinersClub), @3],
                        @[@(STPCardBrandJCB), @3],
+                       @[@(STPCardBrandUnionPay), @3],
                        @[@(STPCardBrandUnknown), @4],
                        ];
     for (NSArray *test in tests) {

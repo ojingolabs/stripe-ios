@@ -11,24 +11,36 @@
 @import OCMock;
 
 #import "Stripe.h"
+#import "STPFixtures.h"
 #import "STPFormTextField.h"
 #import "STPPaymentCardTextFieldViewModel.h"
-
-@interface STPFormTextField(Testing)
-@property (nonatomic) BOOL skipsReloadingInputViews;
-@end
 
 @interface STPPaymentCardTextField (Testing)
 @property (nonatomic, readwrite, weak) UIImageView *brandImageView;
 @property (nonatomic, readwrite, weak) STPFormTextField *numberField;
 @property (nonatomic, readwrite, weak) STPFormTextField *expirationField;
 @property (nonatomic, readwrite, weak) STPFormTextField *cvcField;
+@property (nonatomic, readwrite, weak) STPFormTextField *postalCodeField;
 @property (nonatomic, readonly, weak) STPFormTextField *currentFirstResponderField;
 @property (nonatomic, readwrite, strong) STPPaymentCardTextFieldViewModel *viewModel;
 @property (nonatomic, copy) NSNumber *focusedTextFieldForLayout;
 + (UIImage *)cvcImageForCardBrand:(STPCardBrand)cardBrand;
 + (UIImage *)brandImageForCardBrand:(STPCardBrand)cardBrand;
 @end
+
+/**
+ Class that implements STPPaymentCardTextFieldDelegate and uses a block for each delegate method.
+ */
+@interface PaymentCardTextFieldBlockDelegate: NSObject <STPPaymentCardTextFieldDelegate>
+@property (nonatomic, strong, nullable) void (^didChange)(STPPaymentCardTextField *);
+// add more properties for other delegate methods as this test needs them
+@end
+@implementation PaymentCardTextFieldBlockDelegate
+- (void)paymentCardTextFieldDidChange:(STPPaymentCardTextField *)textField {
+    self.didChange(textField);
+}
+@end
+
 
 @interface STPPaymentCardTextFieldTest : XCTestCase
 @end
@@ -353,6 +365,52 @@
     XCTAssertEqual((int)params.expYear, 99);
 }
 
+- (void)testAccessingCardParamsDuringSettingCardParams {
+    PaymentCardTextFieldBlockDelegate *delegate = [PaymentCardTextFieldBlockDelegate new];
+    delegate.didChange = ^(STPPaymentCardTextField *textField) {
+        // delegate reads the `cardParams` for any reason it wants
+        [textField cardParams];
+    };
+    STPPaymentCardTextField *sut = [STPPaymentCardTextField new];
+    sut.delegate = delegate;
+
+    STPCardParams *params = [STPCardParams new];
+    params.number = @"4242424242424242";
+    params.cvc = @"123";
+    params.name = @"John";
+
+    sut.cardParams = params;
+    STPCardParams *actual = sut.cardParams;
+
+    XCTAssertEqualObjects(@"4242424242424242", actual.number);
+    XCTAssertEqualObjects(@"123", actual.cvc);
+    XCTAssertEqualObjects(@"John", actual.name);
+}
+
+- (void)testSetCardParamsCopiesObject {
+    STPPaymentCardTextField *sut = [STPPaymentCardTextField new];
+    STPCardParams *params = [STPCardParams new];
+
+    params.number = @"4242424242424242"; // legit
+    sut.cardParams = params;
+
+    // fetching `sut.cardParams` returns a copy, so edits happen to caller's copy
+    sut.cardParams.currency = @"GBP";
+    sut.cardParams.address.line1 = @"123 Main St";
+
+    // `sut` copied `params` (& `params.address`) when set, so edits to original don't show up
+    params.name = @"John";
+    params.address.line2 = @"Apt 3";
+
+    XCTAssertEqualObjects(@"4242424242424242", sut.cardParams.number, @"set via setCardParams:");
+
+    XCTAssertNotEqualObjects(@"GBP", sut.cardParams.currency, @"return value from cardParams cannot be edited inline");
+    XCTAssertNotEqualObjects(@"123 Main St", sut.cardParams.address.line1, @"returned cardParams.address cannot be edited inline");
+
+    XCTAssertNotEqualObjects(@"John", sut.cardParams.name, @"caller changed their copy after setCardParams:");
+    XCTAssertNotEqualObjects(@"Apt 3", sut.cardParams.address.line2, @"caller changed their copy after setCardParams:");
+}
+
 @end
 
 @interface STPPaymentCardTextFieldUITests : XCTestCase
@@ -366,9 +424,6 @@
     [super setUp];
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     STPPaymentCardTextField *textField = [[STPPaymentCardTextField alloc] initWithFrame:self.window.bounds];
-    textField.numberField.skipsReloadingInputViews = YES;
-    textField.expirationField.skipsReloadingInputViews = YES;
-    textField.cvcField.skipsReloadingInputViews = YES;
     [self.window addSubview:textField];
     XCTAssertTrue([textField.numberField canBecomeFirstResponder], @"text field cannot become first responder");
     self.sut = textField;
@@ -394,7 +449,7 @@
     XCTAssertEqualObjects(self.sut.numberField.text, number);
     XCTAssertEqualObjects(self.sut.expirationField.text, @"10/99");
     XCTAssertEqualObjects(self.sut.cvcField.text, cvc);
-    XCTAssertFalse([self.sut isFirstResponder]);
+    XCTAssertFalse([self.sut isFirstResponder], @"after `setCardParams:`, if all fields are valid, should resign firstResponder");
     XCTAssertTrue(self.sut.isValid);
 }
 
@@ -415,7 +470,7 @@
     XCTAssertEqualObjects(self.sut.numberField.text, number);
     XCTAssertEqualObjects(self.sut.expirationField.text, @"10/99");
     XCTAssertEqual(self.sut.cvcField.text.length, (NSUInteger)0);
-    XCTAssertTrue([self.sut.numberField isFirstResponder]);
+    XCTAssertTrue([self.sut.numberField isFirstResponder], @"after `setCardParams:`, when firstResponder becomes valid, first invalid field should become firstResponder");
     XCTAssertFalse(self.sut.isValid);
 }
 
@@ -434,7 +489,7 @@
     XCTAssertEqualObjects(self.sut.numberField.text, number);
     XCTAssertEqual(self.sut.expirationField.text.length, (NSUInteger)0);
     XCTAssertEqual(self.sut.cvcField.text.length, (NSUInteger)0);
-    XCTAssertTrue([self.sut.cvcField isFirstResponder]);
+    XCTAssertTrue([self.sut.cvcField isFirstResponder], @"after `setCardParams:`, if firstResponder is invalid, it should remain firstResponder");
     XCTAssertFalse(self.sut.isValid);
 }
 
@@ -454,7 +509,7 @@
     XCTAssertEqual(self.sut.numberField.text.length, (NSUInteger)0);
     XCTAssertEqual(self.sut.expirationField.text.length, (NSUInteger)0);
     XCTAssertEqual(self.sut.cvcField.text.length, (NSUInteger)0);
-    XCTAssertTrue([self.sut.numberField isFirstResponder]);
+    XCTAssertTrue([self.sut.numberField isFirstResponder], @"after `setCardParams:` that clears the text fields, the first invalid field should become firstResponder");
     XCTAssertFalse(self.sut.isValid);
 }
 
@@ -484,6 +539,65 @@
     self.sut.cvcField.text = @"123";
 
     [self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testBecomeFirstResponder {
+    XCTAssertTrue([self.sut canBecomeFirstResponder]);
+    XCTAssertTrue([self.sut becomeFirstResponder]);
+    XCTAssertTrue(self.sut.isFirstResponder);
+
+    XCTAssertEqual(self.sut.numberField, self.sut.currentFirstResponderField);
+
+    [self.sut becomeFirstResponder];
+    XCTAssertEqual(self.sut.numberField, self.sut.currentFirstResponderField,
+                   @"Repeated calls to becomeFirstResponder should not change the firstResponder");
+
+    self.sut.numberField.text = @"4242" "4242" "4242" "4242";
+
+    XCTAssertEqual(self.sut.expirationField, self.sut.currentFirstResponderField,
+                   @"Once numberField is valid, firstResponder should move to the next field (expiration)");
+
+    XCTAssertTrue([self.sut.cvcField becomeFirstResponder]);
+    XCTAssertEqual(self.sut.cvcField, self.sut.currentFirstResponderField,
+                   @"We don't block other fields from becoming firstResponder");
+
+    XCTAssertTrue([self.sut becomeFirstResponder]);
+    XCTAssertEqual(self.sut.cvcField, self.sut.currentFirstResponderField,
+                   @"Calling becomeFirstResponder does not change the currentFirstResponder");
+
+    self.sut.expirationField.text = @"10/99";
+    self.sut.cvcField.text = @"123";
+
+    XCTAssertTrue(self.sut.isValid);
+    [self.sut resignFirstResponder];
+    XCTAssertTrue([self.sut canBecomeFirstResponder]);
+    XCTAssertTrue([self.sut becomeFirstResponder]);
+
+    XCTAssertEqual(self.sut.cvcField, self.sut.currentFirstResponderField,
+                   @"When all fields are valid, the last one should be the preferred firstResponder");
+
+    self.sut.postalCodeEntryEnabled = YES;
+    XCTAssertFalse(self.sut.isValid);
+
+    [self.sut resignFirstResponder];
+    XCTAssertTrue([self.sut becomeFirstResponder]);
+    XCTAssertEqual(self.sut.postalCodeField, self.sut.currentFirstResponderField,
+                   @"When postalCodeEntryEnabled=YES, it should become firstResponder after other fields are valid");
+
+    self.sut.expirationField.text = @"";
+    [self.sut resignFirstResponder];
+    XCTAssertTrue([self.sut becomeFirstResponder]);
+    XCTAssertEqual(self.sut.expirationField, self.sut.currentFirstResponderField,
+                   @"Moves firstResponder back to expiration, because it's not valid anymore");
+
+    self.sut.expirationField.text = @"10/99";
+    self.sut.postalCodeField.text = @"90210";
+
+    XCTAssertTrue(self.sut.isValid);
+    [self.sut resignFirstResponder];
+    XCTAssertTrue([self.sut becomeFirstResponder]);
+    XCTAssertEqual(self.sut.postalCodeField, self.sut.currentFirstResponderField,
+                   @"When all fields are valid, the last one should be the preferred firstResponder");
 }
 
 @end

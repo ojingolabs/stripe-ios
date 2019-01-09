@@ -36,9 +36,7 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     self.title = @"Card + 3DS";
-    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
-        self.edgesForExtendedLayout = UIRectEdgeNone;
-    }
+    self.edgesForExtendedLayout = UIRectEdgeNone;
 
     STPPaymentCardTextField *paymentTextField = [[STPPaymentCardTextField alloc] init];
     STPCardParams *cardParams = [STPCardParams new];
@@ -118,7 +116,9 @@
     STPAPIClient *stripeClient = [STPAPIClient sharedClient];
     STPSourceParams *sourceParams = [STPSourceParams cardParamsWithCard:self.paymentTextField.cardParams];
     [stripeClient createSourceWithParams:sourceParams completion:^(STPSource *source, NSError *error) {
-        if (source.cardDetails.threeDSecure == STPSourceCard3DSecureStatusRequired) {
+        if (error) {
+            [self.delegate exampleViewController:self didFinishWithError:error];
+        } else if (source.cardDetails && source.cardDetails.threeDSecure == STPSourceCard3DSecureStatusRequired) {
             STPSourceParams *threeDSParams = [STPSourceParams threeDSecureParamsWithAmount:1099
                                                                                   currency:@"usd"
                                                                                  returnURL:@"payments-example://stripe-redirect"
@@ -131,37 +131,41 @@
                     // your app delegate to forwards URLs to the Stripe SDK.
                     // See `[Stripe handleStripeURLCallback:]`
                     self.redirectContext = [[STPRedirectContext alloc] initWithSource:source completion:^(NSString *sourceID, NSString *clientSecret, NSError *error) {
-                        [[STPAPIClient sharedClient] startPollingSourceWithId:sourceID
-                                                                 clientSecret:clientSecret
-                                                                      timeout:10
-                                                                   completion:^(STPSource *source, NSError *error) {
-                                                                       [self updateUIForPaymentInProgress:NO];
-                                                                       if (error) {
-                                                                           [self.delegate exampleViewController:self didFinishWithError:error];
-                                                                       } else {
-                                                                           switch (source.status) {
-                                                                               case STPSourceStatusChargeable:
-                                                                               case STPSourceStatusConsumed:
-                                                                                   [self.delegate exampleViewController:self didFinishWithMessage:@"Payment successfully created"];
-                                                                                   break;
-                                                                               case STPSourceStatusCanceled:
-                                                                                   [self.delegate exampleViewController:self didFinishWithMessage:@"Payment failed"];
-                                                                                   break;
-                                                                               case STPSourceStatusPending:
-                                                                               case STPSourceStatusFailed:
-                                                                               case STPSourceStatusUnknown:
-                                                                                   [self.delegate exampleViewController:self didFinishWithMessage:@"Order received"];
-                                                                                   break;
+                        if (error) {
+                            [self.delegate exampleViewController:self didFinishWithError:error];
+                        } else {
+                            [[STPAPIClient sharedClient] startPollingSourceWithId:sourceID
+                                                                     clientSecret:clientSecret
+                                                                          timeout:10
+                                                                       completion:^(STPSource *source, NSError *error) {
+                                                                           [self updateUIForPaymentInProgress:NO];
+                                                                           if (error) {
+                                                                               [self.delegate exampleViewController:self didFinishWithError:error];
+                                                                           } else {
+                                                                               switch (source.status) {
+                                                                                   case STPSourceStatusChargeable:
+                                                                                   case STPSourceStatusConsumed:
+                                                                                       [self.delegate exampleViewController:self didFinishWithMessage:@"Payment successfully created"];
+                                                                                       break;
+                                                                                   case STPSourceStatusCanceled:
+                                                                                       [self.delegate exampleViewController:self didFinishWithMessage:@"Payment failed"];
+                                                                                       break;
+                                                                                   case STPSourceStatusPending:
+                                                                                   case STPSourceStatusFailed:
+                                                                                   case STPSourceStatusUnknown:
+                                                                                       [self.delegate exampleViewController:self didFinishWithMessage:@"Order received"];
+                                                                                       break;
+                                                                               }
                                                                            }
-                                                                       }
-                                                                       self.redirectContext = nil;
-                                                                   }];
+                                                                           self.redirectContext = nil;
+                                                                       }];
+                        }
                     }];
                     [self.redirectContext startRedirectFlowFromViewController:self];
                 }
             }];
         } else {
-            [self.delegate createBackendChargeWithSource:source.stripeID completion:^(STPBackendChargeResult status, NSError *error) {
+            [self.delegate createBackendChargeWithSource:source.stripeID completion:^(STPBackendResult status, NSError *error) {
                 if (error) {
                     [self.delegate exampleViewController:self didFinishWithError:error];
                     return;

@@ -10,9 +10,11 @@
 #import <OCMock/OCMock.h>
 #import <Stripe/Stripe.h>
 #import "NSError+Stripe.h"
+#import "NSLocale+STPSwizzling.h"
 #import "STPCard.h"
 #import "STPFixtures.h"
 #import "STPPaymentCardTextFieldCell.h"
+#import "STPPostalCodeValidator.h"
 
 @interface STPAddCardViewController (Testing)
 @property (nonatomic) STPPaymentCardTextFieldCell *paymentCell;
@@ -37,6 +39,60 @@
     XCTAssertNotNil(vc.view);
     return vc;
 }
+
+- (void)testPrefilledBillingAddress_removeAddress {
+    STPPaymentConfiguration *config = [STPFixtures paymentConfiguration];
+    config.requiredBillingAddressFields = STPBillingAddressFieldsZip;
+    STPAddCardViewController *sut = [[STPAddCardViewController alloc] initWithConfiguration:config
+                                                                                      theme:[STPTheme defaultTheme]];
+    STPAddress *address = [STPAddress new];
+    address.name = @"John Smith Doe";
+    address.phone = @"8885551212";
+    address.email = @"foo@example.com";
+    address.line1 = @"55 John St";
+    address.city = @"Harare";
+    address.postalCode = @"10002";
+    address.country = @"ZW"; // Zimbabwe does not require zip codes, while the default locale for tests (US) does
+    // Sanity checks
+    XCTAssertFalse([STPPostalCodeValidator postalCodeIsRequiredForCountryCode:@"ZW"]);
+    XCTAssertTrue([STPPostalCodeValidator postalCodeIsRequiredForCountryCode:@"US"]);
+
+    STPUserInformation *prefilledInfo = [[STPUserInformation alloc] init];
+    prefilledInfo.billingAddress = address;
+    sut.prefilledInformation = prefilledInfo;
+
+    XCTAssertNoThrow([sut loadView]);
+    XCTAssertNoThrow([sut viewDidLoad]);
+}
+
+- (void)testPrefilledBillingAddress_addAddress {
+    [NSLocale stp_setCurrentLocale:[NSLocale localeWithLocaleIdentifier:@"en_ZW"]]; // Zimbabwe does not require zip codes, while the default locale for tests (US) does
+    // Sanity checks
+    XCTAssertFalse([STPPostalCodeValidator postalCodeIsRequiredForCountryCode:@"ZW"]);
+    XCTAssertTrue([STPPostalCodeValidator postalCodeIsRequiredForCountryCode:@"US"]);
+    STPPaymentConfiguration *config = [STPFixtures paymentConfiguration];
+    config.requiredBillingAddressFields = STPBillingAddressFieldsZip;
+    STPAddCardViewController *sut = [[STPAddCardViewController alloc] initWithConfiguration:config
+                                                                                      theme:[STPTheme defaultTheme]];
+    STPAddress *address = [STPAddress new];
+    address.name = @"John Smith Doe";
+    address.phone = @"8885551212";
+    address.email = @"foo@example.com";
+    address.line1 = @"55 John St";
+    address.city = @"New York";
+    address.state = @"NY";
+    address.postalCode = @"10002";
+    address.country = @"US";
+
+    STPUserInformation *prefilledInfo = [[STPUserInformation alloc] init];
+    prefilledInfo.billingAddress = address;
+    sut.prefilledInformation = prefilledInfo;
+
+    XCTAssertNoThrow([sut loadView]);
+    XCTAssertNoThrow([sut viewDidLoad]);
+    [NSLocale stp_resetCurrentLocale];
+}
+
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -154,6 +210,60 @@
         completion(nil);
         XCTAssertFalse(sut.loading);
         [didCreateTokenExp fulfill];
+    });
+
+    // tap next button
+    UIBarButtonItem *nextButton = sut.navigationItem.rightBarButtonItem;
+    [nextButton.target performSelector:nextButton.action withObject:nextButton];
+
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+/**
+ Tests that setting createCardSource creates a card source instead of a card
+ token and calls the correct delegate method.
+ */
+- (void)testCreatesCardSource {
+    STPPaymentConfiguration *config = [STPFixtures paymentConfiguration];
+    config.createCardSources = YES;
+    STPTheme *theme = [STPTheme defaultTheme];
+    STPAddCardViewController *sut = [[STPAddCardViewController alloc] initWithConfiguration:config
+                                                                                     theme:theme];
+    XCTAssertNotNil(sut.view);
+
+    id mockAPIClient = OCMClassMock([STPAPIClient class]);
+    id mockDelegate = OCMProtocolMock(@protocol(STPAddCardViewControllerDelegate));
+    sut.apiClient = mockAPIClient;
+    sut.delegate = mockDelegate;
+    STPCardParams *expectedCardParams = [STPFixtures cardParams];
+    sut.paymentCell.paymentField.cardParams = expectedCardParams;
+
+    STPSource *expectedSource = [STPFixtures cardSource];
+    XCTestExpectation *createSourceExp = [self expectationWithDescription:@"createSource"];
+    OCMStub([mockAPIClient createSourceWithParams:[OCMArg any] completion:[OCMArg any]])
+    .andDo(^(NSInvocation *invocation){
+        STPSourceParams *sourceParams;
+        STPSourceCompletionBlock completion;
+        [invocation getArgument:&sourceParams atIndex:2];
+        [invocation getArgument:&completion atIndex:3];
+        XCTAssertEqualObjects(sourceParams.additionalAPIParameters[@"card"][@"number"], expectedCardParams.number);
+        XCTAssertTrue(sut.loading);
+        completion(expectedSource, nil);
+        [createSourceExp fulfill];
+    });
+
+    XCTestExpectation *didCreateSourceExp = [self expectationWithDescription:@"didCreateSource"];
+    OCMStub([mockDelegate addCardViewController:[OCMArg any] didCreateSource:[OCMArg any] completion:[OCMArg any]])
+    .andDo(^(NSInvocation *invocation){
+        STPSource *source;
+        STPErrorBlock completion;
+        [invocation getArgument:&source atIndex:3];
+        [invocation getArgument:&completion atIndex:4];
+        XCTAssertTrue(sut.loading);
+        XCTAssertEqualObjects(source.stripeID, expectedSource.stripeID);
+        completion(nil);
+        XCTAssertFalse(sut.loading);
+        [didCreateSourceExp fulfill];
     });
 
     // tap next button
