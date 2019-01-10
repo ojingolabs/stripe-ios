@@ -36,9 +36,7 @@
     [super viewDidLoad];
 
     self.title = @"Card";
-    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
-        self.edgesForExtendedLayout = UIRectEdgeNone;
-    }
+    self.edgesForExtendedLayout = UIRectEdgeNone;
 
     UIBarButtonItem *buyButton = [[UIBarButtonItem alloc] initWithTitle:@"Pay" style:UIBarButtonItemStyleDone target:self action:@selector(pay)];
     buyButton.enabled = NO;
@@ -90,7 +88,7 @@
                                               if (error) {
                                                   [self.delegate exampleViewController:self didFinishWithError:error];
                                               }
-                                              [self.delegate createBackendChargeWithSource:token.tokenId completion:^(STPBackendChargeResult result, NSError *error) {
+                                              [self.delegate createBackendChargeWithSource:token.tokenId completion:^(STPBackendResult result, NSError *error) {
                                                   if (error) {
                                                       [self.delegate exampleViewController:self didFinishWithError:error];
                                                       return;

@@ -6,18 +6,11 @@
 //  Copyright © 2016 Stripe, Inc. All rights reserved.
 //
 
-#define FAUXPAS_IGNORED_IN_METHOD(...)
-#define FAUXPAS_IGNORED_ON_LINE(...)
-
 #import <Foundation/Foundation.h>
 #import <PassKit/PassKit.h>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-#import <AddressBook/AddressBook.h>
-#pragma clang diagnostic pop
-
 #import "STPAPIResponseDecodable.h"
+#import "STPFormEncodable.h"
 
 @class CNContact;
 
@@ -25,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  What set of billing address information you need to collect from your user.
-
+ 
  @note If the user is from a country that does not use zip/postal codes,
  the user may not be asked for one regardless of this setting.
  */
@@ -42,31 +35,43 @@ typedef NS_ENUM(NSUInteger, STPBillingAddressFields) {
      Request the user's full billing address
      */
     STPBillingAddressFieldsFull,
+    
+    /**
+     Just request the user's billing name
+     */
+    STPBillingAddressFieldsName,
 };
 
-typedef NS_ENUM(NSInteger, STPAddressValidationErrors) {
-    STPAddressValidationErrorFullNameLength = 0,
-    STPAddressValidationErrorFullNameInvalidCharacters = 1,
-    STPAddressValidationErrorPhoneLength = 2,
-    STPAddressValidationErrorPhoneInvalidCharacters = 3,
-    STPAddressValidationErrorPhonePlusCharacter = 4,
-    STPAddressValidationErrorAddressLength = 5,
-    STPAddressValidationErrorAddressInvalidCharacters = 6,
-    STPAddressValidationErrorPostalCodeLength = 7,
-    STPAddressValidationErrorPostalCodeInvalidCharacters = 8,
-    STPAddressValidationErrorCityLength = 9,
-    STPAddressValidationErrorCityInvalidCharacters = 10,
-    STPAddressValidationErrorStateLength = 11,
-    STPAddressValidationErrorStateInvalidCharacters = 12,
-    STPAddressValidationErrorCountryLength = 13,
-    STPAddressValidationErrorCountryInvalidCharacters = 14,
-    STPAddressValidationErrorNoError = 15
-};
+
+/**
+ Constants that represent different parts of a users contact/address information.
+ */
+typedef NSString * STPContactField NS_STRING_ENUM;
+
+/**
+ The contact's full physical address.
+ */
+extern STPContactField const STPContactFieldPostalAddress;
+
+/**
+ The contact's email address.
+ */
+extern STPContactField const STPContactFieldEmailAddress;
+
+/**
+ The contact's phone number.
+ */
+extern STPContactField const STPContactFieldPhoneNumber;
+
+/**
+ The contact's name.
+ */
+extern STPContactField const STPContactFieldName;
 
 /**
  STPAddress Contains an address as represented by the Stripe API.
  */
-@interface STPAddress : NSObject<STPAPIResponseDecodable>
+@interface STPAddress : NSObject<STPAPIResponseDecodable, STPFormEncodable, NSCopying>
 
 /**
  The user's full name (e.g. "Jane Doe")
@@ -116,70 +121,49 @@ typedef NS_ENUM(NSInteger, STPAddressValidationErrors) {
 /**
  When creating a charge on your backend, you can attach shipping information
  to prevent fraud on a physical good. You can use this method to turn your user's
- shipping address and selected shipping method into a hash suitable for attaching 
+ shipping address and selected shipping method into a hash suitable for attaching
  to a charge. You should pass this to your backend, and use it as the `shipping`
  parameter when creating a charge.
  @see https://stripe.com/docs/api#create_charge-shipping
-
+ 
  @param address  The user's shipping address. If nil, this method will return nil.
  @param method   The user's selected shipping method. May be nil.
  */
 + (nullable NSDictionary *)shippingInfoForChargeWithAddress:(nullable STPAddress *)address
                                              shippingMethod:(nullable PKShippingMethod *)method;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-
-/**
- Initializes a new STPAddress with data from an Address Book record.
-
- @param record The Address Book record you want to populate the STPAddress from.
- @return A new STPAddress instance with data copied from the passed in record.
- */
-- (instancetype)initWithABRecord:(ABRecordRef)record;
-
-
-/**
- Generates an Address Book record representation of this STPAddress.
-
- @return A new autoreleased Address Book record with data copied from this 
- STPAddress instance.
- */
-- (ABRecordRef)ABRecordValue;
-#pragma clang diagnostic pop
-
 /**
  Initializes a new STPAddress with data from an PassKit contact.
-
+ 
  @param contact The PassKit contact you want to populate the STPAddress from.
  @return A new STPAddress instance with data copied from the passed in contact.
  */
-- (instancetype)initWithPKContact:(PKContact *)contact NS_AVAILABLE_IOS(9_0); FAUXPAS_IGNORED_ON_LINE(APIAvailability);
+- (instancetype)initWithPKContact:(PKContact *)contact;
 
 /**
  Generates a PassKit contact representation of this STPAddress.
-
+ 
  @return A new PassKit contact with data copied from this STPAddress instance.
  */
-- (PKContact *)PKContactValue NS_AVAILABLE_IOS(9_0); FAUXPAS_IGNORED_ON_LINE(APIAvailability);
+- (PKContact *)PKContactValue;
 
 /**
  Initializes a new STPAddress with a contact from the Contacts framework.
-
+ 
  @param contact The CNContact you want to populate the STPAddress from.
-
+ 
  @return A new STPAddress instance with data copied from the passed in contact.
  */
-- (instancetype)initWithCNContact:(CNContact *)contact NS_AVAILABLE_IOS(9_0); FAUXPAS_IGNORED_ON_LINE(APIAvailability);
+- (instancetype)initWithCNContact:(CNContact *)contact;
 
 
 /**
  Checks if this STPAddress has the level of valid address information
  required by the passed in setting.
-
- @param requiredFields The required level of billing address information to 
+ 
+ @param requiredFields The required level of billing address information to
  check against.
-
+ 
  @return YES if this address contains at least the necessary information,
  NO otherwise.
  */
@@ -188,16 +172,16 @@ typedef NS_ENUM(NSInteger, STPAddressValidationErrors) {
 /**
  Checks if this STPAddress has any content (possibly invalid) in any of the
  desired billing address fields.
-
+ 
  Where `containsRequiredFields:` validates that this STPAddress contains valid data in
  all of the required fields, this method checks for the existence of *any* data.
-
+ 
  For example, if `desiredFields` is `STPBillingAddressFieldsZip`, this will check
  if the postalCode is empty.
-
+ 
  Note: When `desiredFields == STPBillingAddressFieldsNone`, this method always returns
  NO.
-
+ 
  @parameter desiredFields The billing address information the caller is interested in.
  @return YES if there is any data in this STPAddress that's relevant for those fields.
  */
@@ -206,44 +190,68 @@ typedef NS_ENUM(NSInteger, STPAddressValidationErrors) {
 /**
  Checks if this STPAddress has the level of valid address information
  required by the passed in setting.
-
+ 
+ Note: When `requiredFields == nil`, this method always returns
+ YES.
+ 
  @param requiredFields The required shipping address information to check against.
-
+ 
  @return YES if this address contains at least the necessary information,
  NO otherwise.
  */
-- (BOOL)containsRequiredShippingAddressFields:(PKAddressField)requiredFields;
+- (BOOL)containsRequiredShippingAddressFields:(nullable NSSet<STPContactField> *)requiredFields;
 
 /**
  Checks if this STPAddress has any content (possibly invalid) in any of the
  desired shipping address fields.
-
+ 
  Where `containsRequiredShippingAddressFields:` validates that this STPAddress
  contains valid data in all of the required fields, this method checks for the
  existence of *any* data.
-
- Note: When `desiredFields == PKAddressFieldNone`, this method always returns
+ 
+ Note: When `desiredFields == nil`, this method always returns
  NO.
-
+ 
  @parameter desiredFields The shipping address information the caller is interested in.
  @return YES if there is any data in this STPAddress that's relevant for those fields.
  */
-- (BOOL)containsContentForShippingAddressFields:(PKAddressField)desiredFields;
+- (BOOL)containsContentForShippingAddressFields:(nullable NSSet<STPContactField> *)desiredFields;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 /**
  Converts an STPBillingAddressFields enum value into the closest equivalent
  representation of PKAddressField options
-
+ 
  @param billingAddressFields Stripe billing address fields enum value to convert.
- @return The closest represenation of the billing address requirement as 
+ @return The closest representation of the billing address requirement as
  a PKAddressField value.
  */
 + (PKAddressField)applePayAddressFieldsFromBillingAddressFields:(STPBillingAddressFields)billingAddressFields;
+#pragma clang diagnostic pop
 
-- (nullable NSDictionary*)dictionaryOutput;
-- (BOOL)isEqualToAddress:(nonnull STPAddress*)address;
-- (BOOL)isValid;
-- (STPAddressValidationErrors)validationErrorCode;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+/**
+ Converts a set of STPContactField values into the closest equivalent
+ representation of PKAddressField options
+ 
+ @param contactFields Stripe contact fields values to convert.
+ @return The closest representation of the contact fields as
+ a PKAddressField value.
+ */
++ (PKAddressField)pkAddressFieldsFromStripeContactFields:(nullable NSSet<STPContactField> *)contactFields;
+#pragma clang diagnostic pop
+
+/**
+ Converts a set of STPContactField values into the closest equivalent
+ representation of PKContactField options
+ 
+ @param contactFields Stripe contact fields values to convert.
+ @return The closest representation of the contact fields as
+ a PKContactField value.
+ */
++ (nullable NSSet<PKContactField> *)pkContactFieldsFromStripeContactFields:(nullable NSSet<STPContactField> *)contactFields API_AVAILABLE(ios(11.0));
 
 @end
 

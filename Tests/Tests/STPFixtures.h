@@ -15,14 +15,27 @@ extern NSString *const STPTestJSONCustomer;
 
 extern NSString *const STPTestJSONCard;
 
-extern NSString *const STPTestJSONSourceAlipay;
-extern NSString *const STPTestJSONSourceBitcoin;
-extern NSString *const STPTestJSONSourceCard;
+extern NSString *const STPTestJSONPaymentIntent;
+
 extern NSString *const STPTestJSONSource3DS;
+extern NSString *const STPTestJSONSourceAlipay;
+extern NSString *const STPTestJSONSourceBancontact;
+extern NSString *const STPTestJSONSourceCard;
+extern NSString *const STPTestJSONSourceEPS;
+extern NSString *const STPTestJSONSourceGiropay;
 extern NSString *const STPTestJSONSourceiDEAL;
+extern NSString *const STPTestJSONSourceMultibanco;
+extern NSString *const STPTestJSONSourceP24;
 extern NSString *const STPTestJSONSourceSEPADebit;
+extern NSString *const STPTestJSONSourceSOFORT;
 
 @interface STPFixtures : NSObject
+
+/**
+ An STPConnectAccountParams object with all of the fields filled in, and
+ ToS accepted.
+ */
++ (STPConnectAccountParams *)accountParams;
 
 /**
  An Address object with all fields filled.
@@ -84,6 +97,12 @@ extern NSString *const STPTestJSONSourceSEPADebit;
 + (STPCustomer *)customerWithCardTokenAndSourceSources;
 
 /**
+ A Customer object with a card source, and apple pay card source, and
+ default_source set to the apple pay source.
+ */
++ (STPCustomer *)customerWithCardAndApplePaySources;
+
+/**
  A customer object with a sources array that includes the listed json sources
  in the order they are listed in the array.
  
@@ -108,7 +127,12 @@ extern NSString *const STPTestJSONSourceSEPADebit;
 /**
  A Source object with type Alipay and a native redirect url
  */
-+ (STPSource *)alipaySourceWithNativeUrl;
++ (STPSource *)alipaySourceWithNativeURL;
+
+/**
+ A PaymentIntent object
+ */
++ (STPPaymentIntent *)paymentIntent;
 
 /**
  A PaymentConfiguration object with a fake publishable key. Use this to avoid
@@ -126,6 +150,11 @@ extern NSString *const STPTestJSONSourceSEPADebit;
  A customer-scoped ephemeral key that expires in 10 seconds.
  */
 + (STPEphemeralKey *)expiringEphemeralKey;
+
+/**
+ A fully specified STPLegalEntityParams
+ */
++ (STPLegalEntityParams *)legalEntityParams;
 
 @end
 

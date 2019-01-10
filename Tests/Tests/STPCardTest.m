@@ -53,6 +53,9 @@
     XCTAssertEqual([STPCard brandFromString:@"diners club"], STPCardBrandDinersClub);
     XCTAssertEqual([STPCard brandFromString:@"DINERS CLUB"], STPCardBrandDinersClub);
 
+    XCTAssertEqual([STPCard brandFromString:@"unionpay"], STPCardBrandUnionPay);
+    XCTAssertEqual([STPCard brandFromString:@"UNIONPAY"], STPCardBrandUnionPay);
+
     XCTAssertEqual([STPCard brandFromString:@"unknown"], STPCardBrandUnknown);
     XCTAssertEqual([STPCard brandFromString:@"UNKNOWN"], STPCardBrandUnknown);
     
@@ -79,6 +82,9 @@
                 break;
             case STPCardBrandMasterCard:
                 XCTAssertEqualObjects(string, @"MasterCard");
+                break;
+            case STPCardBrandUnionPay:
+                XCTAssertEqualObjects(string, @"UnionPay");
                 break;
             case STPCardBrandVisa:
                 XCTAssertEqualObjects(string, @"Visa");
@@ -308,7 +314,7 @@
     XCTAssertEqualObjects(card.name, @"Jane Austen");
 
     XCTAssertNotEqual(card.allResponseFields, response);
-    XCTAssertEqualObjects(card.allResponseFields, [response stp_dictionaryByRemovingNullsValidatingRequiredFields:@[]]);
+    XCTAssertEqualObjects(card.allResponseFields, [response stp_dictionaryByRemovingNulls]);
 }
 
 
@@ -353,6 +359,7 @@
                                     @(STPCardBrandDiscover),
                                     @(STPCardBrandJCB),
                                     @(STPCardBrandMasterCard),
+                                    @(STPCardBrandUnionPay),
                                     @(STPCardBrandVisa),
                                     @(STPCardBrandUnknown),
                                     ];

@@ -203,29 +203,40 @@
 
 - (void)testSelectDefaultCustomerSourceCallsAPIClientCorrectly {
     STPEphemeralKey *customerKey = [STPFixtures ephemeralKey];
-    STPCustomer *expectedCustomer = [STPFixtures customerWithSingleCardTokenSource];
+    STPCustomer *initialCustomer = [STPFixtures customerWithSourcesFromJSONKeys:@[STPTestJSONCard,
+                                                                                  STPTestJSONSourceCard]
+                                                                  defaultSource:STPTestJSONCard];
+    id<STPSourceProtocol> initialSource = initialCustomer.defaultSource;
+    id<STPSourceProtocol> changedSource = [initialCustomer.sources lastObject];
+
     id mockAPIClient = OCMClassMock([STPAPIClient class]);
     [self stubRetrieveCustomerUsingKey:customerKey
-                     returningCustomer:expectedCustomer
+                     returningCustomer:initialCustomer
                          expectedCount:1
                          mockAPIClient:mockAPIClient];
-    STPSource *expectedSource = [STPFixtures cardSource];
+
+    XCTAssertNotEqual(initialSource, changedSource, @"ensure call to selectDefaultCustomerSource: is changing the defaultSource");
     XCTestExpectation *exp = [self expectationWithDescription:@"updateCustomer"];
-    NSDictionary *expectedParams = @{@"default_source": expectedSource.stripeID};
+    NSDictionary *expectedParams = @{@"default_source": changedSource.stripeID};
     OCMStub([mockAPIClient updateCustomerWithParameters:[OCMArg isEqual:expectedParams]
                                                usingKey:[OCMArg isEqual:customerKey]
                                              completion:[OCMArg any]])
     .andDo(^(NSInvocation *invocation) {
         STPCustomerCompletionBlock completion;
         [invocation getArgument:&completion atIndex:4];
-        completion([STPFixtures customerWithSingleCardTokenSource], nil);
+        completion([STPFixtures customerWithSourcesFromJSONKeys:@[STPTestJSONCard,
+                                                                  STPTestJSONSourceCard]
+                                                  defaultSource:STPTestJSONSourceCard],
+                   nil);
         [exp fulfill];
     });
     id mockKeyManager = [self mockKeyManagerWithKey:customerKey];
     XCTestExpectation *exp2 = [self expectationWithDescription:@"selectDefaultSource"];
     STPCustomerContext *sut = [[STPCustomerContext alloc] initWithKeyManager:mockKeyManager];
-    [sut selectDefaultCustomerSource:expectedSource completion:^(NSError *error) {
+    XCTAssertEqualObjects(sut.customer.defaultSource, initialSource, @"defaultSource should be the defaultSource of the Customer returned by the API");
+    [sut selectDefaultCustomerSource:changedSource completion:^(NSError *error) {
         XCTAssertNil(error);
+        XCTAssertEqualObjects(sut.customer.defaultSource, changedSource, @"defaultSource should be the new source");
         [exp2 fulfill];
     }];
 
@@ -285,9 +296,9 @@
                    fromCustomerUsingKey:[OCMArg isEqual:customerKey]
                              completion:[OCMArg any]])
     .andDo(^(NSInvocation *invocation) {
-        STPCustomerCompletionBlock completion;
+        STPErrorBlock completion;
         [invocation getArgument:&completion atIndex:4];
-        completion([STPFixtures customerWithSingleCardTokenSource], nil);
+        completion(nil);
         [exp fulfill];
     });
     id mockKeyManager = [self mockKeyManagerWithKey:customerKey];
@@ -299,6 +310,45 @@
         XCTAssertNil(sut.customer);
         XCTAssertNil(error);
         [exp2 fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+#pragma mark - includeApplePaySources
+
+- (void)testFiltersApplePaySourcesByDefault {
+    STPEphemeralKey *customerKey = [STPFixtures ephemeralKey];
+    STPCustomer *expectedCustomer = [STPFixtures customerWithCardAndApplePaySources];
+    [self stubRetrieveCustomerUsingKey:customerKey
+                     returningCustomer:expectedCustomer
+                         expectedCount:1];
+    id mockKeyManager = [self mockKeyManagerWithKey:customerKey];
+    STPCustomerContext *sut = [[STPCustomerContext alloc] initWithKeyManager:mockKeyManager];
+    XCTestExpectation *exp = [self expectationWithDescription:@"retrieveCustomer"];
+    [sut retrieveCustomer:^(STPCustomer *customer, __unused NSError *error) {
+        XCTAssertEqual(customer.sources.count, (unsigned int)1);
+        XCTAssertNil(customer.defaultSource);
+        [exp fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testIncludeApplePaySources {
+    STPEphemeralKey *customerKey = [STPFixtures ephemeralKey];
+    STPCustomer *expectedCustomer = [STPFixtures customerWithCardAndApplePaySources];
+    [self stubRetrieveCustomerUsingKey:customerKey
+                     returningCustomer:expectedCustomer
+                         expectedCount:1];
+    id mockKeyManager = [self mockKeyManagerWithKey:customerKey];
+    STPCustomerContext *sut = [[STPCustomerContext alloc] initWithKeyManager:mockKeyManager];
+    sut.includeApplePaySources = YES;
+    XCTestExpectation *exp = [self expectationWithDescription:@"retrieveCustomer"];
+    [sut retrieveCustomer:^(STPCustomer *customer, __unused NSError *error) {
+        XCTAssertEqual(customer.sources.count, (unsigned int)2);
+        XCTAssertNotNil(customer.defaultSource);
+        [exp fulfill];
     }];
 
     [self waitForExpectationsWithTimeout:2 handler:nil];

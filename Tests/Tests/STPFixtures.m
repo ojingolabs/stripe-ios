@@ -14,14 +14,27 @@ NSString *const STPTestJSONCustomer = @"Customer";
 
 NSString *const STPTestJSONCard = @"Card";
 
-NSString *const STPTestJSONSourceAlipay = @"AlipaySource";
-NSString *const STPTestJSONSourceBitcoin = @"BitcoinSource";
-NSString *const STPTestJSONSourceCard = @"CardSource";
+NSString *const STPTestJSONPaymentIntent = @"PaymentIntent";
+
 NSString *const STPTestJSONSource3DS = @"3DSSource";
+NSString *const STPTestJSONSourceAlipay = @"AlipaySource";
+NSString *const STPTestJSONSourceBancontact = @"BancontactSource";
+NSString *const STPTestJSONSourceCard = @"CardSource";
+NSString *const STPTestJSONSourceEPS = @"EPSSource";
+NSString *const STPTestJSONSourceGiropay = @"GiropaySource";
 NSString *const STPTestJSONSourceiDEAL = @"iDEALSource";
+NSString *const STPTestJSONSourceMultibanco = @"MultibancoSource";
+NSString *const STPTestJSONSourceP24 = @"P24Source";
 NSString *const STPTestJSONSourceSEPADebit = @"SEPADebitSource";
+NSString *const STPTestJSONSourceSOFORT = @"SOFORTSource";
+
 
 @implementation STPFixtures
+
++ (STPConnectAccountParams *)accountParams {
+    return [[STPConnectAccountParams alloc] initWithTosShownAndAccepted:YES
+                                                            legalEntity:[self legalEntityParams]];
+}
 
 + (STPAddress *)address {
     STPAddress *address = [STPAddress new];
@@ -125,6 +138,25 @@ NSString *const STPTestJSONSourceSEPADebit = @"SEPADebitSource";
 
 }
 
++ (STPCustomer *)customerWithCardAndApplePaySources {
+    NSMutableDictionary *card1 = [[STPTestUtils jsonNamed:STPTestJSONSourceCard] mutableCopy];
+    card1[@"id"] = @"src_apple_pay_123";
+    NSMutableDictionary *cardDict = [card1[@"card"] mutableCopy];
+    cardDict[@"tokenization_method"] = @"apple_pay";
+    card1[@"card"] = cardDict;
+
+    NSMutableDictionary *card2 = [[STPTestUtils jsonNamed:STPTestJSONSourceCard] mutableCopy];
+    card2[@"id"] = @"src_card_456";
+
+    NSMutableDictionary *customer = [[STPTestUtils jsonNamed:STPTestJSONCustomer] mutableCopy];
+    NSMutableDictionary *sources = [customer[@"sources"] mutableCopy];
+    sources[@"data"] = @[card1, card2];
+    customer[@"default_source"] = card1[@"id"];
+    customer[@"sources"] = sources;
+
+    return [STPCustomer decodedObjectFromAPIResponse:customer];
+}
+
 + (STPCustomer *)customerWithSourcesFromJSONKeys:(NSArray<NSString *> *)jsonSourceKeys
                                    defaultSource:(NSString *)jsonKeyForDefaultSource {
     NSMutableArray *sourceJSONDicts = [NSMutableArray new];
@@ -157,12 +189,16 @@ NSString *const STPTestJSONSourceSEPADebit = @"SEPADebitSource";
     return [STPSource decodedObjectFromAPIResponse:[STPTestUtils jsonNamed:STPTestJSONSourceAlipay]];
 }
 
-+ (STPSource *)alipaySourceWithNativeUrl {
++ (STPSource *)alipaySourceWithNativeURL {
     NSMutableDictionary *dictionary = [STPTestUtils jsonNamed:STPTestJSONSourceAlipay].mutableCopy;
     NSMutableDictionary *detailsDictionary = ((NSDictionary *)dictionary[@"alipay"]).mutableCopy;
     detailsDictionary[@"native_url"] = @"alipay://test";
     dictionary[@"alipay"] = detailsDictionary;
     return [STPSource decodedObjectFromAPIResponse:dictionary];
+}
+
++ (STPPaymentIntent *)paymentIntent {
+    return [STPPaymentIntent decodedObjectFromAPIResponse:[STPTestUtils jsonNamed:@"PaymentIntent"]];
 }
 
 + (STPPaymentConfiguration *)paymentConfiguration {
@@ -227,6 +263,62 @@ NSString *const STPTestJSONSourceSEPADebit = @"SEPADebitSource";
     [payment performSelector:@selector(setToken:) withObject:paymentToken];
 #pragma clang diagnostic pop
     return payment;
+}
+
++ (STPLegalEntityParams *)legalEntityParams {
+    STPLegalEntityParams *legalEntity = [STPLegalEntityParams new];
+
+    legalEntity.firstName = @"Jessica";
+    legalEntity.lastName = @"Jones";
+    legalEntity.maidenName = @"Smith";
+    legalEntity.address = [self address];
+
+    legalEntity.dateOfBirth = [NSDateComponents new];
+    legalEntity.dateOfBirth.year = 1980;
+    legalEntity.dateOfBirth.month = 7;
+    legalEntity.dateOfBirth.day = 4;
+
+    legalEntity.verification = [STPVerificationParams new];
+    legalEntity.verification.document = @"file_abc";
+    legalEntity.verification.documentBack = @"file_def";
+
+    STPPersonParams *jenny = [self personParams], *jacob = [self personParams];
+    jenny.firstName = @"Jenny";
+    jacob.firstName = @"Jacob";
+    legalEntity.additionalOwners = @[jenny, jacob];
+
+    legalEntity.businessName = @"Internet Business";
+    legalEntity.businessTaxId = @"123";
+    legalEntity.businessVATId = @"456";
+    legalEntity.genderString = @"female";
+    legalEntity.personalAddress = [self address];
+    legalEntity.personalAddress.state = @"CA";
+    legalEntity.personalIdNumber = @"000000000";
+    legalEntity.phoneNumber = @"555-1234";
+    legalEntity.ssnLast4 = @"0000";
+    legalEntity.taxIdRegistrar = @"321";
+    legalEntity.entityTypeString = @"individual";
+
+    return legalEntity;
+}
+
++ (STPPersonParams *)personParams {
+    STPPersonParams *person = [STPPersonParams new];
+
+    person.firstName = @"James";
+    person.lastName = @"Smith";
+    person.maidenName = @"Jones";
+    person.address = [self address];
+
+    person.dateOfBirth = [NSDateComponents new];
+    person.dateOfBirth.year = 1980;
+    person.dateOfBirth.month = 7;
+    person.dateOfBirth.day = 4;
+
+    person.verification = [STPVerificationParams new];
+    person.verification.document = @"file_abc";
+
+    return person;
 }
 
 @end

@@ -6,19 +6,24 @@
 //  Copyright © 2016 Stripe, Inc. All rights reserved.
 //
 
-#import "NSDictionary+Stripe.h"
 #import "STPAddress.h"
-#import "STPCardValidator.h"
-#import "STPEmailAddressValidator.h"
-#import "STPPhoneNumberValidator.h"
-#import "STPPostalCodeValidator.h"
 
 #import <Contacts/Contacts.h>
 
-#define FAUXPAS_IGNORED_IN_FILE(...)
-FAUXPAS_IGNORED_IN_FILE(APIAvailability)
+#import "NSDictionary+Stripe.h"
+#import "STPCardValidator.h"
+#import "STPEmailAddressValidator.h"
+#import "STPFormEncoder.h"
+#import "STPPhoneNumberValidator.h"
+#import "STPPostalCodeValidator.h"
 
 NSString *stringIfHasContentsElseNil(NSString *string);
+
+
+STPContactField const STPContactFieldPostalAddress = @"STPContactFieldPostalAddress";
+STPContactField const STPContactFieldEmailAddress = @"STPContactFieldEmailAddress";
+STPContactField const STPContactFieldPhoneNumber = @"STPContactFieldPhoneNumber";
+STPContactField const STPContactFieldName = @"STPContactFieldName";
 
 @interface STPAddress ()
 
@@ -28,9 +33,7 @@ NSString *stringIfHasContentsElseNil(NSString *string);
 @end
 
 @implementation STPAddress
-{
-    STPAddressValidationErrors _firstValidationErrorCode;
-}
+@synthesize additionalAPIParameters;
 
 + (NSDictionary *)shippingInfoForChargeWithAddress:(nullable STPAddress *)address
                                     shippingMethod:(nullable PKShippingMethod *)method {
@@ -41,140 +44,32 @@ NSString *stringIfHasContentsElseNil(NSString *string);
     params[@"name"] = address.name;
     params[@"phone"] = address.phone;
     params[@"carrier"] = method.label;
-    NSMutableDictionary *addressDict = [NSMutableDictionary new];
-    addressDict[@"line1"] = address.line1;
-    addressDict[@"line2"] = address.line2;
-    addressDict[@"city"] = address.city;
-    addressDict[@"state"] = address.state;
-    addressDict[@"postal_code"] = address.postalCode;
-    addressDict[@"country"] = address.country;
-    params[@"address"] = [addressDict copy];
+    // Re-use STPFormEncoder
+    params[@"address"] = [STPFormEncoder dictionaryForObject:address];
     return [params copy];
 }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-
-- (instancetype)initWithABRecord:(ABRecordRef)record {
-    self = [super init];
-    if (self) {
-        NSString *firstName = (__bridge_transfer NSString*)ABRecordCopyValue(record, kABPersonFirstNameProperty);
-        NSString *lastName = (__bridge_transfer NSString*)ABRecordCopyValue(record, kABPersonLastNameProperty);
-        NSString *first = firstName ?: @"";
-        NSString *last = lastName ?: @"";
-        NSString *name = [@[first, last] componentsJoinedByString:@" "];
-        _name = [name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-
-        ABMultiValueRef emailValues = ABRecordCopyValue(record, kABPersonEmailProperty);
-        _email = (__bridge_transfer NSString *)(ABMultiValueCopyValueAtIndex(emailValues, 0));
-        if (emailValues != NULL) {
-            CFRelease(emailValues);
-        }
-        
-        ABMultiValueRef phoneValues = ABRecordCopyValue(record, kABPersonPhoneProperty);
-        NSString *phone = (__bridge_transfer NSString *)(ABMultiValueCopyValueAtIndex(phoneValues, 0));
-        if (phoneValues != NULL) {
-            CFRelease(phoneValues);
-        }
-        phone = [STPCardValidator sanitizedNumericStringForString:phone];
-        if ([phone length] > 0) {
-            _phone = phone;
-        }
-
-        ABMultiValueRef addressValues = ABRecordCopyValue(record, kABPersonAddressProperty);
-        if (addressValues != NULL) {
-            if (ABMultiValueGetCount(addressValues) > 0) {
-                CFDictionaryRef dict = ABMultiValueCopyValueAtIndex(addressValues, 0);
-                NSString *street = CFDictionaryGetValue(dict, kABPersonAddressStreetKey);
-                if (street.length > 0) {
-                    _line1 = street;
-                }
-                NSString *city = CFDictionaryGetValue(dict, kABPersonAddressCityKey);
-                if (city.length > 0) {
-                    _city = city;
-                }
-                NSString *state = CFDictionaryGetValue(dict, kABPersonAddressStateKey);
-                if (state.length > 0) {
-                    _state = state;
-                }
-                NSString *zip = CFDictionaryGetValue(dict, kABPersonAddressZIPKey);
-                if (zip.length > 0) {
-                    _postalCode = zip;
-                }
-                NSString *country = CFDictionaryGetValue(dict, kABPersonAddressCountryCodeKey);
-                if (country.length > 0) {
-                    _country = [country uppercaseString];
-                }
-                if (dict != NULL) {
-                    CFRelease(dict);
-                }
-            }
-            CFRelease(addressValues);
-        }
-    }
-    return self;
-}
-
-- (ABRecordRef)ABRecordValue {
-    ABRecordRef record = ABPersonCreate();
-    if ([self firstName] != nil) {
-        CFStringRef firstNameRef = (__bridge CFStringRef)[self firstName];
-        ABRecordSetValue(record, kABPersonFirstNameProperty, firstNameRef, nil);
-    }
-    if ([self lastName] != nil) {
-        CFStringRef lastNameRef = (__bridge CFStringRef)[self lastName];
-        ABRecordSetValue(record, kABPersonLastNameProperty, lastNameRef, nil);
-    }
-    if (self.phone != nil) {
-        ABMutableMultiValueRef phonesRef = ABMultiValueCreateMutable(kABMultiStringPropertyType);
-        ABMultiValueAddValueAndLabel(phonesRef, (__bridge CFStringRef)self.phone,
-                                     kABPersonPhoneMainLabel, NULL);
-        ABRecordSetValue(record, kABPersonPhoneProperty, phonesRef, nil);
-        CFRelease(phonesRef);
-    }
-    if (self.email != nil) {
-        ABMutableMultiValueRef emailsRef = ABMultiValueCreateMutable(kABMultiStringPropertyType);
-        ABMultiValueAddValueAndLabel(emailsRef, (__bridge CFStringRef)self.email,
-                                     kABHomeLabel, NULL);
-        ABRecordSetValue(record, kABPersonEmailProperty, emailsRef, nil);
-        CFRelease(emailsRef);
-    }
-    ABMutableMultiValueRef addressRef = ABMultiValueCreateMutable(kABMultiDictionaryPropertyType);
-    NSMutableDictionary *addressDict = [NSMutableDictionary dictionary];
-    addressDict[(NSString *)kABPersonAddressStreetKey] = [self street];
-    addressDict[(NSString *)kABPersonAddressCityKey] = self.city;
-    addressDict[(NSString *)kABPersonAddressStateKey] = self.state;
-    addressDict[(NSString *)kABPersonAddressZIPKey] = self.postalCode;
-    addressDict[(NSString *)kABPersonAddressCountryCodeKey] = self.country;
-    ABMultiValueAddValueAndLabel(addressRef, (__bridge CFTypeRef)[addressDict copy], kABWorkLabel, NULL);
-    ABRecordSetValue(record, kABPersonAddressProperty, addressRef, nil);
-    CFRelease(addressRef);
-    return CFAutorelease(record);
-}
-
-#pragma clang diagnostic pop
 
 - (NSString *)sanitizedPhoneStringFromCNPhoneNumber:(CNPhoneNumber *)phoneNumber {
     NSString *phone = phoneNumber.stringValue;
     if (phone) {
         phone = [STPCardValidator sanitizedNumericStringForString:phone];
     }
-
+    
     return stringIfHasContentsElseNil(phone);
 }
 
 - (instancetype)initWithCNContact:(CNContact *)contact {
     self = [super init];
     if (self) {
-
+        
         _givenName = stringIfHasContentsElseNil(contact.givenName);
         _familyName = stringIfHasContentsElseNil(contact.familyName);
         _name = stringIfHasContentsElseNil([CNContactFormatter stringFromContact:contact
                                                                            style:CNContactFormatterStyleFullName]);
         _email = stringIfHasContentsElseNil([contact.emailAddresses firstObject].value);
         _phone = [self sanitizedPhoneStringFromCNPhoneNumber:contact.phoneNumbers.firstObject.value];
-
-
+        
+        
         [self setAddressFromCNPostalAddress:contact.postalAddresses.firstObject.value];
     }
     return self;
@@ -194,7 +89,7 @@ NSString *stringIfHasContentsElseNil(NSString *string);
         _email = stringIfHasContentsElseNil(contact.emailAddress);
         _phone = [self sanitizedPhoneStringFromCNPhoneNumber:contact.phoneNumber];
         [self setAddressFromCNPostalAddress:contact.postalAddress];
-
+        
     }
     return self;
 }
@@ -274,6 +169,8 @@ NSString *stringIfHasContentsElseNil(NSString *string);
                                                              countryCode:self.country] == STPCardValidationStateValid);
         case STPBillingAddressFieldsFull:
             return [self hasValidPostalAddress];
+        case STPBillingAddressFieldsName:
+            return self.name.length > 0;
     }
     return containsFields;
 }
@@ -286,47 +183,50 @@ NSString *stringIfHasContentsElseNil(NSString *string);
             return self.postalCode.length > 0;
         case STPBillingAddressFieldsFull:
             return [self hasPartialPostalAddress];
+        case STPBillingAddressFieldsName:
+            return self.name.length > 0;
     }
-
+    
     return NO;
 }
 
-- (BOOL)containsRequiredShippingAddressFields:(PKAddressField)requiredFields {
+- (BOOL)containsRequiredShippingAddressFields:(NSSet<STPContactField> *)requiredFields {
     BOOL containsFields = YES;
-    if (requiredFields & PKAddressFieldName) {
+    
+    if ([requiredFields containsObject:STPContactFieldName]) {
         containsFields = containsFields && [self.name length] > 0;
     }
-    if (requiredFields & PKAddressFieldEmail) {
+    if ([requiredFields containsObject:STPContactFieldEmailAddress]) {
         containsFields = containsFields && [STPEmailAddressValidator stringIsValidEmailAddress:self.email];
     }
-    if (requiredFields & PKAddressFieldPhone) {
+    if ([requiredFields containsObject:STPContactFieldPhoneNumber]) {
         containsFields = containsFields && [STPPhoneNumberValidator stringIsValidPhoneNumber:self.phone forCountryCode:self.country];
     }
-    if (requiredFields & PKAddressFieldPostalAddress) {
+    if ([requiredFields containsObject:STPContactFieldPostalAddress]) {
         containsFields = containsFields && [self hasValidPostalAddress];
     }
     return containsFields;
 }
 
-- (BOOL)containsContentForShippingAddressFields:(PKAddressField)desiredFields {
-    return (((desiredFields & PKAddressFieldName) && self.name.length > 0)
-            || ((desiredFields & PKAddressFieldEmail) && self.email.length > 0)
-            || ((desiredFields & PKAddressFieldPhone) && self.phone.length > 0)
-            || ((desiredFields & PKAddressFieldPostalAddress) && [self hasPartialPostalAddress]));
+- (BOOL)containsContentForShippingAddressFields:(NSSet<STPContactField> *)desiredFields {
+    return (([desiredFields containsObject:STPContactFieldName] && self.name.length > 0)
+            || ([desiredFields containsObject:STPContactFieldEmailAddress] && self.email.length > 0)
+            || ([desiredFields containsObject:STPContactFieldPhoneNumber] && self.phone.length > 0)
+            || ([desiredFields containsObject:STPContactFieldPostalAddress] && [self hasPartialPostalAddress]));
 }
 
 - (BOOL)hasValidPostalAddress {
-    return (self.line1.length > 0 
-            && self.city.length > 0 
-            && self.country.length > 0 
-            && (self.state.length > 0 || ![self.country isEqualToString:@"US"])  
+    return (self.line1.length > 0
+            && self.city.length > 0
+            && self.country.length > 0
+            && (self.state.length > 0 || ![self.country isEqualToString:@"US"])
             && ([STPPostalCodeValidator validationStateForPostalCode:self.postalCode
                                                          countryCode:self.country] == STPCardValidationStateValid));
 }
 
 /**
  Does this STPAddress contain any data in the postal address fields?
-
+ 
  If they are all empty or nil, returns NO. Even a single character in a
  single field will return YES.
  */
@@ -340,196 +240,127 @@ NSString *stringIfHasContentsElseNil(NSString *string);
 }
 
 + (PKAddressField)applePayAddressFieldsFromBillingAddressFields:(STPBillingAddressFields)billingAddressFields {
-    FAUXPAS_IGNORED_IN_METHOD(APIAvailability);
     switch (billingAddressFields) {
         case STPBillingAddressFieldsNone:
             return PKAddressFieldNone;
         case STPBillingAddressFieldsZip:
         case STPBillingAddressFieldsFull:
             return PKAddressFieldPostalAddress;
+        case STPBillingAddressFieldsName:
+            return PKAddressFieldName;
     }
+}
+
++ (PKAddressField)pkAddressFieldsFromStripeContactFields:(NSSet<STPContactField> *)contactFields {
+    PKAddressField addressFields = PKAddressFieldNone;
+    NSDictionary<STPContactField, NSNumber *> *contactToAddressFieldMap
+    = @{
+        STPContactFieldPostalAddress: @(PKAddressFieldPostalAddress),
+        STPContactFieldEmailAddress: @(PKAddressFieldEmail),
+        STPContactFieldPhoneNumber: @(PKAddressFieldPhone),
+        STPContactFieldName: @(PKAddressFieldName),
+        };
+    
+    for (STPContactField contactField in contactFields) {
+        NSNumber *boxedConvertedField = contactToAddressFieldMap[contactField];
+        if (boxedConvertedField != nil) {
+            addressFields = (PKAddressField) (addressFields | [boxedConvertedField unsignedIntegerValue]);
+        }
+    }
+    return addressFields;
+}
+
++ (NSSet<PKContactField> *)pkContactFieldsFromStripeContactFields:(NSSet<STPContactField> *)contactFields API_AVAILABLE(ios(11.0)) {
+    if (contactFields == nil) {
+        return nil;
+    }
+    
+    NSMutableSet<PKContactField> *pkFields = [NSMutableSet new];
+    NSDictionary<STPContactField, PKContactField> *stripeToPayKitContactMap
+    = @{
+        STPContactFieldPostalAddress: PKContactFieldPostalAddress,
+        STPContactFieldEmailAddress: PKContactFieldEmailAddress,
+        STPContactFieldPhoneNumber: PKContactFieldPhoneNumber,
+        STPContactFieldName: PKContactFieldName,
+        };
+    
+    for (STPContactField contactField in contactFields) {
+        PKContactField convertedField = stripeToPayKitContactMap[contactField];
+        if (convertedField != nil) {
+            [pkFields addObject:convertedField];
+        }
+    }
+    return pkFields.copy;
 }
 
 #pragma mark STPAPIResponseDecodable
 
-+ (NSArray *)requiredFields {
-    return @[];
-}
-
 + (instancetype)decodedObjectFromAPIResponse:(NSDictionary *)response {
-    NSDictionary *dict = [response stp_dictionaryByRemovingNullsValidatingRequiredFields:[self requiredFields]];
+    NSDictionary *dict = [response stp_dictionaryByRemovingNulls];
     if (!dict) {
         return nil;
     }
-
+    
     STPAddress *address = [self new];
     address.allResponseFields = dict;
-    address.city = dict[@"city"];
-    address.country = dict[@"country"];
-    address.line1 = dict[@"line1"];
-    address.line2 = dict[@"line2"];
-    address.postalCode = dict[@"postal_code"];
-    address.state = dict[@"state"];
+    /// all properties are nullable
+    address.city = [dict stp_stringForKey:@"city"];
+    address.country = [dict stp_stringForKey:@"country"];
+    address.line1 = [dict stp_stringForKey:@"line1"];
+    address.line2 = [dict stp_stringForKey:@"line2"];
+    address.postalCode = [dict stp_stringForKey:@"postal_code"];
+    address.state = [dict stp_stringForKey:@"state"];
     return address;
 }
 
-- (NSDictionary*)dictionaryOutput {
+#pragma mark STPFormEncodable
+
++ (nullable NSString *)rootObjectName {
+    return nil;
+}
+
++ (NSDictionary *)propertyNamesToFormFieldNamesMapping {
+    // Paralleling `decodedObjectFromAPIResponse:`, *only* the 6 address fields are encoded
+    // If this changes, shippingInfoForChargeWithAddress:shippingMethod: might break
     return @{
-             @"shipping[name]":_name,
-             @"shipping[phone]":(_phone) ? _phone : @"",
-             @"shipping[address][line1]":_line1,
-             @"shipping[address][line2]":(_line2) ? _line2 : @"",
-             @"shipping[address][city]":(_city) ? _city : @"",
-             @"shipping[address][country]":(_country) ? _country : @"",
-             @"shipping[address][postal_code]":(_postalCode) ? _postalCode : @"",
-             @"shipping[address][state]":(_state) ? _state : @"",
+             NSStringFromSelector(@selector(line1)): @"line1",
+             NSStringFromSelector(@selector(line2)): @"line2",
+             NSStringFromSelector(@selector(city)): @"city",
+             NSStringFromSelector(@selector(state)): @"state",
+             NSStringFromSelector(@selector(postalCode)): @"postal_code",
+             NSStringFromSelector(@selector(country)): @"country",
              };
 }
 
-- (BOOL)isEqualToAddress:(STPAddress*)address
-{
-    if ([self.name isEqual:address.name] &&
-        [self.country isEqual:address.country] &&
-        [self.line1 isEqual:address.line1] &&
-        [self.line2 isEqual:address.line2] &&
-        [self.city isEqual:address.city] &&
-        [self.state isEqual:address.state] &&
-        [self.postalCode isEqual:address.postalCode] &&
-        [self.phone isEqual:address.phone]) {
-        return YES;
-    } else {
-        return NO;
-    }
-}
+#pragma mark NSCopying
 
-- (STPAddressValidationErrors)validationErrorCode
-{
-    BOOL isValid = [self isValid];
-    if (isValid)
-        _firstValidationErrorCode = STPAddressValidationErrorNoError;
+- (id)copyWithZone:(__unused NSZone *)zone {
+    STPAddress *copyAddress = [self.class new];
     
-    return _firstValidationErrorCode;
-}
-
-- (BOOL)isValid
-{
-    BOOL isValid =  [self validateName:self.name] && [self validatePhone:self.phone] && [self validateStreet:self.line1 line2:self.line2] && [self validateCity:self.city] && [self validateState:self.state] && [self validatePostalCode:self.postalCode] && [self validateCountry:self.country];
+    // Name might be stored as full name in _name, or split between given/family name
+    // access ivars directly and explicitly copy the instances.
+    copyAddress->_name = [self->_name copy];
+    copyAddress->_givenName = [self->_givenName copy];
+    copyAddress->_familyName = [self->_familyName copy];
     
-    if (isValid)
-        _firstValidationErrorCode = STPAddressValidationErrorNoError;
+    copyAddress.line1 = self.line1;
+    copyAddress.line2 = self.line2;
+    copyAddress.city = self.city;
+    copyAddress.state = self.state;
+    copyAddress.postalCode = self.postalCode;
+    copyAddress.country = self.country;
     
-    return isValid;
-}
-
-- (BOOL)validateName:(NSString *)name
-{
-    if (name == nil) {
-        _firstValidationErrorCode = STPAddressValidationErrorFullNameLength;
-        return NO;
-    }
-    BOOL condition1 = name.length >= 2 && name.length <= 150;
-    if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorFullNameLength;
+    copyAddress.phone = self.phone;
+    copyAddress.email = self.email;
     
-    return condition1;
-}
-
-- (BOOL)validatePhone:(NSString *)phone
-{
-    if (phone == nil) {
-        _firstValidationErrorCode = STPAddressValidationErrorPhoneLength;
-        return NO;
-    }
-    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
-    [characterSet formUnionWithCharacterSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    [characterSet formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"+"]];
+    copyAddress.allResponseFields = self.allResponseFields;
     
-    BOOL condition1 = [phone stringByTrimmingCharactersInSet:characterSet].length == 0;
-    BOOL condition2 = phone.length >= 6 && phone.length <= 35;
-    
-    if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorPhoneInvalidCharacters;
-    
-    if (!condition2)
-        _firstValidationErrorCode = STPAddressValidationErrorPhoneLength;
-    
-    return condition1 && condition2;
-}
-
-- (BOOL)validateStreet:(NSString *)line1 line2:(NSString *)line2
-{
-    if (line1 == nil) {
-        _firstValidationErrorCode = STPAddressValidationErrorAddressLength;
-        return NO;
-    }
-    NSString *fullAddress = [line1 stringByAppendingString:line2];
-    BOOL condition1 = fullAddress.length >= 4 && fullAddress.length <= 250;
-    if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorAddressLength;
-    
-    return condition1;
-}
-
-- (BOOL)validatePostalCode:(NSString *)postalCode
-{
-    if (postalCode == nil) {
-        _firstValidationErrorCode = STPAddressValidationErrorPostalCodeLength;
-        return NO;
-    }
-    BOOL condition1 = postalCode.length >= 4 && postalCode.length <= 32;
-    if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorPostalCodeLength;
-    
-    return condition1;
-}
-
-- (BOOL)validateCity:(NSString *)city
-{
-    if (city == nil) {
-        _firstValidationErrorCode = STPAddressValidationErrorCityLength;
-        return NO;
-    }
-    BOOL condition1 = city.length >= 1 && city.length <= 100;
-    if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorCityLength;
-    
-    return condition1;
-}
-
-- (BOOL)validateState:(NSString *)state
-{
-    if (state == nil) {
-        _firstValidationErrorCode = STPAddressValidationErrorStateLength;
-        return NO;
-    }
-    BOOL condition1 = state.length <= 100;
-    if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorStateLength;
-    
-    return condition1;
-}
-
-- (BOOL)validateCountry:(NSString *)country
-{
-    if (country == nil) {
-        _firstValidationErrorCode = STPAddressValidationErrorCountryLength;
-        return NO;
-    }
-    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet letterCharacterSet];
-    
-    BOOL condition1 = [country stringByTrimmingCharactersInSet:characterSet].length == 0;
-    BOOL condition2 = country.length >= 1 && country.length <= 100;
-    
-    if (!condition1)
-        _firstValidationErrorCode = STPAddressValidationErrorCountryInvalidCharacters;
-    
-    if (!condition2)
-        _firstValidationErrorCode = STPAddressValidationErrorCountryLength;
-    
-    return condition1 && condition2;
+    return copyAddress;
 }
 
 @end
+
+#pragma mark -
 
 NSString *stringIfHasContentsElseNil(NSString *string) {
     if (string.length > 0) {
@@ -539,4 +370,3 @@ NSString *stringIfHasContentsElseNil(NSString *string) {
         return nil;
     }
 }
-

@@ -1,5 +1,33 @@
 ## Migration Guides
 
+### Migrating from versions < 14.0.0
+* `STPPaymentCardTextField` now copies the `STPCardParams` object when setting/getting the `cardParams` property, instead of sharing the object with the caller.
+  * Changes to the `STPCardParams` object after setting `cardParams` no longer mutate the object held by the `STPPaymentCardTextField`
+  * Changes to the object returned by `STPPaymentCardTextField.cardParams` no longer mutate the object held by the `STPPaymentCardTextField`
+  * This is a breaking change for code like: `paymentCardTextField.cardParams.name = @"Jane Doe";`
+* `STPPaymentIntentParams.returnUrl` has been renamed to `STPPaymentIntentParams.returnURL`. Xcode should offer a deprecation warning & fix-it to help you migrate.
+* `STPPaymentIntent.returnUrl` has been removed, because it's no longer a property of the PaymentIntent. When the PaymentIntent status is `.requiresSourceAction`, and the `nextSourceAction.type` is `.authorizeWithURL`, you can find the return URL at `nextSourceAction.authorizeWithURL.returnURL`.
+
+### Migrating from versions < 13.1.0
+ * The SDK now supports PaymentIntents with `STPPaymentIntent`, which use `STPRedirectContext` in the same way that `STPSource` does
+   * `STPRedirectContextCompletionBlock` has been renamed to `STPRedirectContextSourceCompletionBlock`. It has the same signature, and Xcode should offer a deprecation warning & fix-it to help you migrate.
+
+### Migrating from versions < 13.0.0
+* Remove Bitcoin source support because Stripe no longer processes Bitcoin payments: https://stripe.com/blog/ending-bitcoin-support
+  * Sources can no longer have a "STPSourceTypeBitcoin" source type. These sources will now be interpreted as "STPSourceTypeUnknown".
+  * You can no longer `createBitcoinParams`. Please use a different payment method.
+
+### Migrating from versions < 12.0.0
+* The SDK now requires iOS 9+ and Xcode version 9+. If you need to support iOS 8 or Xcode 8, the last supported version is [11.5.0](https://github.com/stripe/stripe-ios/releases/tag/v11.5.0)
+* `STPPaymentConfiguration.requiredShippingAddress` now is a set of `STPContactField` objects instead of a `PKAddressField` bitmask.
+  * Most of the previous `PKAddressField` constants have matching `STPContactField` constants. To convert your code, switch to passing in a set of the matching constants
+    * Example: `(PKAddressField)(PKAddressFieldName|PKAddressFieldPostalAddress)` becomes `[NSSet setwithArray:@[STPContactFieldName, STPContactFieldPostalAddress]]`)
+  * Anywhere you were using `PKAddressFieldNone` you can now simply pass in `nil`
+  * If you were using `PKAddressFieldAll`, you must switch to manually listing all the fields that you want.
+  * The new constants also correspond to and work similarly to Apple's new `PKContactField` values.
+* `AddressBook` framework support has been removed. If you were using AddressBook related functionality, you must switch over to using the `Contacts` framework.
+* `STPRedirectContext` will no longer retain itself for the duration of the redirect. If you were relying on this functionality, you must change your code to explicitly maintain a reference to it.
+
 ### Migrating from versions < 11.4.0
 * The `STPBackendAPIAdapter` protocol and all associated methods are no longer deprecated. We still recommend using `STPCustomerContext` to update a Stripe customer object on your behalf, rather than using your own implementation of `STPBackendAPIAdapter`.
 
@@ -77,22 +105,24 @@ Versions of Stripe-iOS prior to 1.2 included a class called `STPView`, which pro
 2. Replace any references to `STPView` with a `PTKView` instead. Similarly, any classes that implement `STPViewDelegate` should now instead implement the equivalent `PTKViewDelegate` methods. Note that unlike `STPView`, `PTKView` does not take a Stripe API key in its constructor.
 3. To submit the credit card details from your `PTKView` instance, where you would previously call `createToken` on your `STPView`, replace that with the following code (assuming `self.paymentView` is your `PTKView` instance):
 
-        if (![self.paymentView isValid]) {
-            return;
-        }
-        STPCard *card = [[STPCard alloc] init];
-        card.number = self.paymentView.card.number;
-        card.expMonth = self.paymentView.card.expMonth;
-        card.expYear = self.paymentView.card.expYear;
-        card.cvc = self.paymentView.card.cvc;
-        STPAPIClient *client = [[STPAPIClient alloc] initWithPublishableKey:publishableKey];
-        [client createTokenWithCard:card completion:^(STPToken *token, NSError *error) {
-            if (error) {
-                // handle the error as you did previously
-            } else {
-                // submit the token to your payment backend as you did previously
-            }
-        }];
+```objective-c
+if (![self.paymentView isValid]) {
+    return;
+}
+STPCard *card = [[STPCard alloc] init];
+card.number = self.paymentView.card.number;
+card.expMonth = self.paymentView.card.expMonth;
+card.expYear = self.paymentView.card.expYear;
+card.cvc = self.paymentView.card.cvc;
+STPAPIClient *client = [[STPAPIClient alloc] initWithPublishableKey:publishableKey];
+[client createTokenWithCard:card completion:^(STPToken *token, NSError *error) {
+    if (error) {
+        // handle the error as you did previously
+    } else {
+        // submit the token to your payment backend as you did previously
+    }
+}];
+```
 
 ## Misc. notes
 
@@ -108,10 +138,12 @@ The simplest thing you can do is to populate an `STPCard` object and, before sen
 
 To validate `STPCard` properties individually, you should use the following:
 
+```objective-c
  - (BOOL)validateNumber:error:
  - (BOOL)validateCvc:error:
  - (BOOL)validateExpMonth:error:
  - (BOOL)validateExpYear:error:
+```
 
 These methods follow the validation method convention used by [key-value validation](http://developer.apple.com/library/mac/#documentation/cocoa/conceptual/KeyValueCoding/Articles/Validation.html).  So, you can use these methods by invoking them directly, or by calling `[card validateValue:forKey:error]` for a property on the `STPCard` object.
 
