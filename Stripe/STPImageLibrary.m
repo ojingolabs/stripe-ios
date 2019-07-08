@@ -51,8 +51,64 @@
     return [self brandImageForCardBrand:STPCardBrandUnknown];
 }
 
++ (UIImage *)backgroundImageForCardBrand:(STPCardBrand)brand {
+    NSString *imageName;
+    switch (brand) {
+        case STPCardBrandAmex:
+            imageName =  @"stp_background_card_amex";
+            break;
+        case STPCardBrandDinersClub:
+            imageName =  @"stp_background_card_diners";
+            break;
+        case STPCardBrandDiscover:
+            imageName =  @"stp_background_card_discover";
+            break;
+        case STPCardBrandJCB:
+            imageName =  @"stp_background_card_jcb";
+            break;
+        case STPCardBrandMasterCard:
+            imageName = @"stp_background_card_mastercard";
+            break;
+        case STPCardBrandUnionPay:
+            imageName = @"stp_background_card_unionpay";
+            break;
+        case STPCardBrandVisa:
+            imageName = @"stp_background_card_visa";
+            break;
+        case STPCardBrandUnknown:
+            imageName = nil;
+            break;
+    }
+    UIImage *image = [self safeImageNamed:imageName
+                      templateIfAvailable:NO];
+    if (image == nil && brand != STPCardBrandUnknown) {
+        return [self imageFromColor:[UIColor lightGrayColor]];
+    } else {
+        return image;
+    }
+}
+
++ (UIImage *)imageFromColor:(UIColor *)color {
+    CGRect rect = CGRectMake(0, 0, 1, 1);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
+}
+
 + (UIImage *)brandImageForCardBrand:(STPCardBrand)brand {
     return [self brandImageForCardBrand:brand template:NO];
+}
+
++ (UIImage *)smallBrandImageForCardBrand:(STPCardBrand)brand {
+    if (brand == STPCardBrandDinersClub) {
+        return [self safeImageNamed:@"stp_card_diners_mini" templateIfAvailable:NO];
+    } else {
+        return [self brandImageForCardBrand:brand template:NO];
+    }
 }
 
 + (UIImage *)templatedBrandImageForCardBrand:(STPCardBrand)brand {
@@ -163,7 +219,7 @@
             break;
         case STPCardBrandUnknown:
             shouldUseTemplate = YES;
-            imageName = @"stp_card_unknown";
+            imageName = nil;
             break;
         case STPCardBrandVisa:
             imageName = shouldUseTemplate ? @"stp_card_visa_template" : @"stp_card_visa";

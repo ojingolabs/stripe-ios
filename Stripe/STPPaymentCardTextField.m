@@ -16,7 +16,6 @@
 #import "STPFormTextField.h"
 #import "STPImageLibrary.h"
 #import "STPPaymentCardTextFieldViewModel.h"
-#import "STPPostalCodeValidator.h"
 #import "Stripe.h"
 #import "STPLocalizationUtils.h"
 #import "STPAnalyticsClient.h"
@@ -24,13 +23,16 @@
 @interface STPPaymentCardTextField()<STPFormTextFieldDelegate>
 
 @property (nonatomic, readwrite, weak) UIImageView *brandImageView;
-@property (nonatomic, readwrite, weak) UIView *fieldsView;
+@property (nonatomic, readwrite, weak) UIImageView *backgroundImageView;
 @property (nonatomic, readwrite, weak) STPFormTextField *numberField;
 @property (nonatomic, readwrite, weak) STPFormTextField *expirationField;
 @property (nonatomic, readwrite, weak) STPFormTextField *cvcField;
-@property (nonatomic, readwrite, weak) STPFormTextField *postalCodeField;
+@property (nonatomic, readwrite, weak) UILabel *numberLabel;
+@property (nonatomic, readwrite, weak) UILabel *expirationLabel;
+@property (nonatomic, readwrite, weak) UILabel *cvcLabel;
 @property (nonatomic, readwrite, strong) STPPaymentCardTextFieldViewModel *viewModel;
 @property (nonatomic, readwrite, strong) STPPaymentMethodCardParams *internalCardParams;
+@property (nonatomic, strong) NSArray<UILabel *> *allLabels;
 @property (nonatomic, strong) NSArray<STPFormTextField *> *allFields;
 @property (nonatomic, readwrite, strong) STPFormTextField *sizingField;
 @property (nonatomic, readwrite, strong) UILabel *sizingLabel;
@@ -91,6 +93,7 @@ NS_INLINE CGFloat stp_ceilCGFloat(CGFloat x) {
 @implementation STPPaymentCardTextField
 
 @synthesize font = _font;
+@synthesize labelFont = _labelFont;
 @synthesize textColor = _textColor;
 @synthesize textErrorColor = _textErrorColor;
 @synthesize placeholderColor = _placeholderColor;
@@ -99,9 +102,11 @@ NS_INLINE CGFloat stp_ceilCGFloat(CGFloat x) {
 @synthesize cornerRadius = _cornerRadius;
 @dynamic enabled;
 
-CGFloat const STPPaymentCardTextFieldDefaultPadding = 13;
-CGFloat const STPPaymentCardTextFieldDefaultInsets = 13;
-CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
+CGFloat const STPPaymentCardTextFieldTopPadding = 65;
+CGFloat const STPPaymentCardTextFieldTextFieldHeight = 30;
+CGFloat const STPPaymentCardTextFieldDefaultPadding = 20;
+CGFloat const STPPaymentCardTextFieldDefaultInsets = 16;
+CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 
 #pragma mark initializers
 
@@ -128,82 +133,129 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
 - (void)commonInit {
     // We're using ivars here because UIAppearance tracks when setters are
     // called, and won't override properties that have already been customized
-    _borderColor = [self.class placeholderGrayColor];
-    _cornerRadius = 5.0f;
+    _borderColor = UIColor.whiteColor;
+    _cornerRadius = 10.0f;
     _borderWidth = 1.0f;
     
     self.layer.borderColor = [[_borderColor copy] CGColor];
     self.layer.cornerRadius = _cornerRadius;
     self.layer.borderWidth = _borderWidth;
 
-    self.clipsToBounds = YES;
+    self.layer.shadowColor = [UIColor colorWithWhite:0 alpha:1].CGColor;
+    self.layer.shadowOffset = CGSizeMake(0, 8);
+    self.layer.shadowRadius = 18;
+    self.layer.shadowOpacity = 0;
+
+    self.clipsToBounds = NO;
 
     _internalCardParams = [STPPaymentMethodCardParams new];
     _viewModel = [STPPaymentCardTextFieldViewModel new];
     _sizingField = [self buildTextField];
     _sizingField.formDelegate = nil;
     _sizingLabel = [UILabel new];
-    
-    UIImageView *brandImageView = [[UIImageView alloc] initWithImage:self.brandImage];
-    brandImageView.contentMode = UIViewContentModeCenter;
+
+    UIImageView *brandImageView = [[UIImageView alloc] init];
+    brandImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    brandImageView.contentMode = UIViewContentModeScaleAspectFit;
     brandImageView.backgroundColor = [UIColor clearColor];
     brandImageView.tintColor = self.placeholderColor;
     self.brandImageView = brandImageView;
-    
+
+    UIImageView *backgroundImageView = [[UIImageView alloc] init];
+    backgroundImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    backgroundImageView.backgroundColor = [UIColor clearColor];
+    self.backgroundImageView = backgroundImageView;
+    self.backgroundImageView.alpha = 0;
+
+    UILabel *numberLabel = UILabel.new;
+    numberLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    numberLabel.textAlignment = NSTextAlignmentLeft;
+    numberLabel.textColor = UIColor.whiteColor;
+    numberLabel.attributedText = [[NSAttributedString alloc] initWithString:STPLocalizedString(@"card number", @"accessibility label for text field").uppercaseString attributes:@{
+            NSKernAttributeName: @(1.2)
+    }];
+    self.numberLabel = numberLabel;
+
     STPFormTextField *numberField = [self buildTextField];
     // This does not offer quick-type suggestions (as iOS 11.2), but does pick
     // the best keyboard (maybe other, hidden behavior?)
     numberField.textContentType = UITextContentTypeCreditCardNumber;
     numberField.autoFormattingBehavior = STPFormTextFieldAutoFormattingBehaviorCardNumbers;
     numberField.tag = STPCardFieldTypeNumber;
+    numberField.textAlignment = NSTextAlignmentLeft;
     numberField.accessibilityLabel = STPLocalizedString(@"card number", @"accessibility label for text field");
     self.numberField = numberField;
     self.numberPlaceholder = [self.viewModel defaultPlaceholder];
 
+    UILabel *expirationLabel = UILabel.new;
+    expirationLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    expirationLabel.textColor = UIColor.whiteColor;
+    expirationLabel.attributedText = [[NSAttributedString alloc] initWithString:STPLocalizedString(@"expiration date", @"accessibility label for text field").uppercaseString attributes:@{
+            NSKernAttributeName: @(1.2)
+    }];
+    self.expirationLabel = expirationLabel;
+
     STPFormTextField *expirationField = [self buildTextField];
     expirationField.autoFormattingBehavior = STPFormTextFieldAutoFormattingBehaviorExpiration;
     expirationField.tag = STPCardFieldTypeExpiration;
-    expirationField.alpha = 0;
     expirationField.isAccessibilityElement = NO;
     expirationField.accessibilityLabel = STPLocalizedString(@"expiration date", @"accessibility label for text field");
     self.expirationField = expirationField;
-    self.expirationPlaceholder = STPLocalizedString(@"MM/YY", @"label for text field to enter card expiry");
-        
+    self.expirationPlaceholder = @"–/–";
+
+    UILabel *cvcLabel = UILabel.new;
+    cvcLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    cvcLabel.textColor = UIColor.whiteColor;
+    cvcLabel.textAlignment = NSTextAlignmentRight;
+    cvcLabel.attributedText = [[NSAttributedString alloc] initWithString:[self defaultCVCPlaceholder].uppercaseString attributes:@{
+            NSKernAttributeName: @(1.2)
+    }];
+    self.cvcLabel = cvcLabel;
+
     STPFormTextField *cvcField = [self buildTextField];
     cvcField.tag = STPCardFieldTypeCVC;
-    cvcField.alpha = 0;
     cvcField.isAccessibilityElement = NO;
+    cvcField.textAlignment = NSTextAlignmentRight;
     self.cvcField = cvcField;
-    self.cvcPlaceholder = nil;
+    self.cvcPlaceholder = @"–";
     self.cvcField.accessibilityLabel = [self defaultCVCPlaceholder];
 
-    STPFormTextField *postalCodeField = [self buildTextField];
-    postalCodeField.textContentType = UITextContentTypePostalCode;
-    postalCodeField.tag = STPCardFieldTypePostalCode;
-    postalCodeField.alpha = 0;
-    postalCodeField.isAccessibilityElement = NO;
-    postalCodeField.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
-    self.postalCodeField = postalCodeField;
-    // Placeholder is set by country code setter
 
-    UIView *fieldsView = [[UIView alloc] init];
-    fieldsView.clipsToBounds = YES;
-    fieldsView.backgroundColor = [UIColor clearColor];
-    self.fieldsView = fieldsView;
-
-    self.allFields = @[numberField,
-                       expirationField,
-                       cvcField,
-                       postalCodeField];
-    
-    [self addSubview:self.fieldsView];
+    self.allLabels = @[numberLabel, expirationLabel, cvcLabel];
+    self.allFields = @[numberField, expirationField, cvcField];
     for (STPFormTextField *field in self.allFields) {
-        [self.fieldsView addSubview:field];
+        [self addSubview:field];
     }
-
+    for (UILabel *label in self.allLabels) {
+        label.font = self.labelFont;
+        [self addSubview:label];
+    }
     [self addSubview:brandImageView];
-    // On small screens, the number field fits ~4 numbers, and the brandImage is just as large.
-    // Previously, taps on the brand image would *dismiss* the keyboard. Make it move to the numberField instead
+    [self addSubview:backgroundImageView];
+    [self sendSubviewToBack:backgroundImageView];
+
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(offset)-[numberLabel]-(offset)-|" options:0 metrics:@{@"offset": @(STPPaymentCardTextFieldDefaultPadding)} views:NSDictionaryOfVariableBindings(numberLabel)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(offset)-[numberField]-(offset)-|" options:0 metrics:@{@"offset": @(STPPaymentCardTextFieldDefaultPadding)} views:NSDictionaryOfVariableBindings(numberField)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(offset)-[expirationLabel]-(offset)-|" options:0 metrics:@{@"offset": @(STPPaymentCardTextFieldDefaultPadding)} views:NSDictionaryOfVariableBindings(expirationLabel)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(offset)-[cvcLabel]-(offset)-|" options:0 metrics:@{@"offset": @(STPPaymentCardTextFieldDefaultPadding)} views:NSDictionaryOfVariableBindings(cvcLabel)]];
+
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:expirationField attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:expirationLabel attribute:NSLayoutAttributeLeft multiplier:1 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:expirationField attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:expirationLabel attribute:NSLayoutAttributeRight multiplier:0.5 constant:0]];
+
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:cvcField attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:expirationField attribute:NSLayoutAttributeRight multiplier:1 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:cvcField attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:cvcLabel attribute:NSLayoutAttributeRight multiplier:1 constant:0]];
+
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[numberLabel]-6-[numberField(height)]-24-[expirationLabel]-0-[expirationField(height)]-15-|" options:0 metrics:@{@"offset": @(STPPaymentCardTextFieldTopPadding), @"height": @(STPPaymentCardTextFieldTextFieldHeight)} views:NSDictionaryOfVariableBindings(numberLabel, numberField, expirationLabel, expirationField)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[cvcLabel]-0-[cvcField(height)]-15-|" options:0 metrics:@{@"height": @(STPPaymentCardTextFieldTextFieldHeight)} views:NSDictionaryOfVariableBindings(cvcLabel, cvcField)]];
+
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:cvcLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:expirationLabel attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
+
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[brandImageView(50)]-15-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(brandImageView)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-15-[brandImageView(40)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(brandImageView)]];
+
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[backgroundImageView]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(backgroundImageView)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[backgroundImageView]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(backgroundImageView)]];
+
     brandImageView.userInteractionEnabled = YES;
     [brandImageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:numberField
                                                                                  action:@selector(becomeFirstResponder)]];
@@ -213,7 +265,6 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
     [self resetSubviewEditingTransitionState];
     
     self.viewModel.postalCodeRequested = YES;
-    self.countryCode = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleCountryCode];
 }
 
 - (STPPaymentCardTextFieldViewModel *)viewModel {
@@ -256,26 +307,40 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
     return [super backgroundColor] ?: defaultColor;
 }
 
+- (UIFont *)labelFont {
+    return _labelFont ?: [UIFont systemFontOfSize:12];
+}
+
+- (void)setLabelFont:(UIFont *)labelFont {
+    _labelFont = [labelFont copy];
+
+    for (UILabel *label in [self allLabels]) {
+        label.font = _labelFont;
+    }
+
+    [self setNeedsLayout];
+}
+
 - (void)setFont:(UIFont *)font {
     _font = [font copy];
-    
+
     for (UITextField *field in [self allFields]) {
         field.font = _font;
     }
-    
+
     self.sizingField.font = _font;
     [self clearSizingCache];
-    
+
     [self setNeedsLayout];
 }
 
 - (UIFont *)font {
-    return _font ?: [UIFont systemFontOfSize:18];
+    return _font ?: [UIFont systemFontOfSize:26 weight:UIFontWeightSemibold];
 }
 
 - (void)setTextColor:(UIColor *)textColor {
     _textColor = [textColor copy];
-    
+
     for (STPFormTextField *field in [self allFields]) {
         field.defaultColor = _textColor;
     }
@@ -285,20 +350,6 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
     [super setContentVerticalAlignment:contentVerticalAlignment];
     for (UITextField *field in [self allFields]) {
         field.contentVerticalAlignment = contentVerticalAlignment;
-    }
-    switch (contentVerticalAlignment) {
-        case UIControlContentVerticalAlignmentCenter:
-            self.brandImageView.contentMode = UIViewContentModeCenter;
-            break;
-        case UIControlContentVerticalAlignmentBottom:
-            self.brandImageView.contentMode = UIViewContentModeBottom;
-            break;
-        case UIControlContentVerticalAlignmentFill:
-            self.brandImageView.contentMode = UIViewContentModeTop;
-            break;
-        case UIControlContentVerticalAlignmentTop:
-            self.brandImageView.contentMode = UIViewContentModeTop;
-            break;
     }
 }
 
@@ -315,7 +366,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
 
 - (void)setTextErrorColor:(UIColor *)textErrorColor {
     _textErrorColor = [textErrorColor copy];
-    
+
     for (STPFormTextField *field in [self allFields]) {
         field.errorColor = _textErrorColor;
     }
@@ -335,14 +386,14 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
 - (void)setPlaceholderColor:(UIColor *)placeholderColor {
     _placeholderColor = [placeholderColor copy];
     self.brandImageView.tintColor = placeholderColor;
-    
+
     for (STPFormTextField *field in [self allFields]) {
         field.placeholderColor = _placeholderColor;
     }
 }
 
 - (UIColor *)placeholderColor {
-    return _placeholderColor ?: [self.class placeholderGrayColor];
+    return _placeholderColor ?: UIColor.whiteColor;
 }
 
 - (void)setNumberPlaceholder:(NSString * __nullable)numberPlaceholder {
@@ -360,48 +411,6 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
     self.cvcField.placeholder = _cvcPlaceholder;
 }
 
-- (void)setPostalCodePlaceholder:(NSString *)postalCodePlaceholder {
-    _postalCodePlaceholder = postalCodePlaceholder.copy;
-    [self updatePostalFieldPlaceholder];
-}
-
-- (void)setPostalCodeEntryEnabled:(BOOL)postalCodeEntryEnabled {
-    self.viewModel.postalCodeRequested = postalCodeEntryEnabled;
-}
-
-- (BOOL)postalCodeEntryEnabled {
-    return self.viewModel.postalCodeRequired;
-}
-
-- (NSString *)countryCode {
-    return self.viewModel.postalCodeCountryCode;
-}
-
-- (void)setCountryCode:(NSString *)cCode {
-    NSString *countryCode = cCode ?: [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleCountryCode];
-
-    self.viewModel.postalCodeCountryCode = countryCode;
-    [self updatePostalFieldPlaceholder];
-
-    // This will revalidate and reformat
-    [self setText:self.postalCode inField:STPCardFieldTypePostalCode];
-}
-
-- (void)updatePostalFieldPlaceholder {
-    if (self.postalCodePlaceholder == nil) {
-        self.postalCodeField.placeholder = [self defaultPostalFieldPlaceholderForCountryCode:self.countryCode];
-    } else {
-        self.postalCodeField.placeholder = _postalCodePlaceholder;
-    }
-}
-
-- (NSString *)defaultPostalFieldPlaceholderForCountryCode:(NSString *)countryCode {
-    if ([countryCode.uppercaseString isEqualToString:@"US"]) {
-        return STPLocalizedString(@"ZIP", @"Short string for zip code (United States only)");
-    } else {
-        return STPLocalizedString(@"Postal", @"Short string for postal code (text used in non-US countries)");
-    }
-}
 
 - (void)setCursorColor:(UIColor *)cursorColor {
     self.tintColor = cursorColor;
@@ -459,7 +468,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
 
 - (void)setInputAccessoryView:(UIView *)inputAccessoryView {
     _inputAccessoryView = inputAccessoryView;
-    
+
     for (STPFormTextField *field in [self allFields]) {
         field.inputAccessoryView = inputAccessoryView;
     }
@@ -471,7 +480,17 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
     [super setEnabled:enabled];
     for (STPFormTextField *textField in [self allFields]) {
         textField.enabled = enabled;
-    };
+    }
+    [self.numberLabel setHidden:!enabled];
+    [self.cvcField setHidden:!enabled];
+    [self.cvcLabel setHidden:!enabled];
+    if (!enabled) {
+        [self.expirationLabel setFont:[self.expirationLabel.font fontWithSize:10]];
+        [self.expirationField setFont:[self.expirationField.font fontWithSize:12]];
+    } else {
+        [self.expirationLabel setFont:[self.expirationLabel.font fontWithSize:12]];
+        [self.expirationField setFont:[self.expirationField.font fontWithSize:26]];
+    }
 }
 
 #pragma mark UIResponder & related methods
@@ -503,9 +522,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
         NSUInteger index = [self.allFields indexOfObject:currentFirstResponder];
         if (index != NSNotFound) {
             STPFormTextField *nextField = [self.allFields stp_boundSafeObjectAtIndex:index + 1];
-            if (nextField != nil && (self.postalCodeEntryEnabled || nextField != self.postalCodeField)) {
-                return nextField;
-            }
+            return nextField;
         }
     }
 
@@ -519,16 +536,14 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
         return self.expirationField;
     } else if ([self.viewModel validationStateForField:STPCardFieldTypeCVC] != STPCardValidationStateValid) {
         return self.cvcField;
-    } else if (self.postalCodeEntryEnabled
-             && [self.viewModel validationStateForField:STPCardFieldTypePostalCode] != STPCardValidationStateValid) {
-        return self.postalCodeField;
-    } else {
+    }
+    else {
         return nil;
     }
 }
 
 - (nonnull STPFormTextField *)lastSubField {
-    return self.postalCodeEntryEnabled ? self.postalCodeField : self.cvcField;
+    return self.cvcField;
 }
 
 - (STPFormTextField *)currentFirstResponderField {
@@ -546,13 +561,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
 
 - (BOOL)resignFirstResponder {
     [super resignFirstResponder];
-    BOOL success = [self.currentFirstResponderField resignFirstResponder];
-    [self layoutViewsToFocusField:nil
-             becomeFirstResponder:NO
-                         animated:YES
-                       completion:nil];
-    [self updateImageForFieldType:STPCardFieldTypeNumber];
-    return success;
+    return [self.currentFirstResponderField resignFirstResponder];
 }
 
 - (STPFormTextField *)previousField {
@@ -560,7 +569,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
     if (currentSubResponder) {
         NSUInteger index = [self.allFields indexOfObject:currentSubResponder];
         if (index != NSNotFound
-            && index > 0) {
+                && index > 0) {
             return self.allFields[index - 1];
         }
     }
@@ -575,18 +584,8 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
     }
     self.viewModel = [STPPaymentCardTextFieldViewModel new];
     [self onChange];
-    [self updateImageForFieldType:STPCardFieldTypeNumber];
     [self updateCVCPlaceholder];
-    __weak typeof(self) weakSelf = self;
-    [self layoutViewsToFocusField:@(STPCardFieldTypePostalCode)
-             becomeFirstResponder:YES
-                         animated:YES
-                       completion:^(__unused BOOL completed){
-        __strong typeof(self) strongSelf = weakSelf;
-        if ([strongSelf isFirstResponder]) {
-            [[strongSelf numberField] becomeFirstResponder];
-        }
-    }];
+    [self resignFirstResponder];
 }
 
 - (BOOL)isValid {
@@ -623,13 +622,6 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
     return self.viewModel.cvc;
 }
 
-- (NSString *)postalCode {
-    if (self.postalCodeEntryEnabled) {
-        return self.viewModel.postalCode;
-    } else {
-        return nil;
-    }
-}
 
 - (STPPaymentMethodCardParams *)cardParams {
     self.internalCardParams.number = self.cardNumber;
@@ -654,7 +646,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
         (manually reset it back to first responder)
      3. Otherwise the first subfield with invalid text should now be first responder
      */
-    STPFormTextField *originalSubResponder = self.currentFirstResponderField;
+    //STPFormTextField *originalSubResponder = self.currentFirstResponderField;
 
     /*
      #1031 small footgun hiding here. Use copies to protect from mutations of
@@ -675,37 +667,11 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
         [self setText:@"" inField:STPCardFieldTypeExpiration];
     }
     [self setText:desiredCardParams.cvc inField:STPCardFieldTypeCVC];
+}
 
-    if ([self isFirstResponder]) {
-        STPCardFieldType fieldType = originalSubResponder.tag;
-        STPCardValidationState state = [self.viewModel validationStateForField:fieldType];
-
-        if (state == STPCardValidationStateValid) {
-            STPFormTextField *nextField = [self firstInvalidSubField];
-            if (nextField) {
-                [nextField becomeFirstResponder];
-            } else {
-                [self resignFirstResponder];
-            }
-        } else {
-            [originalSubResponder becomeFirstResponder];
-        }
-    } else {
-        [self layoutViewsToFocusField:nil
-                 becomeFirstResponder:YES
-                             animated:NO
-                           completion:nil];
-    }
-
-    // update the card image, falling back to the number field image if not editing
-    if ([self.expirationField isFirstResponder]) {
-        [self updateImageForFieldType:STPCardFieldTypeExpiration];
-    } else if ([self.cvcField isFirstResponder]) {
-        [self updateImageForFieldType:STPCardFieldTypeCVC];
-    } else {
-        [self updateImageForFieldType:STPCardFieldTypeNumber];
-    }
-    [self updateCVCPlaceholder];
+- (void)setCardBrand:(STPCardBrand)cardBrand {
+    _cardBrand = cardBrand;
+    [self updateAppearanceForBrand:cardBrand];
 }
 
 - (void)setText:(NSString *)text inField:(STPCardFieldType)field {
@@ -721,9 +687,6 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
         case STPCardFieldTypeCVC:
             textField = self.cvcField;
             break;
-        case STPCardFieldTypePostalCode:
-            textField = self.postalCodeField;
-            break;
     }
     textField.text = nonNilText;
 }
@@ -734,7 +697,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
         return [self widthForCardNumber:self.viewModel.cardNumber];
     } else {
         return MAX([self widthForCardNumber:self.viewModel.cardNumber],
-                   [self widthForCardNumber:self.viewModel.defaultPlaceholder]);
+                [self widthForCardNumber:self.viewModel.defaultPlaceholder]);
     }
 }
 
@@ -756,7 +719,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
 
 - (CGFloat)cvcFieldWidth {
     if (self.focusedTextFieldForLayout == nil
-        && [self.viewModel validationStateForField:STPCardFieldTypeCVC] == STPCardValidationStateValid) {
+            && [self.viewModel validationStateForField:STPCardFieldTypeCVC] == STPCardValidationStateValid) {
         // If we're not focused and have valid text, size exactly to what is entered
         return [self widthForText:self.viewModel.cvc];
     } else {
@@ -774,7 +737,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
 
 - (CGFloat)expirationFieldWidth {
     if (self.focusedTextFieldForLayout == nil
-        && [self.viewModel validationStateForField:STPCardFieldTypeExpiration] == STPCardValidationStateValid) {
+            && [self.viewModel validationStateForField:STPCardFieldTypeExpiration] == STPCardValidationStateValid) {
         // If we're not focused and have valid text, size exactly to what is entered
         return [self widthForText:self.viewModel.rawExpiration];
     } else {
@@ -782,36 +745,6 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
         // largest possible string enterable (whichever is larger)
         return MAX([self widthForText:self.expirationField.placeholder], [self widthForText:@"88/88"]);
     }
-}
-
-- (CGFloat)postalCodeFieldFullWidth {
-    CGFloat compressedWidth = [self postalCodeFieldCompressedWidth];
-    CGFloat currentTextWidth = [self widthForText:self.viewModel.postalCode];
-
-    if (currentTextWidth <= compressedWidth) {
-        return compressedWidth;
-    } else if ([self.countryCode.uppercaseString isEqualToString:@"US"]) {
-        // This format matches ZIP+4 which is currently disabled since it is
-        // not used for billing, but could be useful for future shipping addr purposes
-        return [self widthForText:@"88888-8888 "];
-    } else {
-        // This format more closely matches the typical max UK/Canadian size which is our most common non-US market currently
-        return [self widthForText:@"888 8888 "];
-    }
-}
-
-- (CGFloat)postalCodeFieldCompressedWidth {
-    CGFloat maxTextWidth = 0;
-    if ([self.countryCode.uppercaseString isEqualToString:@"US"]) {
-        // The QuickType ZIP suggestion adds a space at the end, so we will too for calculating our bounds
-        maxTextWidth = [self widthForText:@"88888 "];
-    } else {
-        // This format more closely matches the typical max UK/Canadian size which is our most common non-US market currently
-        maxTextWidth = [self widthForText:@"888 8888 "];
-    }
-
-    CGFloat placeholderWidth = [self widthForText:[self defaultPostalFieldPlaceholderForCountryCode:self.countryCode]];
-    return MAX(maxTextWidth, placeholderWidth);
 }
 
 - (CGSize)intrinsicContentSize {
@@ -825,11 +758,11 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 10;
     CGFloat height = stp_ceilCGFloat((MAX(MAX(imageHeight, textHeight), 44)));
 
     CGFloat width = (STPPaymentCardTextFieldDefaultInsets
-                     + imageSize.width
-                     + STPPaymentCardTextFieldDefaultInsets
-                     + [self numberFieldFullWidth]
-                     + STPPaymentCardTextFieldDefaultInsets
-                     );
+            + imageSize.width
+            + STPPaymentCardTextFieldDefaultInsets
+            + [self numberFieldFullWidth]
+            + STPPaymentCardTextFieldDefaultInsets
+    );
 
     width = stp_ceilCGFloat(width);
 
@@ -845,8 +778,7 @@ typedef NS_ENUM(NSInteger, STPCardTextFieldState) {
 - (CGFloat)minimumPaddingForViewsWithWidth:(CGFloat)width
                                        pan:(STPCardTextFieldState)panVisibility
                                     expiry:(STPCardTextFieldState)expiryVisibility
-                                       cvc:(STPCardTextFieldState)cvcVisibility
-                                    postal:(STPCardTextFieldState)postalVisibility {
+                                       cvc:(STPCardTextFieldState)cvcVisibility {
 
     CGFloat requiredWidth = 0;
     CGFloat paddingsRequired = -1;
@@ -866,12 +798,6 @@ typedef NS_ENUM(NSInteger, STPCardTextFieldState) {
         requiredWidth += [self cvcFieldWidth];
     }
 
-    if (postalVisibility != STPCardTextFieldStateHidden
-        && self.postalCodeEntryEnabled) {
-        paddingsRequired += 1;
-        requiredWidth += (postalVisibility == STPCardTextFieldStateCompressed) ? [self postalCodeFieldCompressedWidth] : [self postalCodeFieldFullWidth];
-    }
-
     if (paddingsRequired > 0) {
         return stp_ceilCGFloat(((width - requiredWidth) / paddingsRequired));
     } else {
@@ -879,270 +805,14 @@ typedef NS_ENUM(NSInteger, STPCardTextFieldState) {
     }
 }
 
-- (CGRect)brandImageRectForBounds:(CGRect)bounds {
-    return CGRectMake(STPPaymentCardTextFieldDefaultPadding, -1, self.brandImageView.image.size.width, bounds.size.height);
-}
-
-- (CGRect)fieldsRectForBounds:(CGRect)bounds {
-    CGRect brandImageRect = [self brandImageRectForBounds:bounds];
-    return CGRectMake(CGRectGetMaxX(brandImageRect), 0, CGRectGetWidth(bounds) - CGRectGetMaxX(brandImageRect), CGRectGetHeight(bounds));
-}
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    [self recalculateSubviewLayout];
-}
-
-- (void)recalculateSubviewLayout {
-
-    CGRect bounds = self.bounds;
-
-    self.brandImageView.frame = [self brandImageRectForBounds:bounds];
-    CGRect fieldsViewRect = [self fieldsRectForBounds:bounds];
-    self.fieldsView.frame = fieldsViewRect;
-
-    CGFloat availableFieldsWidth = CGRectGetWidth(fieldsViewRect) - (2 * STPPaymentCardTextFieldDefaultInsets);
-
-    // These values are filled in via the if statements and then used
-    // to do the proper layout at the end
-    CGFloat fieldsHeight = CGRectGetHeight(fieldsViewRect);
-    CGFloat hPadding = STPPaymentCardTextFieldDefaultPadding;
-    __block STPCardTextFieldState panVisibility = STPCardTextFieldStateVisible;
-    __block STPCardTextFieldState expiryVisibility = STPCardTextFieldStateVisible;
-    __block STPCardTextFieldState cvcVisibility = STPCardTextFieldStateVisible;
-    __block STPCardTextFieldState postalVisibility = self.postalCodeEntryEnabled ? STPCardTextFieldStateVisible : STPCardTextFieldStateHidden;
-
-    CGFloat (^calculateMinimumPaddingWithLocalVars)(void) = ^CGFloat() {
-        return [self minimumPaddingForViewsWithWidth:availableFieldsWidth
-                                                 pan:panVisibility
-                                              expiry:expiryVisibility
-                                                 cvc:cvcVisibility
-                                              postal:postalVisibility];
-    };
-
-    hPadding = calculateMinimumPaddingWithLocalVars();
-
-    if (hPadding >= STPPaymentCardTextFieldMinimumPadding) {
-        // Can just render everything at full size
-        // Do Nothing
-    } else {
-        // Need to do selective view compression/hiding
-
-        if (self.focusedTextFieldForLayout == nil) {
-            /*
-             No field is currently being edited -
-             
-             Render all fields visible:
-             Show compressed PAN, visible CVC and expiry, fill remaining space 
-             with postal if necessary
-
-             The most common way to be in this state is the user finished entry
-             and has moved on to another field (so we want to show summary)
-             but possibly some fields are invalid
-             */
-            while (hPadding < STPPaymentCardTextFieldMinimumPadding) {
-                // Try hiding things in this order
-                if (panVisibility == STPCardTextFieldStateVisible) {
-                    panVisibility = STPCardTextFieldStateCompressed;
-                } else if (postalVisibility == STPCardTextFieldStateVisible) {
-                    postalVisibility = STPCardTextFieldStateCompressed;
-                } else {
-                    // Can't hide anything else, set to minimum and stop
-                    hPadding = STPPaymentCardTextFieldMinimumPadding;
-                    break;
-                }
-                hPadding = calculateMinimumPaddingWithLocalVars();
-            }
-        } else {
-            switch ((STPCardFieldType)self.focusedTextFieldForLayout.integerValue) {
-                case STPCardFieldTypeNumber: {
-                    /*
-                     The user is entering PAN
-                     
-                     It must be fully visible. Everything else is optional
-                     */
-
-                    while (hPadding < STPPaymentCardTextFieldMinimumPadding) {
-                        if (postalVisibility == STPCardTextFieldStateVisible) {
-                            postalVisibility = STPCardTextFieldStateCompressed;
-                        } else if (postalVisibility == STPCardTextFieldStateCompressed) {
-                            postalVisibility = STPCardTextFieldStateHidden;
-                        } else if (cvcVisibility == STPCardTextFieldStateVisible) {
-                            cvcVisibility = STPCardTextFieldStateHidden;
-                        } else if (expiryVisibility == STPCardTextFieldStateVisible) {
-                            expiryVisibility = STPCardTextFieldStateHidden;
-                        } else {
-                            hPadding = STPPaymentCardTextFieldMinimumPadding;
-                            break;
-                        }
-                        hPadding = calculateMinimumPaddingWithLocalVars();
-                    }
-                }
-                    break;
-                case STPCardFieldTypeExpiration: {
-                    /*
-                     The user is entering expiration date
-
-                     It must be fully visible, and the next and previous fields
-                     must be visible so they can be tapped over to
-                     */
-                    while (hPadding < STPPaymentCardTextFieldMinimumPadding) {
-                        if (panVisibility == STPCardTextFieldStateVisible) {
-                            panVisibility = STPCardTextFieldStateCompressed;
-                        } else if (postalVisibility == STPCardTextFieldStateVisible) {
-                            postalVisibility = STPCardTextFieldStateCompressed;
-                        } else if (postalVisibility == STPCardTextFieldStateCompressed) {
-                            postalVisibility = STPCardTextFieldStateHidden;
-                        } else {
-                            hPadding = STPPaymentCardTextFieldMinimumPadding;
-                            break;
-                        }
-                        hPadding = calculateMinimumPaddingWithLocalVars();
-                    }
-                }
-                    break;
-
-                case STPCardFieldTypeCVC: {
-                    /*
-                     The user is entering CVC
-
-                     It must be fully visible, and the next and previous fields
-                     must be visible so they can be tapped over to (although
-                     there might not be a next field)
-                     */
-                    while (hPadding < STPPaymentCardTextFieldMinimumPadding) {
-                        if (panVisibility == STPCardTextFieldStateVisible) {
-                            panVisibility = STPCardTextFieldStateCompressed;
-                        } else if (postalVisibility == STPCardTextFieldStateVisible) {
-                            postalVisibility = STPCardTextFieldStateCompressed;
-                        } else if (panVisibility == STPCardTextFieldStateCompressed) {
-                            panVisibility = STPCardTextFieldStateHidden;
-                        } else {
-                            hPadding = STPPaymentCardTextFieldMinimumPadding;
-                            break;
-                        }
-                        hPadding = calculateMinimumPaddingWithLocalVars();
-                    }
-                }
-                    break;
-                case STPCardFieldTypePostalCode: {
-                    /*
-                     The user is entering postal code
-
-                     It must be fully visible, and the previous field must
-                     be visible
-                     */
-                    while (hPadding < STPPaymentCardTextFieldMinimumPadding) {
-                        if (panVisibility == STPCardTextFieldStateVisible) {
-                            panVisibility = STPCardTextFieldStateCompressed;
-                        } else if (panVisibility == STPCardTextFieldStateCompressed) {
-                            panVisibility = STPCardTextFieldStateHidden;
-                        } else if (expiryVisibility == STPCardTextFieldStateVisible) {
-                            expiryVisibility = STPCardTextFieldStateHidden;
-                        } else {
-                            hPadding = STPPaymentCardTextFieldMinimumPadding;
-                            break;
-                        }
-                        hPadding = calculateMinimumPaddingWithLocalVars();
-                    }
-                }
-                    break;
-            }
-        }
-    }
-
-    // -- Do layout here --
-    CGFloat xOffset = STPPaymentCardTextFieldDefaultInsets;
-    CGFloat width = 0;
-
-    // Make all fields actually slightly wider than needed so that when the
-    // cursor is at the end position the contents aren't clipped off to the left side
-    CGFloat additionalWidth = [self widthForText:@"8"];
-
-    if (panVisibility == STPCardTextFieldStateCompressed) {
-        // Need to lower xOffset so pan is partially off-screen
-
-        BOOL hasEnteredCardNumber = self.cardNumber.length > 0;
-        NSString *compressedCardNumber = [self.viewModel compressedCardNumberWithPlaceholder:self.numberPlaceholder];
-        NSString *cardNumberToHide = [(hasEnteredCardNumber ? self.cardNumber : self.numberPlaceholder) stp_stringByRemovingSuffix:compressedCardNumber];
-
-        if (cardNumberToHide.length > 0 && [STPCardValidator stringIsNumeric:cardNumberToHide]) {
-            width = hasEnteredCardNumber ? [self widthForCardNumber:self.cardNumber] : [self numberFieldFullWidth];
-
-            CGFloat hiddenWidth = [self widthForCardNumber:cardNumberToHide];
-            xOffset -= hiddenWidth;
-            UIView *maskView = [[UIView alloc] initWithFrame:CGRectMake(hiddenWidth,
-                                                                        0,
-                                                                        (width - hiddenWidth),
-                                                                        fieldsHeight)];
-            maskView.backgroundColor = [UIColor blackColor];
-            #ifdef __IPHONE_13_0
-                if (@available(iOS 13.0, *)) {
-                    maskView.backgroundColor = [UIColor labelColor];
-                }
-            #endif
-            maskView.opaque = YES;
-            maskView.userInteractionEnabled = NO;
-            [UIView performWithoutAnimation:^{
-                self.numberField.maskView = maskView;
-            }];
-        } else {
-            width = [self numberFieldCompressedWidth];
-            [UIView performWithoutAnimation:^{
-                self.numberField.maskView = nil;
-            }];
-        }
-    } else {
-        width = [self numberFieldFullWidth];
-        [UIView performWithoutAnimation:^{
-            self.numberField.maskView = nil;
-        }];
-
-        if (panVisibility == STPCardTextFieldStateHidden) {
-            // Need to lower xOffset so pan is fully off screen
-            xOffset = xOffset - width - hPadding;
-        }
-    }
-
-    self.numberField.frame = CGRectMake(xOffset, 0, width + additionalWidth, fieldsHeight);
-    xOffset += width + hPadding;
-
-    width = [self expirationFieldWidth];
-    self.expirationField.frame = CGRectMake(xOffset, 0, width + additionalWidth, fieldsHeight);
-    xOffset += width + hPadding;
-
-    width = [self cvcFieldWidth];
-    self.cvcField.frame = CGRectMake(xOffset, 0, width + additionalWidth, fieldsHeight);
-    xOffset += width + hPadding;
-
-    if (self.postalCodeEntryEnabled) {
-        width = self.fieldsView.frame.size.width - xOffset - STPPaymentCardTextFieldDefaultInsets;
-        self.postalCodeField.frame = CGRectMake(xOffset, 0, width + additionalWidth, fieldsHeight);
-    }
-
-    void (^updateFieldVisibility)(STPFormTextField *, STPCardTextFieldState) = ^(STPFormTextField *field, STPCardTextFieldState fieldState) {
-        if (fieldState == STPCardTextFieldStateHidden) {
-            field.alpha = 0.0f;
-            field.isAccessibilityElement = NO;
-        } else {
-            field.alpha = 1.0f;
-            field.isAccessibilityElement = YES;
-        }
-    };
-
-    updateFieldVisibility(self.numberField, panVisibility);
-    updateFieldVisibility(self.expirationField, expiryVisibility);
-    updateFieldVisibility(self.cvcField, cvcVisibility);
-    updateFieldVisibility(self.postalCodeField, self.postalCodeEntryEnabled ? postalVisibility :  STPCardTextFieldStateHidden);
-}
 
 #pragma mark - private helper methods
 
 - (STPFormTextField *)buildTextField {
     STPFormTextField *textField = [[STPFormTextField alloc] initWithFrame:CGRectZero];
+    textField.translatesAutoresizingMaskIntoConstraints = NO;
     textField.backgroundColor = [UIColor clearColor];
-    // setCountryCode: updates the postalCodeField keyboardType, this is safe
-    textField.keyboardType = UIKeyboardTypeASCIICapableNumberPad;
+    textField.keyboardType = UIKeyboardTypePhonePad;
     textField.textAlignment = NSTextAlignmentLeft;
     textField.font = self.font;
     textField.defaultColor = self.textColor;
@@ -1153,26 +823,84 @@ typedef NS_ENUM(NSInteger, STPCardTextFieldState) {
     return textField;
 }
 
+- (void)updateAppearanceForBrand:(STPCardBrand)cardBrand {
+    if (self.currentBrandImageBrand != cardBrand || self.backgroundImageView.image == nil) {
+        UIImage *brandImage = [self.class brandImageForCardBrand:cardBrand];
+        UIImage *backgroundImage = [self.class backgroundImageForCardBrand:cardBrand];
+        self.currentBrandImageBrand = cardBrand;
+        if (cardBrand == STPCardBrandUnknown) {
+            for (UILabel *label in self.allLabels) {
+                label.textColor = UIColor.whiteColor;
+            }
+            [self setTextColor:UIColor.whiteColor];
+            [self setPlaceholderColor:UIColor.whiteColor];
+        } else {
+            self.backgroundImageView.image = backgroundImage;
+            if (cardBrand == STPCardBrandMasterCard) {
+                [self setTextColor:UIColor.blackColor];
+                [self setPlaceholderColor:UIColor.blackColor];
+                for (UILabel *label in self.allLabels) {
+                    label.textColor = [UIColor colorWithWhite:0 alpha:.6];
+                }
+            } else {
+                [self setTextColor:UIColor.whiteColor];
+                [self setPlaceholderColor:UIColor.whiteColor];
+                for (UILabel *label in self.allLabels) {
+                    label.textColor = [UIColor colorWithWhite:1 alpha:.6];
+                }
+            }
+        }
+
+        [CATransaction begin];
+        [CATransaction setAnimationDuration:0.3f];
+        [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
+
+        CABasicAnimation *borderWidth = [CABasicAnimation animationWithKeyPath:@"borderWidth"];
+        borderWidth.fromValue = (cardBrand == STPCardBrandUnknown) ? @0 : @1;
+        borderWidth.toValue = (cardBrand == STPCardBrandUnknown) ? @1 : @0;
+
+        CABasicAnimation *opacity = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        opacity.fromValue = (cardBrand == STPCardBrandUnknown) ? @1 : @0;
+        opacity.toValue = (cardBrand == STPCardBrandUnknown) ? @0 : @1;
+
+        CABasicAnimation *shadowOpacity = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+        [shadowOpacity setFillMode:kCAFillModeForwards];
+        [shadowOpacity setRemovedOnCompletion:NO];
+        shadowOpacity.fromValue = (cardBrand == STPCardBrandUnknown) ? @0 : @0.3;
+        shadowOpacity.toValue = (cardBrand == STPCardBrandUnknown) ? @0.3 : @0;
+
+        self.brandImageView.image = brandImage;
+        CATransition *transition = [CATransition animation];
+        transition.type = kCATransitionFade;
+        [self.brandImageView.layer addAnimation:transition forKey:nil];
+
+        self.layer.borderWidth = [borderWidth.toValue floatValue];
+        self.backgroundImageView.layer.opacity = [opacity.toValue floatValue];
+        self.layer.shadowOpacity = [shadowOpacity.toValue floatValue];
+        [self.layer addAnimation:borderWidth forKey:@"borderWidth"];
+        [self.backgroundImageView.layer addAnimation:opacity forKey:@"opacity"];
+        [self.layer addAnimation:shadowOpacity forKey:@"shadowOpacity"];
+
+        [CATransaction commit];
+    }
+}
+
 typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
 - (void)layoutViewsToFocusField:(NSNumber *)focusedField
-           becomeFirstResponder:(BOOL)shouldBecomeFirstResponder
-                       animated:(BOOL)animated
                      completion:(STPLayoutAnimationCompletionBlock)completion {
 
     NSNumber *fieldtoFocus = focusedField;
 
     if (fieldtoFocus == nil
-        && ![self.focusedTextFieldForLayout isEqualToNumber:@(STPCardFieldTypeNumber)]
-        && ([self.viewModel validationStateForField:STPCardFieldTypeNumber] != STPCardValidationStateValid)) {
+            && ![self.focusedTextFieldForLayout isEqualToNumber:@(STPCardFieldTypeNumber)]
+            && ([self.viewModel validationStateForField:STPCardFieldTypeNumber] != STPCardValidationStateValid)) {
         fieldtoFocus = @(STPCardFieldTypeNumber);
-        if (shouldBecomeFirstResponder) {
-            [self.numberField becomeFirstResponder];
-        }
+        [self.numberField becomeFirstResponder];
     }
 
     if ((fieldtoFocus == nil && self.focusedTextFieldForLayout == nil)
-        || (fieldtoFocus != nil && [self.focusedTextFieldForLayout isEqualToNumber:fieldtoFocus])
-        ) {
+            || (fieldtoFocus != nil && [self.focusedTextFieldForLayout isEqualToNumber:fieldtoFocus])
+            ) {
         if (completion) {
             completion(YES);
         }
@@ -1180,23 +908,6 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
     }
 
     self.focusedTextFieldForLayout = fieldtoFocus;
-
-    void (^animations)(void) = ^void() {
-        [self recalculateSubviewLayout];
-    };
-
-    if (animated) {
-        NSTimeInterval duration = animated * 0.3;
-        [UIView animateWithDuration:duration
-                              delay:0
-             usingSpringWithDamping:0.85f
-              initialSpringVelocity:0
-                            options:0
-                         animations:animations
-                         completion:completion];
-    } else {
-        animations();
-    }
 }
 
 - (CGFloat)widthForAttributedText:(NSAttributedString *)attributedText {
@@ -1250,7 +961,7 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
 }
 
 - (NSAttributedString *)formTextField:(STPFormTextField *)formTextField
-   modifyIncomingTextChange:(NSAttributedString *)input {
+             modifyIncomingTextChange:(NSAttributedString *)input {
     STPCardFieldType fieldType = formTextField.tag;
     switch (fieldType) {
         case STPCardFieldTypeNumber:
@@ -1263,12 +974,8 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
         case STPCardFieldTypeCVC:
             self.viewModel.cvc = input.string;
             break;
-        case STPCardFieldTypePostalCode:
-            self.viewModel.postalCode = input.string;
-            [self setNeedsLayout];
-            break;
     }
-    
+
     switch (fieldType) {
         case STPCardFieldTypeNumber:
             return [[NSAttributedString alloc] initWithString:self.viewModel.cardNumber
@@ -1279,21 +986,18 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
         case STPCardFieldTypeCVC:
             return [[NSAttributedString alloc] initWithString:self.viewModel.cvc
                                                    attributes:self.cvcField.defaultTextAttributes];
-        case STPCardFieldTypePostalCode:
-            return [[NSAttributedString alloc] initWithString:self.viewModel.postalCode
-                                                   attributes:self.cvcField.defaultTextAttributes];
     }
 }
 
 - (void)formTextFieldTextDidChange:(STPFormTextField *)formTextField {
     STPCardFieldType fieldType = formTextField.tag;
     if (fieldType == STPCardFieldTypeNumber) {
-        [self updateImageForFieldType:fieldType];
+        [self updateAppearanceForBrand:self.viewModel.brand];
         [self updateCVCPlaceholder];
         // Changing the card number field can invalidate the cvc, e.g. going from 4 digit Amex cvc to 3 digit Visa
         self.cvcField.validText = [self.viewModel validationStateForField:STPCardFieldTypeCVC] != STPCardValidationStateInvalid;
     }
-    
+
     STPCardValidationState state = [self.viewModel validationStateForField:fieldType];
     formTextField.validText = YES;
     switch (state) {
@@ -1315,20 +1019,14 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
                 if (sanitizedCvc.length < [STPCardValidator maxCVCLengthForCardBrand:self.viewModel.brand]) {
                     break;
                 }
-            } else if (fieldType == STPCardFieldTypePostalCode) {
-                /*
-                 Similar to the UX problems on CVC, since our Postal Code validation
-                 is pretty light, we want to block auto-advance here. In the US, this
-                 allows users to enter 9 digit zips if they want, and as many as they
-                 need in non-US countries (where >0 characters is "valid")
-                 */
+            } else {
                 break;
             }
 
             // This is a no-op if this is the last field & they're all valid
-            [[self nextFirstResponderField] becomeFirstResponder];
-            UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
-            
+            if (self.window != nil) {
+                [[self nextFirstResponderField] becomeFirstResponder];
+            }
             break;
         }
     }
@@ -1399,8 +1097,6 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
     BOOL isMidSubviewEditingTransition = [self getAndUpdateSubviewEditingTransitionStateFromCall:STPFieldEditingTransitionCallSiteDidBegin];
 
     [self layoutViewsToFocusField:@(textField.tag)
-             becomeFirstResponder:YES
-                         animated:YES
                        completion:nil];
 
     if (!isMidSubviewEditingTransition) {
@@ -1426,18 +1122,11 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
                 [self.delegate paymentCardTextFieldDidBeginEditingExpiration:self];
             }
             break;
-        case STPCardFieldTypePostalCode:
-            if ([self.delegate respondsToSelector:@selector(paymentCardTextFieldDidBeginEditingPostalCode:)]) {
-                [self.delegate paymentCardTextFieldDidBeginEditingPostalCode:self];
-            }
-            break;
     }
-    [self updateImageForFieldType:textField.tag];
 }
 
 - (BOOL)textFieldShouldEndEditing:(__unused UITextField *)textField {
     [self getAndUpdateSubviewEditingTransitionStateFromCall:STPFieldEditingTransitionCallSiteShouldEnd];
-    [self updateImageForFieldType:STPCardFieldTypeNumber];
     return YES;
 }
 
@@ -1463,19 +1152,11 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
                 [self.delegate paymentCardTextFieldDidEndEditingExpiration:self];
             }
             break;
-        case STPCardFieldTypePostalCode:
-            if ([self.delegate respondsToSelector:@selector(paymentCardTextFieldDidEndEditingPostalCode:)]) {
-                [self.delegate paymentCardTextFieldDidEndEditingPostalCode:self];
-            }
-            break;
     }
 
     if (!isMidSubviewEditingTransition) {
         [self layoutViewsToFocusField:nil
-                 becomeFirstResponder:NO
-                             animated:YES
                            completion:nil];
-        [self updateImageForFieldType:STPCardFieldTypeNumber];
         if ([self.delegate respondsToSelector:@selector(paymentCardTextFieldDidEndEditing:)]) {
             [self.delegate paymentCardTextFieldDidEndEditing:self];
         }
@@ -1515,6 +1196,10 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
     return [STPImageLibrary brandImageForCardBrand:cardBrand];
 }
 
++ (nullable UIImage *)backgroundImageForCardBrand:(STPCardBrand)brand {
+    return [STPImageLibrary backgroundImageForCardBrand:brand];
+}
+
 + (UIImage *)errorImageForCardBrand:(STPCardBrand)cardBrand {
     return [STPImageLibrary errorImageForCardBrand:cardBrand];
 }
@@ -1531,8 +1216,6 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
             return [self.class cvcImageForCardBrand:self.viewModel.brand];
         case STPCardFieldTypeExpiration:
             return [self.class brandImageForCardBrand:self.viewModel.brand];
-        case STPCardFieldTypePostalCode:
-            return [self.class brandImageForCardBrand:self.viewModel.brand];
     }
 }
 
@@ -1542,7 +1225,7 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
                                                       oldBrand:(STPCardBrand)oldBrand {
 
     if (newType == STPCardFieldTypeCVC
-        && oldType != STPCardFieldTypeCVC) {
+            && oldType != STPCardFieldTypeCVC) {
         // Transitioning to show CVC
 
         if (newBrand != STPCardBrandAmex) {
@@ -1562,30 +1245,6 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
     // All other cases just cross dissolve
     return (UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionTransitionCrossDissolve);
 
-}
-
-- (void)updateImageForFieldType:(STPCardFieldType)fieldType {
-    STPCardValidationState validationState = [self.viewModel validationStateForField:fieldType];
-    UIImage *image = [self brandImageForFieldType:fieldType validationState:validationState];
-    if (![image isEqual:self.brandImageView.image]) {
-
-        STPCardBrand newBrand = self.viewModel.brand;
-        UIViewAnimationOptions imageAnimationOptions = [self brandImageAnimationOptionsForNewType:fieldType
-                                                                                         newBrand:newBrand
-                                                                                          oldType:self.currentBrandImageFieldType
-                                                                                         oldBrand:self.currentBrandImageBrand];
-
-        self.currentBrandImageFieldType = fieldType;
-        self.currentBrandImageBrand = newBrand;
-
-        [UIView transitionWithView:self.brandImageView
-                          duration:0.2
-                           options:imageAnimationOptions
-                        animations:^{
-                            self.brandImageView.image = image;
-                        }
-                        completion:nil];
-    }
 }
 
 - (NSString *)defaultCVCPlaceholder {
@@ -1629,10 +1288,10 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
 
 + (NSSet<NSString *> *)keyPathsForValuesAffectingIsValid {
     return [NSSet setWithArray:@[
-                                 [NSString stringWithFormat:@"%@.%@",
-                                  NSStringFromSelector(@selector(viewModel)),
-                                  NSStringFromSelector(@selector(valid))],
-                                 ]];
+            [NSString stringWithFormat:@"%@.%@",
+                                       NSStringFromSelector(@selector(viewModel)),
+                                       NSStringFromSelector(@selector(valid))],
+    ]];
 }
 
 @end

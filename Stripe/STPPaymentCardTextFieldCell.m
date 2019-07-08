@@ -23,7 +23,6 @@
     self = [super init];
     if (self) {
         STPPaymentCardTextField *paymentField = [[STPPaymentCardTextField alloc] initWithFrame:self.bounds];
-        paymentField.postalCodeEntryEnabled = NO;
         [self.contentView addSubview:paymentField];
         _paymentField = paymentField;
         _theme = [STPTheme defaultTheme];

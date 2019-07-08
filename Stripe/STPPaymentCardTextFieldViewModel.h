@@ -18,8 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, STPCardFieldType) {
     STPCardFieldTypeNumber,
     STPCardFieldTypeExpiration,
-    STPCardFieldTypeCVC,
-    STPCardFieldTypePostalCode,
+    STPCardFieldTypeCVC
 };
 
 @interface STPPaymentCardTextFieldViewModel : NSObject
