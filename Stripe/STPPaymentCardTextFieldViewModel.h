@@ -16,8 +16,7 @@
 typedef NS_ENUM(NSInteger, STPCardFieldType) {
     STPCardFieldTypeNumber,
     STPCardFieldTypeExpiration,
-    STPCardFieldTypeCVC,
-    STPCardFieldTypePostalCode,
+    STPCardFieldTypeCVC
 };
 
 @interface STPPaymentCardTextFieldViewModel : NSObject

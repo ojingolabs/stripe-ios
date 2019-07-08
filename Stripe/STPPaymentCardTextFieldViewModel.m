@@ -125,22 +125,17 @@
         }
         case STPCardFieldTypeCVC:
             return [STPCardValidator validationStateForCVC:self.cvc cardBrand:self.brand];
-        case STPCardFieldTypePostalCode:
-            return [STPPostalCodeValidator validationStateForPostalCode:self.postalCode
-                                                            countryCode:self.postalCodeCountryCode];
     }
 }
 
 - (BOOL)isValid {
     return ([self validationStateForField:STPCardFieldTypeNumber] == STPCardValidationStateValid
             && [self validationStateForField:STPCardFieldTypeExpiration] == STPCardValidationStateValid
-            && [self validationStateForField:STPCardFieldTypeCVC] == STPCardValidationStateValid
-            && (!self.postalCodeRequired
-                || [self validationStateForField:STPCardFieldTypePostalCode] == STPCardValidationStateValid));
+            && [self validationStateForField:STPCardFieldTypeCVC] == STPCardValidationStateValid);
 }
 
 - (NSString *)defaultPlaceholder {
-    return @"4242424242424242";
+    return @"—— —— —— ——";
 }
 
 + (NSSet<NSString *> *)keyPathsForValuesAffectingValid {

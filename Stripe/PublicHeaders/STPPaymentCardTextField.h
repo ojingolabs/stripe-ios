@@ -35,6 +35,8 @@ IB_DESIGNABLE
  */
 @property (nonatomic, copy, null_resettable) UIFont *font UI_APPEARANCE_SELECTOR;
 
+@property (nonatomic, copy, null_resettable) UIFont *labelFont;
+
 /**
  The text color to be used when entering valid text. Default is [UIColor blackColor]. 
  
@@ -78,12 +80,6 @@ IB_DESIGNABLE
  The placeholder for the cvc field. Defaults to @"CVC".
  */
 @property (nonatomic, copy, nullable) IBInspectable NSString *cvcPlaceholder;
-
-/**
- The placeholder for the postal code field. Defaults to @"ZIP" for United States
- or @"Postal" for all other country codes.
- */
-@property (nonatomic, copy, nullable) IBInspectable NSString *postalCodePlaceholder;
 
 /**
  The cursor color for the field. 
@@ -140,7 +136,7 @@ The curent brand image displayed in the receiver.
 
 /**
  Whether or not the form currently contains a valid card number, 
- expiration date, CVC, and postal code (if required).
+ expiration date, CVC.
 
  @see STPCardValidator
  */
@@ -201,36 +197,6 @@ The curent brand image displayed in the receiver.
 @property (nonatomic, readonly, nullable) NSString *cvc;
 
 /**
- The current card ZIP or postal code displayed by the field.
- */
-@property (nonatomic, readonly, nullable) NSString *postalCode;
-
-/**
- Controls if a postal code entry field can be displayed to the user.
- 
- Default is NO (no postal code entry will ever be displayed).
- 
- If YES, the type of code entry shown is controlled by the set `countryCode` 
- value. Some country codes may result in no postal code entry being shown if
- those countries do not commonly use postal codes.
- */
-@property (nonatomic, assign, readwrite) BOOL postalCodeEntryEnabled;
-
-
-/**
- The two-letter ISO country code that corresponds to the user's billing address.
-
- If `postalCodeEntryEnabled` is YES, this controls which type of entry is allowed.
- If `postalCodeEntryEnabled` is NO, this property currently has no effect.
-
- If set to nil and postal code entry is enabled, the country from the user's current
- locale will be filled in. Otherwise the specific country code set will be used.
-
- By default this will fetch the user's current country code from NSLocale.
- */
-@property (nonatomic, copy, nullable) NSString *countryCode;
-
-/**
  Convenience property for creating an STPCardParams from the currently entered information
  or programmatically setting the field's contents. For example, if you're using another library
  to scan your user's credit card with a camera, you can assemble that data into an STPCardParams
@@ -241,6 +207,8 @@ The curent brand image displayed in the receiver.
  and then set this property to the new value.
  */
 @property (nonatomic, copy, readwrite, nonnull) STPCardParams *cardParams;
+
+@property (nonatomic) STPCardBrand cardBrand;
 
 /**
  Causes the text field to begin editing. Presents the keyboard.
@@ -286,20 +254,6 @@ The curent brand image displayed in the receiver.
  @return The error image used for a card brand.
  */
 + (nullable UIImage *)errorImageForCardBrand:(STPCardBrand)cardBrand;
-
-/**
- Returns the rectangle in which the receiver draws its brand image.
- @param bounds The bounding rectangle of the receiver.
- @return the rectangle in which the receiver draws its brand image.
- */
-- (CGRect)brandImageRectForBounds:(CGRect)bounds;
-
-/**
- Returns the rectangle in which the receiver draws the text fields.
- @param bounds The bounding rectangle of the receiver.
- @return The rectangle in which the receiver draws the text fields.
- */
-- (CGRect)fieldsRectForBounds:(CGRect)bounds;
 
 @end
 
@@ -371,13 +325,4 @@ The curent brand image displayed in the receiver.
  */
 - (void)paymentCardTextFieldDidEndEditingExpiration:(nonnull STPPaymentCardTextField *)textField;
 
-/**
- Called when editing begins in the payment card field's ZIP/postal code field.
- */
-- (void)paymentCardTextFieldDidBeginEditingPostalCode:(nonnull STPPaymentCardTextField *)textField;
-
-/**
- Called when editing ends in the payment card field's ZIP/postal code field.
- */
-- (void)paymentCardTextFieldDidEndEditingPostalCode:(nonnull STPPaymentCardTextField *)textField;
 @end
