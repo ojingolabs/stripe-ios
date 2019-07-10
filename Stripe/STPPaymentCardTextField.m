@@ -497,12 +497,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 
 - (BOOL)resignFirstResponder {
     [super resignFirstResponder];
-    BOOL success = [self.currentFirstResponderField resignFirstResponder];
-    [self layoutViewsToFocusField:nil
-                         animated:YES
-                       completion:nil];
-    [self updateImageForFieldType:STPCardFieldTypeNumber];
-    return success;
+    return [self.currentFirstResponderField resignFirstResponder];
 }
 
 - (STPFormTextField *)previousField {
@@ -527,15 +522,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     [self onChange];
     [self updateImageForFieldType:STPCardFieldTypeNumber];
     [self updateCVCPlaceholder];
-    WEAK(self);
-    [self layoutViewsToFocusField:@(STPCardFieldTypeNumber)
-                         animated:YES
-                       completion:^(__unused BOOL completed){
-        STRONG(self);
-        if ([self isFirstResponder]) {
-            [[self numberField] becomeFirstResponder];
-        }
-    }];
+    [self resignFirstResponder];
 }
 
 - (BOOL)isValid {
@@ -819,7 +806,6 @@ typedef NS_ENUM(NSInteger, STPCardTextFieldState) {
 
 typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
 - (void)layoutViewsToFocusField:(NSNumber *)focusedField
-                       animated:(BOOL)animated
                      completion:(STPLayoutAnimationCompletionBlock)completion {
 
     NSNumber *fieldtoFocus = focusedField;
@@ -841,24 +827,6 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
     }
 
     self.focusedTextFieldForLayout = fieldtoFocus;
-
-    void (^animations)(void) = ^void() {
-        //[self recalculateSubviewLayout];
-    };
-
-    if (animated) {
-        NSTimeInterval duration = animated * 0.3;
-        [UIView animateWithDuration:duration
-                              delay:0
-             usingSpringWithDamping:0.85f
-              initialSpringVelocity:0
-                            options:0
-                         animations:animations
-                         completion:completion];
-    }
-    else {
-        animations();
-    }
 }
 
 - (CGFloat)widthForAttributedText:(NSAttributedString *)attributedText {
@@ -970,7 +938,9 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
             }
 
             // This is a no-op if this is the last field & they're all valid
-            [[self nextFirstResponderField] becomeFirstResponder];
+            if (self.window != nil) {
+                [[self nextFirstResponderField] becomeFirstResponder];
+            }
             break;
         }
     }
@@ -1042,7 +1012,6 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
     BOOL isMidSubviewEditingTransition = [self getAndUpdateSubviewEditingTransitionStateFromCall:STPFieldEditingTransitionCallSiteDidBegin];
 
     [self layoutViewsToFocusField:@(textField.tag)
-                         animated:YES
                        completion:nil];
 
     if (!isMidSubviewEditingTransition) {
@@ -1104,7 +1073,6 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
 
     if (!isMidSubviewEditingTransition) {
         [self layoutViewsToFocusField:nil
-                             animated:YES
                            completion:nil];
         [self updateImageForFieldType:STPCardFieldTypeNumber];
         if ([self.delegate respondsToSelector:@selector(paymentCardTextFieldDidEndEditing:)]) {
