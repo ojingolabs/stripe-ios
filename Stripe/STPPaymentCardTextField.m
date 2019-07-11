@@ -460,7 +460,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
         }
     }
 
-    return [self firstInvalidSubField] ?: [self lastSubField];
+    return [self firstInvalidSubField] ?: [self firstSubField];
 }
 
 - (nullable STPFormTextField *)firstInvalidSubField {
@@ -478,8 +478,8 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     }
 }
 
-- (nonnull STPFormTextField *)lastSubField {
-    return self.cvcField;
+- (nonnull STPFormTextField *)firstSubField {
+    return self.numberField;
 }
 
 - (STPFormTextField *)currentFirstResponderField {

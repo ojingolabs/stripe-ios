@@ -25,7 +25,7 @@ STPAddressValidationErrors _firstValidationErrorCode;
              };
 }
 
-- (BOOL)isEqualToAddress:(STPAddress*)address
+- (BOOL)isEqualToShippingAddress:(STPAddress*)address
 {
     if ([self.name isEqual:address.name] &&
         [self.country isEqual:address.country] &&
@@ -41,22 +41,56 @@ STPAddressValidationErrors _firstValidationErrorCode;
     }
 }
 
-- (STPAddressValidationErrors)validationErrorCode
+- (BOOL)isEqualToBillingAddress:(STPAddress*)address
 {
-    BOOL isValid = [self isValid];
+    if ([self.name isEqual:address.name] &&
+        [self.country isEqual:address.country] &&
+        [self.line1 isEqual:address.line1] &&
+        [self.line2 isEqual:address.line2] &&
+        [self.city isEqual:address.city] &&
+        [self.state isEqual:address.state] &&
+        [self.postalCode isEqual:address.postalCode]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+- (STPAddressValidationErrors)shippingValidationErrorCode
+{
+    BOOL isValid = [self isValidShipping];
     if (isValid)
         _firstValidationErrorCode = STPAddressValidationErrorNoError;
     
     return _firstValidationErrorCode;
 }
 
-- (BOOL)isValid
+- (STPAddressValidationErrors)billingValidationErrorCode
+{
+    BOOL isValid = [self isValidBilling];
+    if (isValid)
+        _firstValidationErrorCode = STPAddressValidationErrorNoError;
+
+    return _firstValidationErrorCode;
+}
+
+- (BOOL)isValidShipping
 {
     BOOL isValid =  [self validateName:self.name] && [self validatePhone:self.phone] && [self validateStreet:self.line1 line2:self.line2] && [self validateCity:self.city] && [self validateState:self.state] && [self validatePostalCode:self.postalCode] && [self validateCountry:self.country];
     
     if (isValid)
         _firstValidationErrorCode = STPAddressValidationErrorNoError;
     
+    return isValid;
+}
+
+- (BOOL)isValidBilling
+{
+    BOOL isValid =  [self validateName:self.name] && [self validateStreet:self.line1 line2:self.line2] && [self validateCity:self.city] && [self validateState:self.state] && [self validatePostalCode:self.postalCode] && [self validateCountry:self.country];
+
+    if (isValid)
+        _firstValidationErrorCode = STPAddressValidationErrorNoError;
+
     return isValid;
 }
 

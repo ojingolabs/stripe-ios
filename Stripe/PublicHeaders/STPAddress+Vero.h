@@ -30,8 +30,11 @@ typedef NS_ENUM(NSInteger, STPAddressValidationErrors) {
 };
 
 - (nullable NSDictionary*)dictionaryOutput;
-- (BOOL)isEqualToAddress:(nonnull STPAddress*)address;
-- (BOOL)isValid;
-- (STPAddressValidationErrors)validationErrorCode;
+- (BOOL)isEqualToShippingAddress:(nonnull STPAddress*)address;
+- (BOOL)isEqualToBillingAddress:(nonnull STPAddress*)address;
+- (BOOL)isValidShipping;
+- (BOOL)isValidBilling;
+- (STPAddressValidationErrors)shippingValidationErrorCode;
+- (STPAddressValidationErrors)billingValidationErrorCode;
 
 @end
