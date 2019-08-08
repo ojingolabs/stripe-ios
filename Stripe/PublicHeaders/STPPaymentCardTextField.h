@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-#import "STPCard.h"
+#import "STPPaymentMethodCard.h"
 
-@class STPPaymentCardTextField;
+@class STPPaymentCardTextField, STPPaymentMethodCardParams;
 @protocol STPPaymentCardTextFieldDelegate;
 
 /**
@@ -240,7 +240,7 @@ The curent brand image displayed in the receiver.
  object is to make changes to a STPCardParams you own (retrieved from this text field if desired),
  and then set this property to the new value.
  */
-@property (nonatomic, copy, readwrite, nonnull) STPCardParams *cardParams;
+@property (nonatomic, copy, readwrite, nonnull) STPPaymentMethodCardParams *cardParams;
 
 /**
  Causes the text field to begin editing. Presents the keyboard.
@@ -332,6 +332,20 @@ The curent brand image displayed in the receiver.
  */
 - (void)paymentCardTextFieldDidBeginEditing:(nonnull STPPaymentCardTextField *)textField;
 
+/**
+ Notification that the user pressed the `return` key after completely filling
+ out the STPPaymentCardTextField with data that passes validation.
+
+ The Stripe SDK is going to `resignFirstResponder` on the `STPPaymentCardTextField`
+ to dismiss the keyboard after this delegate method returns, however if your app wants
+ to do something more (ex: move first responder to another field), this is a good
+ opportunity to do that.
+
+ This is delivered *before* the corresponding `paymentCardTextFieldDidEndEditing:`
+
+ @param textField The STPPaymentCardTextField that was being edited when the user pressed return
+ */
+- (void)paymentCardTextFieldWillEndEditingForReturn:(nonnull STPPaymentCardTextField *)textField;
 
 /**
  Called when editing ends in the text field as a whole.

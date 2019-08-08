@@ -23,16 +23,16 @@
 + (STPCustomerContext *)staticCustomerContext;
 
 /**
- A static customer context that always retrieves the given customer.
+ A static customer context that always retrieves the given customer and the given payment methods.
  Selecting a default source and attaching a source have no effect.
  */
-+ (STPCustomerContext *)staticCustomerContextWithCustomer:(STPCustomer *)customer;
++ (STPCustomerContext *)staticCustomerContextWithCustomer:(STPCustomer *)customer paymentMethods:(NSArray<STPPaymentMethod *> *)paymentMethods;
 
 /**
  A PaymentConfiguration object with a fake publishable key and a fake apple
  merchant identifier that ignores the true value of [Stripe deviceSupportsApplePay]
  and bases its `applePayEnabled` value solely on what is set
- in `additionalPaymentMethods`
+ in `additionalPaymentOptions`
  */
 + (STPPaymentConfiguration *)paymentConfigurationWithApplePaySupportingDevice;
 

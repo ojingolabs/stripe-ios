@@ -39,7 +39,7 @@ if ! command -v xcpretty > /dev/null; then
   fi
 
   info "Installing xcpretty..."
-  gem install xcpretty --no-ri --no-rdoc || die "Executing \`gem install xcpretty\` failed"
+  gem install xcpretty --no-document || die "Executing \`gem install xcpretty\` failed"
 fi
 
 # Clean build directory
@@ -82,6 +82,7 @@ info "Compiling static framework..."
 cd "${root_dir}" || die "Executing \`cd\` failed"
 
 xcodebuild clean build \
+  -UseModernBuildSystem=NO \
   -workspace "Stripe.xcworkspace" \
   -scheme "StripeiOSStaticFramework" \
   -configuration "Release" \

@@ -1,5 +1,24 @@
 ## Migration Guides
 
+### Migrating from versions < 16.0.0
+* The following have been migrated from Source/Token to PaymentMethod. If you have integrated with any of these things, you must also migrate to PaymentMethod and the Payment Intent API.  See https://stripe.com/docs/payments/payment-methods#transitioning.  See CHANGELOG.md for more details.
+  * UI components
+    * STPPaymentCardTextField
+    * STPAddCardViewController
+    * STPPaymentOptionViewController
+  * PaymentContext
+    * STPPaymentContext
+    * STPCustomerContext
+    * STPBackendAPIAdapter
+    * STPPaymentResult
+  * Standard Integration example project
+* `STPPaymentIntentAction*` types have been renamed to `STPIntentAction*`. Xcode should offer a deprecation warning & fix-it to help you migrate.
+* `STPPaymentHandler` supports 3DS2 authentication, and is recommended instead of `STPRedirectContext`. See https://stripe.com/docs/mobile/ios/authentication
+
+### Migrating from versions < 15.0.0
+* "PaymentMethod" has a new meaning: https://stripe.com/docs/api/payment_methods/object.  All things referring to "PaymentMethod" have been renamed to "PaymentOption" (see CHANGELOG.md for the full list).  `STPPaymentMethod` and `STPPaymentMethodType` have been rewritten to match this new API object.
+* PaymentMethod succeeds Source as the recommended way to charge customers.  In this vein, several 'Source'-named things have been deprecated, and replaced with 'PaymentMethod' equivalents.  For example, `STPPaymentIntentsStatusRequiresSource` is replaced by `STPPaymentIntentsStatusRequiresPaymentMethod` (see CHANGELOG.md for the full list).  Following the deprecation warnings & fix-its will be enough to migrate your code - they've simply been renamed, and will continue to work for Source-based flows.
+
 ### Migrating from versions < 14.0.0
 * `STPPaymentCardTextField` now copies the `STPCardParams` object when setting/getting the `cardParams` property, instead of sharing the object with the caller.
   * Changes to the `STPCardParams` object after setting `cardParams` no longer mutate the object held by the `STPPaymentCardTextField`

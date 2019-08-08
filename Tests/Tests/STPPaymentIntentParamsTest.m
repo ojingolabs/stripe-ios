@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "STPPaymentIntentParams.h"
+#import "STPPaymentmethodParams.h"
 
 @interface STPPaymentIntentParamsTest : XCTestCase
 
@@ -29,8 +30,14 @@
         XCTAssertNil(params.sourceParams);
         XCTAssertNil(params.sourceId);
         XCTAssertNil(params.receiptEmail);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
         XCTAssertNil(params.saveSourceToCustomer);
+#pragma clang diagnostic pop
+        XCTAssertNil(params.savePaymentMethod);
         XCTAssertNil(params.returnURL);
+        XCTAssertNil(params.setupFutureUsage);
+        XCTAssertNil(params.useStripeSDK);
     }
 }
 
@@ -57,6 +64,19 @@
     XCTAssertEqualObjects(params.returnURL, @"set via old name");
 }
 
+- (void)testSaveSourceToCustomerRenaming {
+    STPPaymentIntentParams *params = [[STPPaymentIntentParams alloc] init];
+    
+    XCTAssertNil(params.saveSourceToCustomer);
+    XCTAssertNil(params.savePaymentMethod);
+    
+    params.savePaymentMethod = @NO;
+    XCTAssertEqualObjects(params.saveSourceToCustomer, @NO);
+    
+    params.saveSourceToCustomer = @YES;
+    XCTAssertEqualObjects(params.savePaymentMethod, @YES);
+}
+
 #pragma clang diagnostic pop
 
 #pragma mark STPFormEncodable Tests
@@ -81,6 +101,31 @@
     }
 
     XCTAssertEqual([[mapping allValues] count], [[NSSet setWithArray:[mapping allValues]] count]);
+}
+
+- (void)testCopy {
+    STPPaymentIntentParams *params = [[STPPaymentIntentParams alloc] initWithClientSecret:@"test_client_secret"];
+    params.paymentMethodParams = [[STPPaymentMethodParams alloc] init];
+    params.paymentMethodId = @"test_payment_method_id";
+    params.savePaymentMethod = @YES;
+    params.returnURL = @"fake://testing_only";
+    params.setupFutureUsage = @(1);
+    params.useStripeSDK = @YES;
+    params.additionalAPIParameters = @{@"other_param" : @"other_value"};
+
+    STPPaymentIntentParams *paramsCopy = [params copy];
+    XCTAssertEqualObjects(params.clientSecret, paramsCopy.clientSecret);
+    XCTAssertEqualObjects(params.paymentMethodId, paramsCopy.paymentMethodId);
+
+    // assert equal, not equal objects, because this is a shallow copy
+    XCTAssertEqual(params.paymentMethodParams, paramsCopy.paymentMethodParams);
+
+    XCTAssertEqualObjects(params.savePaymentMethod, paramsCopy.savePaymentMethod);
+    XCTAssertEqualObjects(params.returnURL, paramsCopy.returnURL);
+    XCTAssertEqualObjects(params.useStripeSDK, paramsCopy.useStripeSDK);
+    XCTAssertEqualObjects(params.additionalAPIParameters, paramsCopy.additionalAPIParameters);
+
+
 }
 
 @end

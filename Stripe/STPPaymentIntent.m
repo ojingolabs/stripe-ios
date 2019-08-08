@@ -9,8 +9,11 @@
 #import "STPPaymentIntent.h"
 #import "STPPaymentIntent+Private.h"
 #import "STPPaymentIntentSourceAction.h"
+#import "STPPaymentIntentAction.h"
+#import "STPPaymentMethod+Private.h"
 
 #import "NSDictionary+Stripe.h"
+#import "NSArray+Stripe.h"
 
 @interface STPPaymentIntent ()
 @property (nonatomic, copy, readwrite) NSString *stripeId;
@@ -23,10 +26,13 @@
 @property (nonatomic, copy, readwrite) NSString *currency;
 @property (nonatomic, copy, nullable, readwrite) NSString *stripeDescription;
 @property (nonatomic, assign, readwrite) BOOL livemode;
-@property (nonatomic, strong, nullable, readwrite) STPPaymentIntentSourceAction* nextSourceAction;
+@property (nonatomic, strong, nullable, readwrite) STPIntentAction* nextAction;
 @property (nonatomic, copy, nullable, readwrite) NSString *receiptEmail;
 @property (nonatomic, copy, nullable, readwrite) NSString *sourceId;
+@property (nonatomic, copy, nullable, readwrite) NSString *paymentMethodId;
 @property (nonatomic, assign, readwrite) STPPaymentIntentStatus status;
+@property (nonatomic, copy, nullable, readwrite) NSArray<NSNumber *> *paymentMethodTypes;
+@property (nonatomic) STPPaymentIntentSetupFutureUsage setupFutureUsage;
 
 @property (nonatomic, copy, nonnull, readwrite) NSDictionary *allResponseFields;
 @end
@@ -51,8 +57,11 @@
                        [NSString stringWithFormat:@"currency = %@", self.currency],
                        [NSString stringWithFormat:@"description = %@", self.stripeDescription],
                        [NSString stringWithFormat:@"livemode = %@", self.livemode ? @"YES" : @"NO"],
-                       [NSString stringWithFormat:@"nextSourceAction = %@", self.nextSourceAction],
+                       [NSString stringWithFormat:@"nextAction = %@", self.nextAction],
+                       [NSString stringWithFormat:@"paymentMethodId = %@", self.paymentMethodId],
+                       [NSString stringWithFormat:@"paymentMethodTypes = %@", [self.allResponseFields stp_arrayForKey:@"payment_method_types"]],
                        [NSString stringWithFormat:@"receiptEmail = %@", self.receiptEmail],
+                       [NSString stringWithFormat:@"setupFutureUsage = %@", self.allResponseFields[@"setup_future_usage"]],
                        [NSString stringWithFormat:@"shipping = %@", self.allResponseFields[@"shipping"]],
                        [NSString stringWithFormat:@"sourceId = %@", self.sourceId],
                        [NSString stringWithFormat:@"status = %@", [self.allResponseFields stp_stringForKey:@"status"]],
@@ -78,9 +87,11 @@
 
 + (STPPaymentIntentStatus)statusFromString:(NSString *)string {
     NSDictionary<NSString *, NSNumber *> *map = @{
-                                                  @"requires_source": @(STPPaymentIntentStatusRequiresSource),
+                                                  @"requires_source": @(STPPaymentIntentStatusRequiresPaymentMethod), // 2015-10-12 API version still returns this instead of 'requires_payment_method'
+                                                  @"requires_payment_method": @(STPPaymentIntentStatusRequiresPaymentMethod),
                                                   @"requires_confirmation": @(STPPaymentIntentStatusRequiresConfirmation),
-                                                  @"requires_source_action": @(STPPaymentIntentStatusRequiresSourceAction),
+                                                  @"requires_source_action": @(STPPaymentIntentStatusRequiresAction), // 2015-10-12 API version still returns this instead of 'requires_action'
+                                                  @"requires_action": @(STPPaymentIntentStatusRequiresAction),
                                                   @"processing": @(STPPaymentIntentStatusProcessing),
                                                   @"succeeded": @(STPPaymentIntentStatusSucceeded),
                                                   @"requires_capture": @(STPPaymentIntentStatusRequiresCapture),
@@ -114,28 +125,23 @@
     return statusNumber.integerValue;
 }
 
-+ (STPPaymentIntentSourceActionType)sourceActionTypeFromString:(NSString *)string {
++ (STPPaymentIntentSetupFutureUsage)setupFutureUsageFromString:(NSString *)string {
     NSDictionary<NSString *, NSNumber *> *map = @{
-                                                  @"authorize_with_url": @(STPPaymentIntentSourceActionTypeAuthorizeWithURL),
+                                                  @"on_session": @(STPPaymentIntentSetupFutureUsageOnSession),
+                                                  @"off_session": @(STPPaymentIntentSetupFutureUsageOffSession),
                                                   };
-
+    
     NSString *key = string.lowercaseString;
-    NSNumber *statusNumber = map[key] ?: @(STPPaymentIntentSourceActionTypeUnknown);
+    NSNumber *statusNumber = map[key] ?: @(STPPaymentIntentSetupFutureUsageUnknown);
     return statusNumber.integerValue;
+
 }
 
-+ (NSString *)stringFromSourceActionType:(STPPaymentIntentSourceActionType)sourceActionType {
-    switch (sourceActionType) {
-        case STPPaymentIntentSourceActionTypeAuthorizeWithURL:
-            return @"authorize_with_url";
-        case STPPaymentIntentSourceActionTypeUnknown:
-            break;
-    }
+#pragma mark - Deprecated
 
-    // catch any unknown values here
-    return @"unknown";
+- (STPPaymentIntentAction *)nextSourceAction {
+    return self.nextAction;
 }
-
 
 #pragma mark - STPAPIResponseDecodable
 
@@ -169,12 +175,19 @@
     paymentIntent.currency = currency;
     paymentIntent.stripeDescription = [dict stp_stringForKey:@"description"];
     paymentIntent.livemode = [dict stp_boolForKey:@"livemode" or:YES];
-    NSDictionary *nextSourceActionDict = [dict stp_dictionaryForKey:@"next_source_action"];
-    paymentIntent.nextSourceAction = [STPPaymentIntentSourceAction decodedObjectFromAPIResponse:nextSourceActionDict];
+    NSDictionary *nextActionDict = [dict stp_dictionaryForKey:@"next_action"];
+    paymentIntent.nextAction = [STPIntentAction decodedObjectFromAPIResponse:nextActionDict];
     paymentIntent.receiptEmail = [dict stp_stringForKey:@"receipt_email"];
     // FIXME: add support for `shipping`
     paymentIntent.sourceId = [dict stp_stringForKey:@"source"];
+    paymentIntent.paymentMethodId = [dict stp_stringForKey:@"payment_method"];
+    NSArray<NSString *> *rawPaymentMethodTypes = [[dict stp_arrayForKey:@"payment_method_types"] stp_arrayByRemovingNulls];
+    if (rawPaymentMethodTypes) {
+        paymentIntent.paymentMethodTypes = [STPPaymentMethod typesFromStrings:rawPaymentMethodTypes];
+    }
     paymentIntent.status = [[self class] statusFromString:rawStatus];
+    NSString *rawSetupFutureUsage = [dict stp_stringForKey:@"setup_future_usage"];
+    paymentIntent.setupFutureUsage = rawSetupFutureUsage ? [[self class] setupFutureUsageFromString:rawSetupFutureUsage] : STPPaymentIntentSetupFutureUsageNone;
 
     paymentIntent.allResponseFields = dict;
 

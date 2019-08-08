@@ -28,8 +28,6 @@
 #import "STPPaymentCardTextFieldCell.h"
 #import "STPPromise.h"
 #import "STPSectionHeaderView.h"
-#import "STPSourceParams.h"
-#import "STPToken.h"
 #import "STPWeakStrongMacros.h"
 #import "StripeError.h"
 #import "UIBarButtonItem+Stripe.h"
@@ -49,6 +47,8 @@
     UITableViewDelegate,
     UITableViewDataSource>
 
+@property (nonatomic) BOOL alwaysShowScanCardButton;
+@property (nonatomic) BOOL alwaysEnableDoneButton;
 @property (nonatomic) STPPaymentConfiguration *configuration;
 @property (nonatomic) STPAddress *shippingAddress;
 @property (nonatomic) BOOL hasUsedShippingAddress;
@@ -105,7 +105,10 @@ typedef NS_ENUM(NSUInteger, STPPaymentCardSection) {
     UIBarButtonItem *doneItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(nextPressed:)];
     self.doneItem = doneItem;
     self.stp_navigationItemProxy.rightBarButtonItem = doneItem;
-    self.stp_navigationItemProxy.rightBarButtonItem.enabled = NO;
+    [self updateDoneButton];
+
+    self.stp_navigationItemProxy.leftBarButtonItem.accessibilityIdentifier = @"AddCardViewControllerNavBarCancelButtonIdentifier";
+    self.stp_navigationItemProxy.rightBarButtonItem.accessibilityIdentifier = @"AddCardViewControllerNavBarDoneButtonIdentifier";
     
     UIImageView *cardImageView = [[UIImageView alloc] initWithImage:[STPImageLibrary largeCardFrontImage]];
     cardImageView.contentMode = UIViewContentModeCenter;
@@ -177,7 +180,7 @@ typedef NS_ENUM(NSUInteger, STPPaymentCardSection) {
 }
 
 - (void)setUpCardScanningIfAvailable {
-    if ([STPCardIOProxy isCardIOAvailable]) {
+    if ([STPCardIOProxy isCardIOAvailable] || self.alwaysShowScanCardButton) {
         self.cardIOProxy = [[STPCardIOProxy alloc] initWithDelegate:self];
         self.cardHeaderView.buttonHidden = NO;
         [self.cardHeaderView.button setTitle:STPLocalizedString(@"Scan Card", @"Text for button to scan a credit card") forState:UIControlStateNormal];
@@ -186,11 +189,18 @@ typedef NS_ENUM(NSUInteger, STPPaymentCardSection) {
     }
 }
 
+- (void)setAlwaysEnableDoneButton:(BOOL)alwaysEnableDoneButton {
+    if (alwaysEnableDoneButton != _alwaysEnableDoneButton) {
+        _alwaysEnableDoneButton = alwaysEnableDoneButton;
+        [self updateDoneButton];
+    }
+}
+
 - (void)presentCardIO {
     [self.cardIOProxy presentCardIOFromViewController:self];
 }
 
-- (void)cardIOProxy:(__unused STPCardIOProxy *)proxy didFinishWithCardParams:(STPCardParams *)cardParams {
+- (void)cardIOProxy:(__unused STPCardIOProxy *)proxy didFinishWithCardParams:(STPPaymentMethodCardParams *)cardParams {
     if (cardParams) {
         self.paymentCell.paymentField.cardParams = cardParams;
     }
@@ -270,65 +280,41 @@ typedef NS_ENUM(NSUInteger, STPPaymentCardSection) {
 
 - (void)nextPressed:(__unused id)sender {
     self.loading = YES;
-    STPCardParams *cardParams = self.paymentCell.paymentField.cardParams;
-    cardParams.address = self.addressViewModel.address;
-    cardParams.currency = self.managedAccountCurrency;
-    if (cardParams) {
-        // Create and return a card source
-        if (self.configuration.createCardSources) {
-            STPSourceParams *sourceParams = [STPSourceParams cardParamsWithCard:cardParams];
-            [self.apiClient createSourceWithParams:sourceParams completion:^(STPSource * _Nullable source, NSError * _Nullable tokenizationError) {
-                if (tokenizationError) {
-                    [self handleCardTokenizationError:tokenizationError];
-                }
-                else {
-                    if ([self.delegate respondsToSelector:@selector(addCardViewController:didCreateSource:completion:)]) {
-                        [self.delegate addCardViewController:self didCreateSource:source completion:^(NSError * _Nullable error) {
-                            stpDispatchToMainThreadIfNecessary(^{
-                                if (error) {
-                                    [self handleCardTokenizationError:error];
-                                }
-                                else {
-                                    self.loading = NO;
-                                }
-                            });
-                        }];
-                    }
-                    else {
-                        self.loading = NO;
-                    }
-                }
-            }];
-        }
-        // Create and return a card token
-        else {
-            [self.apiClient createTokenWithCard:cardParams completion:^(STPToken *token, NSError *tokenizationError) {
-                if (tokenizationError) {
-                    [self handleCardTokenizationError:tokenizationError];
-                }
-                else {
-                    if ([self.delegate respondsToSelector:@selector(addCardViewController:didCreateToken:completion:)]) {
-                        [self.delegate addCardViewController:self didCreateToken:token completion:^(NSError * _Nullable error) {
-                            stpDispatchToMainThreadIfNecessary(^{
-                                if (error) {
-                                    [self handleCardTokenizationError:error];
-                                }
-                                else {
-                                    self.loading = NO;
-                                }
-                            });
-                        }];
-                    }
-                    else {
-                        self.loading = NO;
-                    }
-                }
-            }];
-        }
+    STPPaymentMethodCardParams *cardParams = self.paymentCell.paymentField.cardParams;
+    if (!cardParams) {
+        return;
     }
+    // Create and return a Payment Method
+    STPPaymentMethodBillingDetails *billingDetails = [[STPPaymentMethodBillingDetails alloc] init];
+    billingDetails.address = [[STPPaymentMethodAddress alloc] initWithAddress:self.addressViewModel.address];
+    billingDetails.email = self.addressViewModel.address.email;
+    billingDetails.name = self.addressViewModel.address.name;
+    billingDetails.phone = self.addressViewModel.address.phone;
+    STPPaymentMethodParams *paymentMethodParams = [STPPaymentMethodParams paramsWithCard:cardParams
+                                                                          billingDetails:billingDetails
+                                                                                metadata:nil];
+    [self.apiClient createPaymentMethodWithParams:paymentMethodParams completion:^(STPPaymentMethod * _Nullable paymentMethod, NSError * _Nullable createPaymentMethodError) {
+        if (createPaymentMethodError) {
+            [self handleError:createPaymentMethodError];
+        }
+        else {
+            if ([self.delegate respondsToSelector:@selector(addCardViewController:didCreatePaymentMethod:completion:)]) {
+                [self.delegate addCardViewController:self didCreatePaymentMethod:paymentMethod completion:^(NSError * _Nullable attachToCustomerError) {
+                    stpDispatchToMainThreadIfNecessary(^{
+                        if (attachToCustomerError) {
+                            [self handleError:attachToCustomerError];
+                        }
+                        else {
+                            self.loading = NO;
+                        }
+                    });
+                }];
+            }
+        }
+    }];
 }
 
-- (void)handleCardTokenizationError:(NSError *)error {
+- (void)handleError:(NSError *)error {
     self.loading = NO;
     [[self firstEmptyField] becomeFirstResponder];
     
@@ -346,7 +332,7 @@ typedef NS_ENUM(NSUInteger, STPPaymentCardSection) {
 - (void)updateDoneButton {
     self.stp_navigationItemProxy.rightBarButtonItem.enabled = (self.paymentCell.paymentField.isValid
                                                                && self.addressViewModel.isValid
-                                                               );
+                                                               ) || self.alwaysEnableDoneButton;
 }
 
 - (void)updateInputAccessoryVisiblity {
@@ -376,6 +362,10 @@ typedef NS_ENUM(NSUInteger, STPPaymentCardSection) {
 
 - (void)paymentFieldNextTapped {
     [[self.addressViewModel.addressCells stp_boundSafeObjectAtIndex:0] becomeFirstResponder];
+}
+
+- (void)paymentCardTextFieldWillEndEditingForReturn:(__unused STPPaymentCardTextField *)textField {
+    [self paymentFieldNextTapped];
 }
 
 - (void)paymentCardTextFieldDidBeginEditingCVC:(STPPaymentCardTextField *)textField {

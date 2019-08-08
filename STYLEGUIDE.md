@@ -108,8 +108,8 @@ static NSString * const STPSDKVersion = @"11.0.0";
 - Save files to the appropriate root level folder. Typical folders include:
   - `stripe-ios/Stripe/`
   - `stripe-ios/Tests/Tests/`
-  - `stripe-ios/Example/Standard Integration (Swift)/`
-  - `stripe-ios/Example/Custom Integration (ObjC)/`
+  - `stripe-ios/Example/Standard Integration/`
+  - `stripe-ios/Example/Custom Integration/`
 
 - Save public header files in `stripe-ios/Stripe/PublicHeaders/` for Cocoapods compatibility
 
@@ -231,6 +231,8 @@ NS_ASSUME_NON_NULL_END
 
 @property (<nonatomic / atomic>, <assign>, <readonly / readwrite>) <type> <name>;
 ```
+
+- Omit default properties (`assign`, `readwrite`), except for `strong`
 
 - Use `copy` for classes with mutable counterparts such as `NSString`, `NSArray`, `NSDictionary`
 

@@ -18,10 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The current version of this library.
  */
-static NSString *const STPSDKVersion = @"14.0.0";
+static NSString *const STPSDKVersion = @"16.0.3";
 
 @class STPBankAccount, STPBankAccountParams, STPCard, STPCardParams, STPConnectAccountParams;
-@class STPPaymentConfiguration, STPPaymentIntentParams, STPSourceParams, STPToken;
+@class STPPaymentConfiguration, STPPaymentIntentParams, STPSourceParams, STPToken, STPPaymentMethodParams;
+@class STPAppInfo, STPSetupIntentConfirmParams;
 
 /**
  A top-level class that imports the rest of the Stripe SDK.
@@ -87,12 +88,19 @@ static NSString *const STPSDKVersion = @"14.0.0";
 
 /**
  In order to perform API requests on behalf of a connected account, e.g. to
- create a source on a connected account, set this property to the ID of the
+ create a Source or Payment Method on a connected account, set this property to the ID of the
  account for which this request is being made.
 
  @see https://stripe.com/docs/connect/authentication#authentication-via-the-stripe-account-header
  */
 @property (nonatomic, copy, nullable) NSString *stripeAccount;
+
+/**
+ Libraries wrapping the Stripe SDK should set this, so that Stripe can contact you about future issues or critical updates.
+ 
+ @see https://stripe.com/docs/building-plugins#setappinfo
+ */
+@property (nonatomic, nullable) STPAppInfo *appInfo;
 
 @end
 
@@ -194,6 +202,14 @@ static NSString *const STPSDKVersion = @"14.0.0";
  */
 - (void)createTokenWithCard:(STPCardParams *)card completion:(nullable STPTokenCompletionBlock)completion;
 
+/**
+ Converts a CVC string into a Stripe token using the Stripe API.
+
+ @param cvc         The CVC/CVV number used to create the token. Cannot be nil.
+ @param completion  The callback to run with the returned Stripe token (and any errors that may have occurred).
+ */
+- (void)createTokenForCVCUpdate:(NSString *)cvc completion:(nullable STPTokenCompletionBlock)completion;
+
 @end
 
 /**
@@ -220,6 +236,9 @@ static NSString *const STPSDKVersion = @"14.0.0";
 
  The Stripe supported Apple Pay card networks are:
  American Express, Visa, Mastercard, Discover.
+ 
+ Japanese users can enable JCB by setting `JCBPaymentNetworkSupported` to YES,
+ after they have been approved by JCB.
 
  @return YES if the device is currently able to make Apple Pay payments via one
  of the supported networks. NO if the user does not have a saved card of a
@@ -264,6 +283,13 @@ static NSString *const STPSDKVersion = @"14.0.0";
 + (PKPaymentRequest *)paymentRequestWithMerchantIdentifier:(NSString *)merchantIdentifier
                                                    country:(NSString *)countryCode
                                                   currency:(NSString *)currencyCode;
+
+/**
+ Japanese users can enable JCB for Apple Pay by setting this to `YES`, after they have been approved by JCB.
+ 
+ The default value is NO.
+ */
+@property (class, nonatomic, getter=isJCBPaymentNetworkSupported) BOOL JCBPaymentNetworkSupported;
 
 @end
 
@@ -345,12 +371,68 @@ static NSString *const STPSDKVersion = @"14.0.0";
  At a minimum, the params object must include the `clientSecret`.
 
  @see https://stripe.com/docs/api#confirm_payment_intent
-
+ 
+ @note Use the `confirmPayment:withAuthenticationContext:completion:` method on `STPPaymentHandler` instead
+ of calling this method directly. It handles any authentication necessary for you. @see https://stripe.com/docs/mobile/ios/authentication
  @param paymentIntentParams  The `STPPaymentIntentParams` to pass to `/confirm`
  @param completion           The callback to run with the returned PaymentIntent object, or an error.
  */
 - (void)confirmPaymentIntentWithParams:(STPPaymentIntentParams *)paymentIntentParams
                             completion:(STPPaymentIntentCompletionBlock)completion;
+
+@end
+
+#pragma mark Setup Intents
+
+/**
+ STPAPIClient extensions for working with SetupIntent objects.
+ */
+@interface STPAPIClient (SetupIntents)
+
+/**
+ Retrieves the SetupIntent object using the given secret. @see https://stripe.com/docs/api/setup_intents/retrieve
+ 
+ @param secret      The client secret of the SetupIntent to be retrieved. Cannot be nil.
+ @param completion  The callback to run with the returned SetupIntent object, or an error.
+ */
+- (void)retrieveSetupIntentWithClientSecret:(NSString *)secret
+                                 completion:(STPSetupIntentCompletionBlock)completion;
+
+/**
+ Confirms the SetupIntent object with the provided params object.
+ 
+ At a minimum, the params object must include the `clientSecret`.
+ 
+ @see https://stripe.com/docs/api/setup_intents/confirm
+
+ @note Use the `confirmSetupIntent:withAuthenticationContext:completion:` method on `STPPaymentHandler` instead
+ of calling this method directly. It handles any authentication necessary for you. @see https://stripe.com/docs/mobile/ios/authentication
+ @param setupIntentParams    The `STPSetupIntentParams` to pass to `/confirm`
+ @param completion           The callback to run with the returned PaymentIntent object, or an error.
+ */
+- (void)confirmSetupIntentWithParams:(STPSetupIntentConfirmParams *)setupIntentParams
+                          completion:(STPSetupIntentCompletionBlock)completion;
+
+@end
+
+
+#pragma mark Payment Methods
+
+/**
+ STPAPIClient extensions for working with PaymentMethod objects.
+ */
+@interface STPAPIClient (PaymentMethods)
+
+/**
+ Creates a PaymentMethod object with the provided params object.
+ 
+ @see https://stripe.com/docs/api/payment_methods/create
+ 
+ @param paymentMethodParams  The `STPPaymentMethodParams` to pass to `/v1/payment_methods`.  Cannot be nil.
+ @param completion           The callback to run with the returned PaymentMethod object, or an error.
+ */
+- (void)createPaymentMethodWithParams:(STPPaymentMethodParams *)paymentMethodParams
+                           completion:(STPPaymentMethodCompletionBlock)completion;
 
 @end
 

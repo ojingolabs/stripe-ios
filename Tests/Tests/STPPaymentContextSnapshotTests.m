@@ -30,10 +30,10 @@
     STPPaymentConfiguration *config = [STPFixtures paymentConfiguration];
     config.companyName = @"Test Company";
     config.requiredBillingAddressFields = STPBillingAddressFieldsFull;
-    config.additionalPaymentMethods = STPPaymentMethodTypeAll;
+    config.additionalPaymentOptions = STPPaymentOptionTypeAll;
     config.shippingType = STPShippingTypeShipping;
     self.config = config;
-    STPCustomerContext *customerContext = [STPMocks staticCustomerContextWithCustomer:[STPFixtures customerWithCardTokenAndSourceSources]];
+    STPCustomerContext *customerContext = [STPMocks staticCustomerContextWithCustomer:[STPFixtures customerWithCardTokenAndSourceSources] paymentMethods:@[[STPFixtures paymentMethod], [STPFixtures paymentMethod]]];
     self.customerContext = customerContext;
 
     UIViewController *viewController = [UIViewController new];
@@ -48,25 +48,25 @@
     self.paymentContext = context;
 }
 
-- (void)testPushPaymentMethodsSmallTitle {
+- (void)testPushPaymentOptionsSmallTitle {
     if (@available(iOS 11.0, *)) {
         [self buildPaymentContext];
 
         self.hostViewController.navigationBar.prefersLargeTitles = NO;
         self.paymentContext.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeAutomatic;
-        [self.paymentContext pushPaymentMethodsViewController];
+        [self.paymentContext pushPaymentOptionsViewController];
         UIView *view = [self stp_preparedAndSizedViewForSnapshotTestFromNavigationController:self.hostViewController];
         FBSnapshotVerifyView(view, nil);
     }
 }
 
-- (void)testPushPaymentMethodsLargeTitle {
+- (void)testPushPaymentOptionsLargeTitle {
     if (@available(iOS 11.0, *)) {
         [self buildPaymentContext];
 
         self.hostViewController.navigationBar.prefersLargeTitles = YES;
         self.paymentContext.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeAutomatic;
-        [self.paymentContext pushPaymentMethodsViewController];
+        [self.paymentContext pushPaymentOptionsViewController];
         UIView *view = [self stp_preparedAndSizedViewForSnapshotTestFromNavigationController:self.hostViewController];
         FBSnapshotVerifyView(view, nil);
     }

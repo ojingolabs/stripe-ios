@@ -63,24 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (NSString *)stringFromBrand:(STPCardBrand)brand {
-    switch (brand) {
-        case STPCardBrandAmex:
-            return @"American Express";
-        case STPCardBrandDinersClub:
-            return @"Diners Club";
-        case STPCardBrandDiscover:
-            return @"Discover";
-        case STPCardBrandJCB:
-            return @"JCB";
-        case STPCardBrandMasterCard:
-            return @"MasterCard";
-        case STPCardBrandUnionPay:
-            return @"UnionPay";
-        case STPCardBrandVisa:
-            return @"Visa";
-        case STPCardBrandUnknown:
-            return @"Unknown";
-    }
+    return STPStringFromCardBrand(brand);
 }
 
 #pragma mark - STPCardFundingType
@@ -229,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
     return card;
 }
 
-#pragma mark - STPPaymentMethod
+#pragma mark - STPPaymentOption
 
 - (UIImage *)image {
     return [STPImageLibrary brandImageForCardBrand:self.brand];

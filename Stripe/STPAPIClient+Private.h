@@ -11,6 +11,8 @@
 #import "STPAPIClient.h"
 #import "STPAPIRequest.h"
 
+@class STDSAuthenticationRequestParameters;
+@class STP3DS2AuthenticateResponse;
 @class STPEphemeralKey;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,6 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
                                   clientSecret:(NSString *)secret
                             responseCompletion:(STPAPIResponseBlock)completion;
 
+@end
+
+@interface STPAPIClient (EphemeralKeys)
++ (instancetype)apiClientWithEphemeralKey:(STPEphemeralKey *)key;
 @end
 
 @interface STPAPIClient (Customers)
@@ -77,6 +83,54 @@ toCustomerUsingKey:(STPEphemeralKey *)ephemeralKey
 fromCustomerUsingKey:(STPEphemeralKey *)ephemeralKey
           completion:(STPErrorBlock)completion;
 
+/**
+ Attach a Payment Method to a customer
+ 
+ @see https://stripe.com/docs/api/payment_methods/attach
+ */
++ (void)attachPaymentMethod:(NSString *)paymentMethodID
+         toCustomerUsingKey:(STPEphemeralKey *)ephemeralKey
+                 completion:(STPErrorBlock)completion;
+
+/**
+ Detach a Payment Method from a customer
+ 
+ @see https://stripe.com/docs/api/payment_methods/detach
+ */
++ (void)detachPaymentMethod:(NSString *)paymentMethodID
+       fromCustomerUsingKey:(STPEphemeralKey *)ephemeralKey
+                 completion:(STPErrorBlock)completion;
+
+/**
+ Retrieves a list of Payment Methods attached to a customer.
+ 
+ @note This only fetches card type Payment Methods
+ */
++ (void)listPaymentMethodsForCustomerUsingKey:(STPEphemeralKey *)ephemeralKey
+                                   completion:(STPPaymentMethodsCompletionBlock)completion;
 @end
 
+@interface STPAPIClient (ThreeDS2)
+
+/**
+ Kicks off 3DS2 authentication.
+ */
+- (void)authenticate3DS2:(STDSAuthenticationRequestParameters *)authRequestParams
+        sourceIdentifier:(NSString *)sourceID
+               returnURL:(nullable NSString *)returnURLString
+              maxTimeout:(NSInteger)maxTimeout
+              completion:(STP3DS2AuthenticateCompletionBlock)completion;
+
+/**
+ Endpoint to call to indicate that the challenge flow for a 3DS2 authentication has finished.
+ */
+- (void)complete3DS2AuthenticationForSource:(NSString *)sourceID completion:(STPBooleanSuccessBlock)completion;
+
+@end
+
+@interface Stripe (Private)
+
++ (NSArray<NSString *> *)supportedPKPaymentNetworks;
+
+@end
 NS_ASSUME_NONNULL_END
