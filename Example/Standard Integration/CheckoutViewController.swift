@@ -9,28 +9,28 @@
 import UIKit
 import Stripe
 
-class CheckoutViewController: UIViewController, STPPaymentContextDelegate {
+class CheckoutViewController: UIViewController {
 
     // 1) To get started with this demo, first head to https://dashboard.stripe.com/account/apikeys
     // and copy your "Test Publishable Key" (it looks like pk_test_abcdef) into the line below.
-    let stripePublishableKey = ""
+    var stripePublishableKey = ""
 
     // 2) Next, optionally, to have this demo save your user's payment details, head to
-    // https://github.com/stripe/example-ios-backend/tree/v16.0.0, click "Deploy to Heroku", and follow
+    // https://github.com/stripe/example-ios-backend/tree/v17.0.0, click "Deploy to Heroku", and follow
     // the instructions (don't worry, it's free). Replace nil on the line below with your
     // Heroku URL (it looks like https://blazing-sunrise-1234.herokuapp.com ).
-    let backendBaseURL: String? = nil
+    var backendBaseURL: String? = nil
 
     // 3) Optionally, to enable Apple Pay, follow the instructions at https://stripe.com/docs/mobile/apple-pay
     // to create an Apple Merchant ID. Replace nil on the line below with it (it looks like merchant.com.yourappname).
-    let appleMerchantID: String? = ""
+    var appleMerchantID: String? = ""
 
     // These values will be shown to the user when they purchase with Apple Pay.
     let companyName = "Emoji Apparel"
     let paymentCurrency = "usd"
 
     let paymentContext: STPPaymentContext
-
+    
     let theme: STPTheme
     let tableView: UITableView
     let paymentRow: CheckoutRowView
@@ -38,7 +38,7 @@ class CheckoutViewController: UIViewController, STPPaymentContextDelegate {
     let totalRow: CheckoutRowView
     let buyButton: BuyButton
     let rowHeight: CGFloat = 52
-    let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+    let activityIndicator = UIActivityIndicatorView(style: .gray)
     let numberFormatter: NumberFormatter
     var products: [Product]
     var paymentInProgress: Bool = false {
@@ -48,8 +48,7 @@ class CheckoutViewController: UIViewController, STPPaymentContextDelegate {
                     self.activityIndicator.startAnimating()
                     self.activityIndicator.alpha = 1
                     self.buyButton.alpha = 0
-                }
-                else {
+                } else {
                     self.activityIndicator.stopAnimating()
                     self.activityIndicator.alpha = 0
                     self.buyButton.alpha = 1
@@ -59,7 +58,12 @@ class CheckoutViewController: UIViewController, STPPaymentContextDelegate {
     }
     
     init(products: [Product], settings: Settings) {
-
+        if let stripePublishableKey = UserDefaults.standard.string(forKey: "StripePublishableKey") {
+            self.stripePublishableKey = stripePublishableKey
+        }
+        if let backendBaseURL = UserDefaults.standard.string(forKey: "StripeBackendBaseURL") {
+            self.backendBaseURL = backendBaseURL
+        }
         let stripePublishableKey = self.stripePublishableKey
         let backendBaseURL = self.backendBaseURL
 
@@ -153,18 +157,30 @@ See https://stripe.com/docs/testing.
 
         self.view.backgroundColor = .white
         self.tableView.backgroundColor = .white
+        #if canImport(CryptoKit)
+        if #available(iOS 13.0, *) {
+            self.view.backgroundColor = .systemBackground
+            self.tableView.backgroundColor = .systemBackground
+        }
+        #endif
         self.tableView.separatorStyle = .none
         self.tableView.rowHeight = 84
         self.tableView.register(EmojiCheckoutCell.self, forCellReuseIdentifier: "Cell")
         var red: CGFloat = 0
+        
         self.theme.primaryBackgroundColor.getRed(&red, green: nil, blue: nil, alpha: nil)
-        self.activityIndicator.activityIndicatorViewStyle = red < 0.5 ? .white : .gray
+        self.activityIndicator.style = red < 0.5 ? .white : .gray
         self.navigationItem.title = "Checkout"
 
         // Footer
         let makeSeparatorView: () -> UIView = {
             let view = UIView()
             view.backgroundColor = UIColor(red: 238/255, green: 238/255, blue: 238/255, alpha: 1)
+            #if canImport(CryptoKit)
+            if #available(iOS 13.0, *) {
+                view.backgroundColor = UIColor.systemGray5
+            }
+            #endif
             view.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
                 view.heightAnchor.constraint(equalToConstant: 1),
@@ -176,7 +192,7 @@ See https://stripe.com/docs/testing.
         spacerView.heightAnchor.constraint(equalToConstant: BuyButton.defaultHeight + 8).isActive = true
         let footerContainerView = UIStackView(arrangedSubviews: [shippingRow, makeSeparatorView(), paymentRow, makeSeparatorView(), totalRow, spacerView].compactMap({ $0 }))
         footerContainerView.axis = .vertical
-        footerContainerView.frame = CGRect(x: 0, y: 0, width: 0, height: footerContainerView.systemLayoutSizeFitting(UILayoutFittingCompressedSize).height)
+        footerContainerView.frame = CGRect(x: 0, y: 0, width: 0, height: footerContainerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height)
 
         self.activityIndicator.alpha = 0
         self.buyButton.addTarget(self, action: #selector(didTapBuy), for: .touchUpInside)
@@ -230,59 +246,51 @@ See https://stripe.com/docs/testing.
         self.paymentInProgress = true
         self.paymentContext.requestPayment()
     }
+}
 
-    // MARK: STPPaymentContextDelegate
+// MARK: STPPaymentContextDelegate
+extension CheckoutViewController: STPPaymentContextDelegate {
+    enum CheckoutError: Error {
+        case unknown
 
-    func paymentContext(_ paymentContext: STPPaymentContext, didCreatePaymentResult paymentResult: STPPaymentResult, completion: @escaping STPErrorBlock) {
-        MyAPIClient.sharedClient.createAndConfirmPaymentIntent(paymentResult,
-                                                               amount: self.paymentContext.paymentAmount,
-                                                               returnURL: "payments-example://stripe-redirect",
-                                                               shippingAddress: self.paymentContext.shippingAddress,
-                                                               shippingMethod: self.paymentContext.selectedShippingMethod) { (clientSecret, error) in
-                                                                guard let clientSecret = clientSecret else {
-                                                                    completion(error ?? NSError(domain: StripeDomain, code: 123, userInfo: [NSLocalizedDescriptionKey: "Unable to parse clientSecret from response"]))
-                                                                    return
-                                                                }
-                                                                STPPaymentHandler.shared().handleNextAction(forPayment: clientSecret, with: paymentContext, returnURL: "payments-example://stripe-redirect") { (status, handledPaymentIntent, actionError) in
-                                                                    switch (status) {
-                                                                    case .succeeded:
-                                                                        guard let handledPaymentIntent = handledPaymentIntent else {
-                                                                            completion(actionError ?? NSError(domain: StripeDomain, code: 123, userInfo: [NSLocalizedDescriptionKey: "Unknown failure"]))
-                                                                            return
-                                                                        }
-                                                                        if (handledPaymentIntent.status == .requiresConfirmation) {
-                                                                            // Confirm again on the backend
-                                                                            MyAPIClient.sharedClient.confirmPaymentIntent(handledPaymentIntent) { clientSecret, error in
-                                                                                guard let clientSecret = clientSecret else {
-                                                                                    completion(error ?? NSError(domain: StripeDomain, code: 123, userInfo: [NSLocalizedDescriptionKey: "Unable to parse clientSecret from response"]))
-                                                                                    return
-                                                                                }
-                                                                                
-                                                                                // Retrieve the Payment Intent and check the status for success
-                                                                                STPAPIClient.shared().retrievePaymentIntent(withClientSecret: clientSecret) { (paymentIntent, retrieveError) in
-                                                                                    guard let paymentIntent = paymentIntent else {
-                                                                                        completion(retrieveError ?? NSError(domain: StripeDomain, code: 123, userInfo: [NSLocalizedDescriptionKey: "Unable to parse payment intent from response"]))
-                                                                                        return
-                                                                                    }
-                                                                                    
-                                                                                    if paymentIntent.status == .succeeded {
-                                                                                        completion(nil)
-                                                                                    }
-                                                                                    else {
-                                                                                        completion(NSError(domain: StripeDomain, code: 123, userInfo: [NSLocalizedDescriptionKey: "Authentication failed."]))
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        } else {
-                                                                            // Success
-                                                                            completion(nil)
-                                                                        }
-                                                                    case .failed:
-                                                                        completion(actionError)
-                                                                    case .canceled:
-                                                                        completion(NSError(domain: StripeDomain, code: 123, userInfo: [NSLocalizedDescriptionKey: "User canceled authentication."]))
-                                                                    }
-                                                                }
+        var localizedDescription: String {
+            switch self {
+            case .unknown:
+                return "Unknown error"
+            }
+        }
+    }
+    func paymentContext(_ paymentContext: STPPaymentContext, didCreatePaymentResult paymentResult: STPPaymentResult, completion: @escaping STPPaymentStatusBlock) {
+
+        // Create the PaymentIntent on the backend
+        // To speed this up, create the PaymentIntent earlier in the checkout flow and update it as necessary (e.g. when the cart subtotal updates or when shipping fees and taxes are calculated, instead of re-creating a PaymentIntent for every payment attempt.
+        MyAPIClient.sharedClient.createPaymentIntent(products: self.products, shippingMethod: paymentContext.selectedShippingMethod) { result in
+            switch result {
+            case .success(let clientSecret):
+                // Confirm the PaymentIntent
+                let paymentIntentParams = STPPaymentIntentParams(clientSecret: clientSecret)
+                paymentIntentParams.paymentMethodId = paymentResult.paymentMethod.stripeId
+                paymentIntentParams.returnURL = "payments-example://stripe-redirect"
+                STPPaymentHandler.shared().confirmPayment(withParams: paymentIntentParams, authenticationContext: paymentContext) { status, paymentIntent, error in
+                    switch status {
+                    case .succeeded:
+                        // Our example backend asynchronously fulfills the customer's order via webhook
+                        // See https://stripe.com/docs/payments/payment-intents/ios#fulfillment
+                        completion(.success, nil)
+                    case .failed:
+                        completion(.error, error)
+                    case .canceled:
+                        completion(.userCancellation, nil)
+                    @unknown default:
+                        completion(.error, nil)
+                    }
+                }
+            case .failure(let error):
+                // A real app should retry this request if it was a network error.
+                print("Failed to create a Payment Intent: \(error)")
+                completion(.error, error)
+                break
+            }
         }
     }
 
@@ -298,7 +306,9 @@ See https://stripe.com/docs/testing.
             title = "Success"
             message = "Your purchase was successful!"
         case .userCancellation:
-            return
+            return()
+        @unknown default:
+            return()
         }
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default, handler: nil)
@@ -310,14 +320,12 @@ See https://stripe.com/docs/testing.
         self.paymentRow.loading = paymentContext.loading
         if let paymentOption = paymentContext.selectedPaymentOption {
             self.paymentRow.detail = paymentOption.label
-        }
-        else {
+        } else {
             self.paymentRow.detail = "Select Payment"
         }
         if let shippingMethod = paymentContext.selectedShippingMethod {
             self.shippingRow?.detail = shippingMethod.label
-        }
-        else {
+        } else {
             self.shippingRow?.detail = "Select address"
         }
         self.totalRow.detail = self.numberFormatter.string(from: NSNumber(value: Float(self.paymentContext.paymentAmount)/100))!
@@ -365,14 +373,13 @@ See https://stripe.com/docs/testing.
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             if address.country == nil || address.country == "US" {
                 completion(.valid, nil, [upsGround, fedEx], fedEx)
-            }
-            else if address.country == "AQ" {
+            } else if address.country == "AQ" {
                 let error = NSError(domain: "ShippingError", code: 123, userInfo: [NSLocalizedDescriptionKey: "Invalid Shipping Address",
                                                                                    NSLocalizedFailureReasonErrorKey: "We can't ship to this country."])
                 completion(.invalid, error, nil, nil)
-            }
-            else {
+            } else {
                 fedEx.amount = 20.99
+                fedEx.identifier = "fedex_world"
                 completion(.valid, nil, [upsWorldwide, fedEx], fedEx)
             }
         }

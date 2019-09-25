@@ -16,6 +16,7 @@
 #import "STPImageLibrary+Private.h"
 #import "STPLocalizationUtils.h"
 #import "STPPaymentActivityIndicatorView.h"
+#import "STPPaymentConfiguration+Private.h"
 #import "STPPaymentContext+Private.h"
 #import "STPSectionHeaderView.h"
 #import "STPShippingMethodsViewController.h"
@@ -87,12 +88,11 @@
         _selectedShippingMethod = selectedShippingMethod;
         _billingAddress = prefilledInformation.billingAddress;
         _hasUsedBillingAddress = NO;
-        _addressViewModel = [[STPAddressViewModel alloc] initWithRequiredShippingFields:configuration.requiredShippingAddressFields];
+        _addressViewModel = [[STPAddressViewModel alloc] initWithRequiredShippingFields:configuration.requiredShippingAddressFields availableCountries:configuration._availableCountries];
         _addressViewModel.delegate = self;
         if (shippingAddress != nil) {
             _addressViewModel.address = shippingAddress;
-        }
-        else if (prefilledInformation.shippingAddress != nil) {
+        } else if (prefilledInformation.shippingAddress != nil) {
             _addressViewModel.address = prefilledInformation.shippingAddress;
         }
         self.title = [self titleForShippingType:self.configuration.shippingType];
@@ -231,14 +231,12 @@
                                                                                                                                            theme:self.theme];
                         nextViewController.delegate = self;
                         [self.navigationController pushViewController:nextViewController animated:YES];
-                    }
-                    else {
+                    } else {
                         [self.delegate shippingAddressViewController:self
                                                 didFinishWithAddress:address
                                                       shippingMethod:nil];
                     }
-                }
-                else {
+                } else {
                     [self handleShippingValidationError:shippingValidationError];
                 }
             }];
@@ -276,8 +274,7 @@
 - (void)dismissWithCompletion:(STPVoidBlock)completion {
     if ([self stp_isAtRootOfNavigationController]) {
         [self.presentingViewController dismissViewControllerAnimated:YES completion:completion];
-    }
-    else {
+    } else {
         UIViewController *previous = self.navigationController.viewControllers.firstObject;
         for (UIViewController *viewController in self.navigationController.viewControllers) {
             if (viewController == self) {
@@ -371,8 +368,7 @@
                 return STPLocalizedString(@"Delivery", @"Title for delivery info form");
                 break;
         }
-    }
-    else {
+    } else {
         return STPLocalizedString(@"Contact", @"Title for contact info form");
     }
 }
@@ -387,8 +383,7 @@
                 return STPLocalizedString(@"Delivery Address", @"Title for delivery address entry section");
                 break;
         }
-    }
-    else {
+    } else {
         return STPLocalizedString(@"Contact", @"Title for contact info form");
     }
 }

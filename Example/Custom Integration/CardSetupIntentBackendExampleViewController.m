@@ -9,6 +9,8 @@
 #import "CardSetupIntentBackendExampleViewController.h"
 #import "BrowseExamplesViewController.h"
 
+#import "MyAPIClient.h"
+
 /**
  This example demonstrates using SetupIntents to accept card payments verified using 3D Secure confirming with your backend.
 
@@ -30,6 +32,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
+    #ifdef __IPHONE_13_0
+    if (@available(iOS 13.0, *)) {
+        self.view.backgroundColor = [UIColor systemBackgroundColor];
+    }
+    #endif
+
     self.title = @"Card SetupIntent (Backend)";
     self.edgesForExtendedLayout = UIRectEdgeNone;
 
@@ -40,6 +48,11 @@
     paymentTextField.cardParams = cardParams;
     paymentTextField.delegate = self;
     paymentTextField.cursorColor = [UIColor purpleColor];
+    #ifdef __IPHONE_13_0
+    if (@available(iOS 13.0, *)) {
+        paymentTextField.cursorColor = [UIColor systemPurpleColor];
+    }
+    #endif
     self.paymentTextField = paymentTextField;
     [self.view addSubview:paymentTextField];
 
@@ -47,6 +60,11 @@
     label.text = @"Waiting for payment authorization";
     [label sizeToFit];
     label.textColor = [UIColor grayColor];
+    #ifdef __IPHONE_13_0
+    if (@available(iOS 13.0, *)) {
+        label.textColor = [UIColor secondaryLabelColor];
+    }
+    #endif
     label.alpha = 0;
     [self.view addSubview:label];
     self.waitingLabel = label;
@@ -137,8 +155,8 @@
         }
     };
 
-    STPCreateSetupIntentCompletionHandler createCompletion = ^(STPBackendResult status, NSString *clientSecret, NSError *error) {
-        if (status == STPBackendResultFailure || error) {
+    STPCreateSetupIntentCompletionHandler createCompletion = ^(MyAPIClientResult status, NSString *clientSecret, NSError *error) {
+        if (status == MyAPIClientResultFailure || error) {
             [self.delegate exampleViewController:self didFinishWithError:error];
             return;
         }
@@ -148,9 +166,9 @@
                                                                completion:paymentHandlerCompletion];
     };
 
-    [self.delegate createSetupIntentWithPaymentMethod:paymentMethod.stripeId
-                                            returnURL:@"payments-example://stripe-redirect"
-                                           completion:createCompletion];
+    [[MyAPIClient sharedClient] createAndConfirmSetupIntentWithPaymentMethod:paymentMethod.stripeId
+                                                                        returnURL:@"payments-example://stripe-redirect"
+                                                                       completion:createCompletion];
 }
 
 

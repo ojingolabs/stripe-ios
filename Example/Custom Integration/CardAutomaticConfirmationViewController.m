@@ -11,6 +11,8 @@
 #import "CardAutomaticConfirmationViewController.h"
 #import "BrowseExamplesViewController.h"
 
+#import "MyAPIClient.h"
+
 /**
  This example demonstrates using PaymentIntents to accept card payments verified using 3D Secure.
 
@@ -36,6 +38,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
+    #ifdef __IPHONE_13_0
+    if (@available(iOS 13.0, *)) {
+        self.view.backgroundColor = [UIColor systemBackgroundColor];
+    }
+    #endif
     self.title = @"Card";
     self.edgesForExtendedLayout = UIRectEdgeNone;
 
@@ -46,6 +53,11 @@
     paymentTextField.cardParams = cardParams;
     paymentTextField.delegate = self;
     paymentTextField.cursorColor = [UIColor purpleColor];
+    #ifdef __IPHONE_13_0
+    if (@available(iOS 13.0, *)) {
+        paymentTextField.cursorColor = [UIColor systemPurpleColor];
+    }
+    #endif
     self.paymentTextField = paymentTextField;
     [self.view addSubview:paymentTextField];
 
@@ -53,6 +65,12 @@
     label.text = @"Waiting for payment authorization";
     [label sizeToFit];
     label.textColor = [UIColor grayColor];
+    #ifdef __IPHONE_13_0
+    if (@available(iOS 13.0, *)) {
+        label.textColor = [UIColor secondaryLabelColor];
+    }
+    #endif
+
     label.alpha = 0;
     [self.view addSubview:label];
     self.waitingLabel = label;
@@ -117,8 +135,8 @@
     // payment amount you wish to collect from your customer. For simplicity, this example does it once they've
     // pushed the Pay button.
     // https://stripe.com/docs/payments/dynamic-authentication#create-payment-intent
-    [self.delegate createBackendPaymentIntentWithAmount:@1099 completion:^(STPBackendResult status, NSString *clientSecret, NSError *error) {
-        if (status == STPBackendResultFailure || clientSecret == nil) {
+    [[MyAPIClient sharedClient] createPaymentIntentWithCompletion:^(MyAPIClientResult status, NSString *clientSecret, NSError *error) {
+        if (status == MyAPIClientResultFailure || clientSecret == nil) {
             [self.delegate exampleViewController:self didFinishWithError:error];
             return;
         }

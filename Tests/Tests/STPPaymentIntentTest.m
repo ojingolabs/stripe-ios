@@ -36,10 +36,6 @@
 #pragma clang diagnostic ignored "-Wdeprecated"
     XCTAssertEqual(STPPaymentIntentStatusRequiresSourceAction, STPPaymentIntentStatusRequiresAction);
 #pragma clang diagnostic pop
-    XCTAssertEqual([STPPaymentIntent statusFromString:@"requires_source"],
-                   STPPaymentIntentStatusRequiresPaymentMethod);
-    XCTAssertEqual([STPPaymentIntent statusFromString:@"REQUIRES_SOURCE"],
-                   STPPaymentIntentStatusRequiresPaymentMethod);
     XCTAssertEqual([STPPaymentIntent statusFromString:@"requires_payment_method"],
                    STPPaymentIntentStatusRequiresPaymentMethod);
     XCTAssertEqual([STPPaymentIntent statusFromString:@"REQUIRES_PAYMENT_METHOD"],
@@ -50,10 +46,6 @@
     XCTAssertEqual([STPPaymentIntent statusFromString:@"REQUIRES_CONFIRMATION"],
                    STPPaymentIntentStatusRequiresConfirmation);
 
-    XCTAssertEqual([STPPaymentIntent statusFromString:@"requires_source_action"],
-                   STPPaymentIntentStatusRequiresAction);
-    XCTAssertEqual([STPPaymentIntent statusFromString:@"REQUIRES_SOURCE_ACTION"],
-                   STPPaymentIntentStatusRequiresAction);
     XCTAssertEqual([STPPaymentIntent statusFromString:@"requires_action"],
                    STPPaymentIntentStatusRequiresAction);
     XCTAssertEqual([STPPaymentIntent statusFromString:@"REQUIRES_ACTION"],
@@ -213,6 +205,15 @@
     XCTAssertEqual(paymentIntent.setupFutureUsage, STPPaymentIntentSetupFutureUsageNone);
     
     XCTAssertEqualObjects(paymentIntent.paymentMethodTypes, @[@(STPPaymentMethodTypeCard)]);
+    
+    // lastPaymentError
+    
+    XCTAssertNotNil(paymentIntent.lastPaymentError);
+    XCTAssertEqualObjects(paymentIntent.lastPaymentError.code, @"payment_intent_authentication_failure");
+    XCTAssertEqualObjects(paymentIntent.lastPaymentError.docURL, @"https://stripe.com/docs/error-codes/payment-intent-authentication-failure");
+    XCTAssertEqualObjects(paymentIntent.lastPaymentError.message, @"The provided PaymentMethod has failed authentication. You can provide payment_method_data or a new PaymentMethod to attempt to fulfill this PaymentIntent again.");
+    XCTAssertNotNil(paymentIntent.lastPaymentError.paymentMethod);
+    XCTAssertEqual(paymentIntent.lastPaymentError.type, STPPaymentIntentLastPaymentErrorTypeInvalidRequest);
 
     XCTAssertNotEqual(paymentIntent.allResponseFields, response, @"should have own copy of fields");
     XCTAssertEqualObjects(paymentIntent.allResponseFields, response, @"fields values should match");
