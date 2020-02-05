@@ -62,6 +62,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (UIImage *)unknownCardCardImage;
 
+
++ (UIImage *)backgroundImageForCardBrand:(STPCardBrand)brand;
+
 /**
  This returns the appropriate icon for the specified card brand.
  */

@@ -135,7 +135,7 @@
 }
 
 - (NSString *)defaultPlaceholder {
-    return @"—— —— —— ——";
+    return @"–– –– –– ––";
 }
 
 + (NSSet<NSString *> *)keyPathsForValuesAffectingValid {

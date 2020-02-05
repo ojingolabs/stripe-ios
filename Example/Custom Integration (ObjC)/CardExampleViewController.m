@@ -23,51 +23,52 @@
 
 @implementation CardExampleViewController
 
-- (void)loadView {
-    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:CGRectZero];
-    scrollView.delegate = self;
-    scrollView.alwaysBounceVertical = YES;
-    scrollView.backgroundColor = [UIColor whiteColor];
-    self.view = scrollView;
-    self.scrollView = scrollView;
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
 
     self.title = @"Card";
-    self.edgesForExtendedLayout = UIRectEdgeNone;
+    self.view.backgroundColor = [UIColor darkGrayColor];
 
     UIBarButtonItem *buyButton = [[UIBarButtonItem alloc] initWithTitle:@"Pay" style:UIBarButtonItemStyleDone target:self action:@selector(pay)];
     buyButton.enabled = NO;
     self.navigationItem.rightBarButtonItem = buyButton;
 
     STPPaymentCardTextField *paymentTextField = [[STPPaymentCardTextField alloc] init];
+    paymentTextField.translatesAutoresizingMaskIntoConstraints = NO;
     paymentTextField.delegate = self;
-    paymentTextField.cursorColor = [UIColor purpleColor];
-    paymentTextField.postalCodeEntryEnabled = YES;
+    paymentTextField.cursorColor = [UIColor whiteColor];
+    /*STPCardParams *cardParams = [[STPCardParams alloc] init];
+    cardParams.expMonth = 04;
+    cardParams.expYear = 22;
+    [paymentTextField setCardParams:cardParams];
+    [paymentTextField setCardBrand:STPCardBrandMasterCard];
+    [paymentTextField setNumberPlaceholder:@"•••• •••• •••• 4242"];
+    [paymentTextField setExpirationPlaceholder:@"04/22"];
+    [paymentTextField setEnabled:NO];*/
     self.paymentTextField = paymentTextField;
     [self.view addSubview:paymentTextField];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-15-[paymentTextField]-15-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(paymentTextField)]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-15-[paymentTextField(188)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(paymentTextField)]];
+
 
     UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     activityIndicator.hidesWhenStopped = YES;
     self.activityIndicator = activityIndicator;
     [self.view addSubview:activityIndicator];
+
+    [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTap)]];
 }
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     CGFloat padding = 15;
-    CGFloat width = CGRectGetWidth(self.view.frame) - (padding*2);
     CGRect bounds = self.view.bounds;
-    self.paymentTextField.frame = CGRectMake(padding, padding, width, 44);
     self.activityIndicator.center = CGPointMake(CGRectGetMidX(bounds),
                                                 CGRectGetMaxY(self.paymentTextField.frame) + padding*2);
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self.paymentTextField becomeFirstResponder];
 }
 
 - (void)paymentCardTextFieldDidChange:(nonnull STPPaymentCardTextField *)textField {
@@ -98,7 +99,7 @@
                                           }];
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+- (void)onTap {
     [self.view endEditing:NO];
 }
 

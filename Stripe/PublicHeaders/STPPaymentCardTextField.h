@@ -246,6 +246,7 @@ The curent brand image displayed in the receiver.
  @return The brand image used for a card brand.
  */
 + (nullable UIImage *)brandImageForCardBrand:(STPCardBrand)cardBrand;
++ (nullable UIImage *)backgroundImageForCardBrand:(STPCardBrand)brand;
 
 /**
  Returns the error image used for a card brand.

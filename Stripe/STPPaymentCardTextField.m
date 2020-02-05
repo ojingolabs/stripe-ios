@@ -23,6 +23,7 @@
 @interface STPPaymentCardTextField()<STPFormTextFieldDelegate>
 
 @property (nonatomic, readwrite, weak) UIImageView *brandImageView;
+@property (nonatomic, readwrite, weak) UIImageView *backgroundImageView;
 @property (nonatomic, readwrite, weak) STPFormTextField *numberField;
 @property (nonatomic, readwrite, weak) STPFormTextField *expirationField;
 @property (nonatomic, readwrite, weak) STPFormTextField *cvcField;
@@ -92,9 +93,9 @@
 @synthesize cornerRadius = _cornerRadius;
 @dynamic enabled;
 
-CGFloat const STPPaymentCardTextFieldTopPadding = 30;
-CGFloat const STPPaymentCardTextFieldTextFieldHeight = 26;
-CGFloat const STPPaymentCardTextFieldDefaultPadding = 26;
+CGFloat const STPPaymentCardTextFieldTopPadding = 65;
+CGFloat const STPPaymentCardTextFieldTextFieldHeight = 30;
+CGFloat const STPPaymentCardTextFieldDefaultPadding = 20;
 CGFloat const STPPaymentCardTextFieldDefaultInsets = 16;
 CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 
@@ -127,31 +128,42 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 - (void)commonInit {
     // We're using ivars here because UIAppearance tracks when setters are
     // called, and won't override properties that have already been customized
-    _borderColor = [self.class placeholderGrayColor];
-    _cornerRadius = 12.0f;
+    _borderColor = UIColor.whiteColor;
+    _cornerRadius = 10.0f;
     _borderWidth = 1.0f;
     self.layer.borderColor = [[_borderColor copy] CGColor];
     self.layer.cornerRadius = _cornerRadius;
     self.layer.borderWidth = _borderWidth;
 
-    self.clipsToBounds = YES;
+    self.layer.shadowColor = [UIColor colorWithWhite:0 alpha:1].CGColor;
+    self.layer.shadowOffset = CGSizeMake(0, 8);
+    self.layer.shadowRadius = 18;
+    self.layer.shadowOpacity = 0;
+
+    self.clipsToBounds = NO;
 
     _internalCardParams = [STPCardParams new];
     _viewModel = [STPPaymentCardTextFieldViewModel new];
     _sizingField = [self buildTextField];
     _sizingField.formDelegate = nil;
     _sizingLabel = [UILabel new];
-    
-    UIImageView *brandImageView = [[UIImageView alloc] initWithImage:self.brandImage];
+
+    UIImageView *brandImageView = [[UIImageView alloc] init];
     brandImageView.translatesAutoresizingMaskIntoConstraints = NO;
     brandImageView.contentMode = UIViewContentModeScaleAspectFit;
     brandImageView.backgroundColor = [UIColor clearColor];
     brandImageView.tintColor = self.placeholderColor;
     self.brandImageView = brandImageView;
 
+    UIImageView *backgroundImageView = [[UIImageView alloc] init];
+    backgroundImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    backgroundImageView.backgroundColor = [UIColor clearColor];
+    self.backgroundImageView = backgroundImageView;
+    self.backgroundImageView.alpha = 0;
+
     UILabel *numberLabel = UILabel.new;
     numberLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    numberLabel.textAlignment = NSTextAlignmentCenter;
+    numberLabel.textAlignment = NSTextAlignmentLeft;
     numberLabel.textColor = UIColor.whiteColor;
     numberLabel.attributedText = [[NSAttributedString alloc] initWithString:STPLocalizedString(@"card number", @"accessibility label for text field").uppercaseString attributes:@{
             NSKernAttributeName: @(1.2)
@@ -166,7 +178,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     }
     numberField.autoFormattingBehavior = STPFormTextFieldAutoFormattingBehaviorCardNumbers;
     numberField.tag = STPCardFieldTypeNumber;
-    numberField.textAlignment = NSTextAlignmentCenter;
+    numberField.textAlignment = NSTextAlignmentLeft;
     numberField.accessibilityLabel = STPLocalizedString(@"card number", @"accessibility label for text field");
     self.numberField = numberField;
     self.numberPlaceholder = [self.viewModel defaultPlaceholder];
@@ -185,7 +197,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     expirationField.isAccessibilityElement = NO;
     expirationField.accessibilityLabel = STPLocalizedString(@"expiration date", @"accessibility label for text field");
     self.expirationField = expirationField;
-    self.expirationPlaceholder = @"—/—";
+    self.expirationPlaceholder = @"–/–";
 
     UILabel *cvcLabel = UILabel.new;
     cvcLabel.translatesAutoresizingMaskIntoConstraints = NO;
@@ -201,7 +213,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     cvcField.isAccessibilityElement = NO;
     cvcField.textAlignment = NSTextAlignmentRight;
     self.cvcField = cvcField;
-    self.cvcPlaceholder = @"—";
+    self.cvcPlaceholder = @"–";
     self.cvcField.accessibilityLabel = [self defaultCVCPlaceholder];
 
 
@@ -215,6 +227,8 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
         [self addSubview:label];
     }
     [self addSubview:brandImageView];
+    [self addSubview:backgroundImageView];
+    [self sendSubviewToBack:backgroundImageView];
 
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(offset)-[numberLabel]-(offset)-|" options:0 metrics:@{@"offset": @(STPPaymentCardTextFieldDefaultPadding)} views:NSDictionaryOfVariableBindings(numberLabel)]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(offset)-[numberField]-(offset)-|" options:0 metrics:@{@"offset": @(STPPaymentCardTextFieldDefaultPadding)} views:NSDictionaryOfVariableBindings(numberField)]];
@@ -227,13 +241,16 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     [self addConstraint:[NSLayoutConstraint constraintWithItem:cvcField attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:expirationField attribute:NSLayoutAttributeRight multiplier:1 constant:0]];
     [self addConstraint:[NSLayoutConstraint constraintWithItem:cvcField attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:cvcLabel attribute:NSLayoutAttributeRight multiplier:1 constant:0]];
 
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(offset)-[numberLabel]-6-[numberField(height)]-32-[expirationLabel]-0-[expirationField(height)]-25-|" options:0 metrics:@{@"offset": @(STPPaymentCardTextFieldTopPadding), @"height": @(STPPaymentCardTextFieldTextFieldHeight)} views:NSDictionaryOfVariableBindings(numberLabel, numberField, expirationLabel, expirationField)]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[cvcLabel]-0-[cvcField(height)]-25-|" options:0 metrics:@{@"height": @(STPPaymentCardTextFieldTextFieldHeight)} views:NSDictionaryOfVariableBindings(cvcLabel, cvcField)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[numberLabel]-6-[numberField(height)]-24-[expirationLabel]-0-[expirationField(height)]-15-|" options:0 metrics:@{@"offset": @(STPPaymentCardTextFieldTopPadding), @"height": @(STPPaymentCardTextFieldTextFieldHeight)} views:NSDictionaryOfVariableBindings(numberLabel, numberField, expirationLabel, expirationField)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[cvcLabel]-0-[cvcField(height)]-15-|" options:0 metrics:@{@"height": @(STPPaymentCardTextFieldTextFieldHeight)} views:NSDictionaryOfVariableBindings(cvcLabel, cvcField)]];
 
     [self addConstraint:[NSLayoutConstraint constraintWithItem:cvcLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:expirationLabel attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
 
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[brandImageView(51)]-12-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(brandImageView)]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-12-[brandImageView(40)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(brandImageView)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[brandImageView(50)]-15-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(brandImageView)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-15-[brandImageView(40)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(brandImageView)]];
+
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[backgroundImageView]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(backgroundImageView)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[backgroundImageView]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(backgroundImageView)]];
 
     brandImageView.userInteractionEnabled = YES;
     [brandImageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:numberField
@@ -258,10 +275,6 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     self.numberToWidthCache = [NSMutableDictionary new];
 }
 
-+ (UIColor *)placeholderGrayColor {
-    return [UIColor lightGrayColor];
-}
-
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
     [super setBackgroundColor:[backgroundColor copy]];
     self.numberField.backgroundColor = self.backgroundColor;
@@ -272,7 +285,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 }
 
 - (UIFont *)labelFont {
-    return _labelFont ?: [UIFont systemFontOfSize:13];
+    return _labelFont ?: [UIFont systemFontOfSize:12];
 }
 
 - (void)setLabelFont:(UIFont *)labelFont {
@@ -287,24 +300,24 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 
 - (void)setFont:(UIFont *)font {
     _font = [font copy];
-    
+
     for (UITextField *field in [self allFields]) {
         field.font = _font;
     }
-    
+
     self.sizingField.font = _font;
     [self clearSizingCache];
-    
+
     [self setNeedsLayout];
 }
 
 - (UIFont *)font {
-    return _font ?: [UIFont systemFontOfSize:20 weight:UIFontWeightBold];
+    return _font ?: [UIFont systemFontOfSize:26 weight:UIFontWeightSemibold];
 }
 
 - (void)setTextColor:(UIColor *)textColor {
     _textColor = [textColor copy];
-    
+
     for (STPFormTextField *field in [self allFields]) {
         field.defaultColor = _textColor;
     }
@@ -323,7 +336,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 
 - (void)setTextErrorColor:(UIColor *)textErrorColor {
     _textErrorColor = [textErrorColor copy];
-    
+
     for (STPFormTextField *field in [self allFields]) {
         field.errorColor = _textErrorColor;
     }
@@ -336,14 +349,14 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 - (void)setPlaceholderColor:(UIColor *)placeholderColor {
     _placeholderColor = [placeholderColor copy];
     self.brandImageView.tintColor = placeholderColor;
-    
+
     for (STPFormTextField *field in [self allFields]) {
         field.placeholderColor = _placeholderColor;
     }
 }
 
 - (UIColor *)placeholderColor {
-    return _placeholderColor ?: [self.class placeholderGrayColor];
+    return _placeholderColor ?: UIColor.whiteColor;
 }
 
 - (void)setNumberPlaceholder:(NSString * __nullable)numberPlaceholder {
@@ -419,7 +432,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 
 - (void)setInputAccessoryView:(UIView *)inputAccessoryView {
     _inputAccessoryView = inputAccessoryView;
-    
+
     for (STPFormTextField *field in [self allFields]) {
         field.inputAccessoryView = inputAccessoryView;
     }
@@ -431,7 +444,17 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     [super setEnabled:enabled];
     for (STPFormTextField *textField in [self allFields]) {
         textField.enabled = enabled;
-    };
+    }
+    [self.numberLabel setHidden:!enabled];
+    [self.cvcField setHidden:!enabled];
+    [self.cvcLabel setHidden:!enabled];
+    if (!enabled) {
+        [self.expirationLabel setFont:[self.expirationLabel.font fontWithSize:10]];
+        [self.expirationField setFont:[self.expirationField.font fontWithSize:12]];
+    } else {
+        [self.expirationLabel setFont:[self.expirationLabel.font fontWithSize:12]];
+        [self.expirationField setFont:[self.expirationField.font fontWithSize:26]];
+    }
 }
 
 #pragma mark UIResponder & related methods
@@ -505,7 +528,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     if (currentSubResponder) {
         NSUInteger index = [self.allFields indexOfObject:currentSubResponder];
         if (index != NSNotFound
-            && index > 0) {
+                && index > 0) {
             return self.allFields[index - 1];
         }
     }
@@ -520,7 +543,6 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     }
     self.viewModel = [STPPaymentCardTextFieldViewModel new];
     [self onChange];
-    [self updateImageForFieldType:STPCardFieldTypeNumber];
     [self updateCVCPlaceholder];
     [self resignFirstResponder];
 }
@@ -584,7 +606,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
         (manually reset it back to first responder)
      3. Otherwise the first subfield with invalid text should now be first responder
      */
-    STPFormTextField *originalSubResponder = self.currentFirstResponderField;
+    //STPFormTextField *originalSubResponder = self.currentFirstResponderField;
 
     /*
      #1031 small footgun hiding here. Use copies to protect from mutations of
@@ -598,8 +620,8 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     BOOL expirationPresent = desiredCardParams.expMonth && desiredCardParams.expYear;
     if (expirationPresent) {
         NSString *text = [NSString stringWithFormat:@"%02lu%02lu",
-                          (unsigned long)desiredCardParams.expMonth,
-                          (unsigned long)desiredCardParams.expYear%100];
+                                                    (unsigned long)desiredCardParams.expMonth,
+                                                    (unsigned long)desiredCardParams.expYear%100];
         [self setText:text inField:STPCardFieldTypeExpiration];
     }
     else {
@@ -610,23 +632,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 
 - (void)setCardBrand:(STPCardBrand)cardBrand {
     _cardBrand = cardBrand;
-    UIImage *brandImage = [self.class brandImageForCardBrand:cardBrand];
-    self.brandImageView.image = brandImage;
-    if (cardBrand == STPCardBrandUnknown) {
-        [self setBackgroundColor:[UIColor clearColor]];
-        for (UILabel *label in self.allLabels) {
-            label.textColor = UIColor.whiteColor;
-        }
-        [self setTextColor:UIColor.whiteColor];
-        [self setPlaceholderColor:[self.class placeholderGrayColor]];
-    } else {
-        [self setBackgroundColor:[UIColor whiteColor]];
-        for (UILabel *label in self.allLabels) {
-            label.textColor = [UIColor colorWithWhite:0 alpha:.4];
-        }
-        [self setTextColor:UIColor.blackColor];
-        [self setPlaceholderColor:[UIColor colorWithWhite:0 alpha:.6]];
-    }
+    [self updateAppearanceForBrand:cardBrand];
 }
 
 - (void)setText:(NSString *)text inField:(STPCardFieldType)field {
@@ -653,7 +659,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     }
     else {
         return MAX([self widthForCardNumber:self.viewModel.cardNumber],
-                   [self widthForCardNumber:self.viewModel.defaultPlaceholder]);
+                [self widthForCardNumber:self.viewModel.defaultPlaceholder]);
     }
 }
 
@@ -675,7 +681,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 
 - (CGFloat)cvcFieldWidth {
     if (self.focusedTextFieldForLayout == nil
-        && [self.viewModel validationStateForField:STPCardFieldTypeCVC] == STPCardValidationStateValid) {
+            && [self.viewModel validationStateForField:STPCardFieldTypeCVC] == STPCardValidationStateValid) {
         // If we're not focused and have valid text, size exactly to what is entered
         return [self widthForText:self.viewModel.cvc];
     }
@@ -694,7 +700,7 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
 
 - (CGFloat)expirationFieldWidth {
     if (self.focusedTextFieldForLayout == nil
-        && [self.viewModel validationStateForField:STPCardFieldTypeExpiration] == STPCardValidationStateValid) {
+            && [self.viewModel validationStateForField:STPCardFieldTypeExpiration] == STPCardValidationStateValid) {
         // If we're not focused and have valid text, size exactly to what is entered
         return [self widthForText:self.viewModel.rawExpiration];
     }
@@ -716,11 +722,11 @@ CGFloat const STPPaymentCardTextFieldMinimumPadding = 14;
     CGFloat height = stp_ceilCGFloat((MAX(MAX(imageHeight, textHeight), 44)));
 
     CGFloat width = (STPPaymentCardTextFieldDefaultInsets
-                     + imageSize.width
-                     + STPPaymentCardTextFieldDefaultInsets
-                     + [self numberFieldFullWidth]
-                     + STPPaymentCardTextFieldDefaultInsets
-                     );
+            + imageSize.width
+            + STPPaymentCardTextFieldDefaultInsets
+            + [self numberFieldFullWidth]
+            + STPPaymentCardTextFieldDefaultInsets
+    );
 
     width = stp_ceilCGFloat(width);
 
@@ -782,25 +788,65 @@ typedef NS_ENUM(NSInteger, STPCardTextFieldState) {
     return textField;
 }
 
-- (void)updateBackgroundAndTextColors {
-    if (self.viewModel.brand == STPCardBrandUnknown) {
-        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [self setBackgroundColor:[UIColor clearColor]];
+- (void)updateAppearanceForBrand:(STPCardBrand)cardBrand {
+    if (self.currentBrandImageBrand != cardBrand || self.backgroundImageView.image == nil) {
+        UIImage *brandImage = [self.class brandImageForCardBrand:cardBrand];
+        UIImage *backgroundImage = [self.class backgroundImageForCardBrand:cardBrand];
+        self.currentBrandImageBrand = cardBrand;
+        if (cardBrand == STPCardBrandUnknown) {
             for (UILabel *label in self.allLabels) {
                 label.textColor = UIColor.whiteColor;
             }
             [self setTextColor:UIColor.whiteColor];
-            [self setPlaceholderColor:[self.class placeholderGrayColor]];
-        } completion:nil];
-    } else {
-        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [self setBackgroundColor:[UIColor whiteColor]];
-            for (UILabel *label in self.allLabels) {
-                label.textColor = [UIColor colorWithWhite:0 alpha:.4];
+            [self setPlaceholderColor:UIColor.whiteColor];
+        } else {
+            self.backgroundImageView.image = backgroundImage;
+            if (cardBrand == STPCardBrandMasterCard) {
+                [self setTextColor:UIColor.blackColor];
+                [self setPlaceholderColor:UIColor.blackColor];
+                for (UILabel *label in self.allLabels) {
+                    label.textColor = [UIColor colorWithWhite:0 alpha:.6];
+                }
+            } else {
+                [self setTextColor:UIColor.whiteColor];
+                [self setPlaceholderColor:UIColor.whiteColor];
+                for (UILabel *label in self.allLabels) {
+                    label.textColor = [UIColor colorWithWhite:1 alpha:.6];
+                }
             }
-            [self setTextColor:UIColor.blackColor];
-            [self setPlaceholderColor:[UIColor colorWithWhite:0 alpha:.6]];
-        } completion:nil];
+        }
+
+        [CATransaction begin];
+        [CATransaction setAnimationDuration:0.3f];
+        [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
+
+        CABasicAnimation *borderWidth = [CABasicAnimation animationWithKeyPath:@"borderWidth"];
+        borderWidth.fromValue = (cardBrand == STPCardBrandUnknown) ? @0 : @1;
+        borderWidth.toValue = (cardBrand == STPCardBrandUnknown) ? @1 : @0;
+
+        CABasicAnimation *opacity = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        opacity.fromValue = (cardBrand == STPCardBrandUnknown) ? @1 : @0;
+        opacity.toValue = (cardBrand == STPCardBrandUnknown) ? @0 : @1;
+
+        CABasicAnimation *shadowOpacity = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+        [shadowOpacity setFillMode:kCAFillModeForwards];
+        [shadowOpacity setRemovedOnCompletion:NO];
+        shadowOpacity.fromValue = (cardBrand == STPCardBrandUnknown) ? @0 : @0.3;
+        shadowOpacity.toValue = (cardBrand == STPCardBrandUnknown) ? @0.3 : @0;
+
+        self.brandImageView.image = brandImage;
+        CATransition *transition = [CATransition animation];
+        transition.type = kCATransitionFade;
+        [self.brandImageView.layer addAnimation:transition forKey:nil];
+
+        self.layer.borderWidth = [borderWidth.toValue floatValue];
+        self.backgroundImageView.layer.opacity = [opacity.toValue floatValue];
+        self.layer.shadowOpacity = [shadowOpacity.toValue floatValue];
+        [self.layer addAnimation:borderWidth forKey:@"borderWidth"];
+        [self.backgroundImageView.layer addAnimation:opacity forKey:@"opacity"];
+        [self.layer addAnimation:shadowOpacity forKey:@"shadowOpacity"];
+
+        [CATransaction commit];
     }
 }
 
@@ -811,15 +857,15 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
     NSNumber *fieldtoFocus = focusedField;
 
     if (fieldtoFocus == nil
-        && ![self.focusedTextFieldForLayout isEqualToNumber:@(STPCardFieldTypeNumber)]
-        && ([self.viewModel validationStateForField:STPCardFieldTypeNumber] != STPCardValidationStateValid)) {
+            && ![self.focusedTextFieldForLayout isEqualToNumber:@(STPCardFieldTypeNumber)]
+            && ([self.viewModel validationStateForField:STPCardFieldTypeNumber] != STPCardValidationStateValid)) {
         fieldtoFocus = @(STPCardFieldTypeNumber);
         [self.numberField becomeFirstResponder];
     }
 
     if ((fieldtoFocus == nil && self.focusedTextFieldForLayout == nil)
-        || (fieldtoFocus != nil && [self.focusedTextFieldForLayout isEqualToNumber:fieldtoFocus])
-        ) {
+            || (fieldtoFocus != nil && [self.focusedTextFieldForLayout isEqualToNumber:fieldtoFocus])
+            ) {
         if (completion) {
             completion(YES);
         }
@@ -879,7 +925,7 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
 }
 
 - (NSAttributedString *)formTextField:(STPFormTextField *)formTextField
-   modifyIncomingTextChange:(NSAttributedString *)input {
+             modifyIncomingTextChange:(NSAttributedString *)input {
     STPCardFieldType fieldType = formTextField.tag;
     switch (fieldType) {
         case STPCardFieldTypeNumber:
@@ -893,7 +939,7 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
             self.viewModel.cvc = input.string;
             break;
     }
-    
+
     switch (fieldType) {
         case STPCardFieldTypeNumber:
             return [[NSAttributedString alloc] initWithString:self.viewModel.cardNumber
@@ -910,10 +956,10 @@ typedef void (^STPLayoutAnimationCompletionBlock)(BOOL completed);
 - (void)formTextFieldTextDidChange:(STPFormTextField *)formTextField {
     STPCardFieldType fieldType = formTextField.tag;
     if (fieldType == STPCardFieldTypeNumber) {
-        [self updateImageForFieldType:fieldType];
+        [self updateAppearanceForBrand:self.viewModel.brand];
         [self updateCVCPlaceholder];
     }
-    
+
     STPCardValidationState state = [self.viewModel validationStateForField:fieldType];
     formTextField.validText = YES;
     switch (state) {
@@ -1038,12 +1084,10 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
             }
             break;
     }
-    [self updateImageForFieldType:textField.tag];
 }
 
 - (BOOL)textFieldShouldEndEditing:(__unused UITextField *)textField {
     [self getAndUpdateSubviewEditingTransitionStateFromCall:STPFieldEditingTransitionCallSiteShouldEnd];
-    [self updateImageForFieldType:STPCardFieldTypeNumber];
     return YES;
 }
 
@@ -1074,7 +1118,6 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
     if (!isMidSubviewEditingTransition) {
         [self layoutViewsToFocusField:nil
                            completion:nil];
-        [self updateImageForFieldType:STPCardFieldTypeNumber];
         if ([self.delegate respondsToSelector:@selector(paymentCardTextFieldDidEndEditing:)]) {
             [self.delegate paymentCardTextFieldDidEndEditing:self];
         }
@@ -1096,6 +1139,10 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
 
 + (UIImage *)brandImageForCardBrand:(STPCardBrand)cardBrand {
     return [STPImageLibrary brandImageForCardBrand:cardBrand];
+}
+
++ (nullable UIImage *)backgroundImageForCardBrand:(STPCardBrand)brand {
+    return [STPImageLibrary backgroundImageForCardBrand:brand];
 }
 
 + (UIImage *)errorImageForCardBrand:(STPCardBrand)cardBrand {
@@ -1123,7 +1170,7 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
                                                       oldBrand:(STPCardBrand)oldBrand {
 
     if (newType == STPCardFieldTypeCVC
-        && oldType != STPCardFieldTypeCVC) {
+            && oldType != STPCardFieldTypeCVC) {
         // Transitioning to show CVC
 
         if (newBrand != STPCardBrandAmex) {
@@ -1132,7 +1179,7 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
         }
     }
     else if (newType != STPCardFieldTypeCVC
-             && oldType == STPCardFieldTypeCVC) {
+            && oldType == STPCardFieldTypeCVC) {
         // Transitioning to stop showing CVC
 
         if (oldBrand != STPCardBrandAmex) {
@@ -1144,32 +1191,6 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
     // All other cases just cross dissolve
     return (UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionTransitionCrossDissolve);
 
-}
-
-- (void)updateImageForFieldType:(STPCardFieldType)fieldType {
-    STPCardValidationState validationState = [self.viewModel validationStateForField:fieldType];
-    UIImage *image = [self brandImageForFieldType:fieldType validationState:validationState];
-    if (![image isEqual:self.brandImageView.image]) {
-
-        STPCardBrand newBrand = self.viewModel.brand;
-        UIViewAnimationOptions imageAnimationOptions = [self brandImageAnimationOptionsForNewType:fieldType
-                                                                                         newBrand:newBrand
-                                                                                          oldType:self.currentBrandImageFieldType
-                                                                                         oldBrand:self.currentBrandImageBrand];
-
-        [self updateBackgroundAndTextColors];
-
-        self.currentBrandImageFieldType = fieldType;
-        self.currentBrandImageBrand = newBrand;
-
-        [UIView transitionWithView:self.brandImageView
-                          duration:0.2
-                           options:imageAnimationOptions
-                        animations:^{
-                            self.brandImageView.image = image;
-                        }
-                        completion:nil];
-    }
 }
 
 - (NSString *)defaultCVCPlaceholder {
@@ -1213,10 +1234,10 @@ typedef NS_ENUM(NSInteger, STPFieldEditingTransitionCallSite) {
 
 + (NSSet<NSString *> *)keyPathsForValuesAffectingIsValid {
     return [NSSet setWithArray:@[
-                                 [NSString stringWithFormat:@"%@.%@",
-                                  NSStringFromSelector(@selector(viewModel)),
-                                  NSStringFromSelector(@selector(valid))],
-                                 ]];
+            [NSString stringWithFormat:@"%@.%@",
+                                       NSStringFromSelector(@selector(viewModel)),
+                                       NSStringFromSelector(@selector(valid))],
+    ]];
 }
 
 @end

@@ -51,6 +51,54 @@
     return [self brandImageForCardBrand:STPCardBrandUnknown];
 }
 
++ (UIImage *)backgroundImageForCardBrand:(STPCardBrand)brand {
+    NSString *imageName;
+    switch (brand) {
+        case STPCardBrandAmex:
+            imageName =  @"not-implemented";
+            break;
+        case STPCardBrandDinersClub:
+            imageName =  @"not-implemented";
+            break;
+        case STPCardBrandDiscover:
+            imageName =  @"not-implemented";
+            break;
+        case STPCardBrandJCB:
+            imageName =  @"not-implemented";
+            break;
+        case STPCardBrandMasterCard:
+            imageName = @"stp_background_card_mastercard";
+            break;
+        case STPCardBrandUnionPay:
+            imageName = @"not-implemented";
+            break;
+        case STPCardBrandVisa:
+            imageName = @"stp_background_card_visa";
+            break;
+        case STPCardBrandUnknown:
+            imageName = nil;
+            break;
+    }
+    UIImage *image = [self safeImageNamed:imageName
+                      templateIfAvailable:NO];
+    if (image == nil && brand != STPCardBrandUnknown) {
+        return [self imageFromColor:[UIColor lightGrayColor]];
+    } else {
+        return image;
+    }
+}
+
++ (UIImage *)imageFromColor:(UIColor *)color {
+    CGRect rect = CGRectMake(0, 0, 1, 1);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
+}
+
 + (UIImage *)brandImageForCardBrand:(STPCardBrand)brand {
     return [self brandImageForCardBrand:brand template:NO];
 }
@@ -144,7 +192,7 @@
             break;
         case STPCardBrandUnknown:
             shouldUseTemplate = YES;
-            imageName = @"stp_card_unknown";
+            imageName = nil;
             break;
         case STPCardBrandVisa:
             imageName = shouldUseTemplate ? @"stp_card_visa_template" : @"stp_card_visa";
