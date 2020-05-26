@@ -55,10 +55,10 @@
     NSString *imageName;
     switch (brand) {
         case STPCardBrandAmex:
-            imageName =  @"not-implemented";
+            imageName =  @"stp_background_card_amex";
             break;
         case STPCardBrandDinersClub:
-            imageName =  @"stp_background_card_dinners";
+            imageName =  @"stp_background_card_diners";
             break;
         case STPCardBrandDiscover:
             imageName =  @"not-implemented";
