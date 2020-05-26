@@ -58,19 +58,19 @@
             imageName =  @"not-implemented";
             break;
         case STPCardBrandDinersClub:
-            imageName =  @"not-implemented";
+            imageName =  @"stp_background_card_dinners";
             break;
         case STPCardBrandDiscover:
             imageName =  @"not-implemented";
             break;
         case STPCardBrandJCB:
-            imageName =  @"not-implemented";
+            imageName =  @"stp_background_card_jcb";
             break;
         case STPCardBrandMasterCard:
             imageName = @"stp_background_card_mastercard";
             break;
         case STPCardBrandUnionPay:
-            imageName = @"not-implemented";
+            imageName = @"stp_background_card_unionpay";
             break;
         case STPCardBrandVisa:
             imageName = @"stp_background_card_visa";
