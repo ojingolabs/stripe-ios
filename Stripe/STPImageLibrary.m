@@ -61,7 +61,7 @@
             imageName =  @"stp_background_card_diners";
             break;
         case STPCardBrandDiscover:
-            imageName =  @"not-implemented";
+            imageName =  @"stp_background_card_discover";
             break;
         case STPCardBrandJCB:
             imageName =  @"stp_background_card_jcb";
