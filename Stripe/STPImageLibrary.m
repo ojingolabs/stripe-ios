@@ -103,6 +103,14 @@
     return [self brandImageForCardBrand:brand template:NO];
 }
 
++ (UIImage *)smallBrandImageForCardBrand:(STPCardBrand)brand {
+    if (brand == STPCardBrandDinersClub) {
+        return [self safeImageNamed:@"stp_card_diners_mini" templateIfAvailable:NO];
+    } else {
+        return [self brandImageForCardBrand:brand template:NO];
+    }
+}
+
 + (UIImage *)templatedBrandImageForCardBrand:(STPCardBrand)brand {
     return [self brandImageForCardBrand:brand template:YES];
 }
