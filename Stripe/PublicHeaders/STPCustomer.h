@@ -52,7 +52,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The customer's shipping address.
  */
-@property (nonatomic, readonly, nullable) STPAddress *shippingAddress;
+@property (nonatomic, nullable) STPAddress *shippingAddress;
+
+
+/**
+ * A set of key/value pairs that you can attach to a customer object.
+ * It can be useful for storing additional information about the customer in a structured format.
+ */
+@property (nonatomic, nullable) NSDictionary *metadata;
 
 @end
 
@@ -62,15 +69,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface STPCustomerDeserializer : NSObject
 
 /**
- Initialize a customer deserializer. The `data`, `urlResponse`, and `error` 
- parameters are intended to be passed from an `NSURLSessionDataTask` callback. 
- After it has been initialized, you can inspect the `error` and `customer` 
- properties to see if the deserialization was successful. If `error` is nil, 
+ Initialize a customer deserializer. The `data`, `urlResponse`, and `error`
+ parameters are intended to be passed from an `NSURLSessionDataTask` callback.
+ After it has been initialized, you can inspect the `error` and `customer`
+ properties to see if the deserialization was successful. If `error` is nil,
  `customer` will be non-nil (and vice versa).
 
  @param data        An `NSData` object representing encoded JSON for a Customer object
  @param urlResponse The URL response obtained from the `NSURLSessionTask`
- @param error       Any error that occurred from the URL session task (if this 
+ @param error       Any error that occurred from the URL session task (if this
  is non-nil, the `error` property will be set to this value after initialization).
  */
 - (instancetype)initWithData:(nullable NSData *)data
@@ -78,9 +85,9 @@ NS_ASSUME_NONNULL_BEGIN
                        error:(nullable NSError *)error;
 
 /**
- Initializes a customer deserializer with a JSON dictionary. This JSON should be 
- in the exact same format as what the Stripe API returns. If it's successfully 
- parsed, the `customer` parameter will be present after initialization; 
+ Initializes a customer deserializer with a JSON dictionary. This JSON should be
+ in the exact same format as what the Stripe API returns. If it's successfully
+ parsed, the `customer` parameter will be present after initialization;
  otherwise `error` will be present.
 
  @param json a JSON dictionary.

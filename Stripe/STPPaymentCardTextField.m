@@ -840,13 +840,13 @@ typedef NS_ENUM(NSInteger, STPCardTextFieldState) {
                 [self setTextColor:UIColor.blackColor];
                 [self setPlaceholderColor:UIColor.blackColor];
                 for (UILabel *label in self.allLabels) {
-                    label.textColor = [UIColor colorWithWhite:0 alpha:.6];
+                    label.textColor = [UIColor colorWithWhite:0 alpha:0.6f];
                 }
             } else {
                 [self setTextColor:UIColor.whiteColor];
                 [self setPlaceholderColor:UIColor.whiteColor];
                 for (UILabel *label in self.allLabels) {
-                    label.textColor = [UIColor colorWithWhite:1 alpha:.6];
+                    label.textColor = [UIColor colorWithWhite:1 alpha:0.6f];
                 }
             }
         }

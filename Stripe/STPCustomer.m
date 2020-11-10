@@ -21,7 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readwrite) NSString *stripeID;
 @property (nonatomic, strong, nullable, readwrite) id<STPSourceProtocol> defaultSource;
 @property (nonatomic, strong, readwrite) NSArray<id<STPSourceProtocol>> *sources;
-@property (nonatomic, strong, nullable, readwrite) STPAddress *shippingAddress;
 @property (nonatomic, copy, readwrite) NSDictionary *allResponseFields;
 
 @end
@@ -82,6 +81,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
     customer.sources = @[];
     customer.defaultSource = nil;
+    customer.metadata = [dict stp_dictionaryForKey:@"metadata"];
+
     customer.allResponseFields = dict;
     [customer updateSourcesFilteringApplePay:YES];
     return customer;
@@ -107,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
                 STPCard *card = [STPCard decodedObjectFromAPIResponse:contents];
                 BOOL includeCard = card != nil;
                 // ignore apple pay cards from the response
-                if (filterApplePay && card.isApplePayCard) {
+                if (filterApplePay && card.isApplePayCard && !card.isAndroidPayCard) {
                     includeCard = NO;
                 }
                 if (includeCard) {
@@ -122,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
                 // ignore apple pay cards from the response
                 if (filterApplePay && (source.type == STPSourceTypeCard &&
                                        source.cardDetails != nil &&
-                                       source.cardDetails.isApplePayCard)) {
+                                       (source.cardDetails.isApplePayCard || source.cardDetails.isAndroidPayCard))) {
                     includeSource = NO;
                 }
                 if (includeSource) {

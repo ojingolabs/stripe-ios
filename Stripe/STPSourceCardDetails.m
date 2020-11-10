@@ -48,6 +48,7 @@
         _expYear = [dict stp_intForKey:@"exp_year" or:0];
         _threeDSecure = [self.class threeDSecureStatusFromString:[dict stp_stringForKey:@"three_d_secure"]];
         _isApplePayCard = [[dict stp_stringForKey:@"tokenization_method"] isEqual:@"apple_pay"];
+        _isAndroidPayCard = [dict[@"tokenization_method"] isEqual:@"android_pay"];
 
         _allResponseFields = dict.copy;
     }

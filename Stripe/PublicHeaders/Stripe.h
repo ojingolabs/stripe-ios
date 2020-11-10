@@ -148,3 +148,14 @@
 
 // 3DS2
 #import "Stripe3DS2.h"
+
+// Vero specific
+#import "STPAddress+Vero.h"
+#import "STPInventory.h"
+#import "STPOrder.h"
+#import "STPOrderItem.h"
+#import "STPPackage.h"
+#import "STPProduct.h"
+#import "STPShippingMethod.h"
+#import "STPSku.h"
+#import "STPLocalizationUtils.h"

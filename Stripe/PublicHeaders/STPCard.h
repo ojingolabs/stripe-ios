@@ -73,6 +73,11 @@ typedef NS_ENUM(NSInteger, STPCardFundingType) {
 @property (nonatomic, readonly) BOOL isApplePayCard;
 
 /**
+ Whether or not the card originated from Android Pay.
+ */
+@property (nonatomic, readonly) BOOL isAndroidPayCard;
+
+/**
  The card's expiration month. 1-indexed (i.e. 1 == January)
  */
 @property (nonatomic, readonly) NSUInteger expMonth;
